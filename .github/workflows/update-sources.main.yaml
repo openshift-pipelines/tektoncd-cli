@@ -22,8 +22,8 @@ jobs:
     - name: Clone tektoncd/cli
       run: |
         rm -fR upstream
-        git clone https://github.com/tektoncd/cli upstream/cli
-        pushd upstream/cli
+        git clone https://github.com/tektoncd/cli upstream
+        pushd upstream
         git checkout -B main origin/main
         popd
 
@@ -32,18 +32,18 @@ jobs:
         git config user.name openshift-pipelines-bot
         git config user.email pipelines-extcomm@redhat.com
         git checkout -b actions/update/sources-main
-        pushd upstream/cli
-        OLD_COMMIT=$(cat ../../head-tkn)
+        pushd upstream
+        OLD_COMMIT=$(cat ../head)
         NEW_COMMIT=$(git rev-parse HEAD)
         echo Previous commit: ${OLD_COMMIT}
         git show --stat ${OLD_COMMIT}
         echo New commit: ${NEW_COMMIT}
         git show --stat ${NEW_COMMIT}
         git diff --stat ${NEW_COMMIT}..${OLD_COMMIT} > /tmp/diff.txt
-        git rev-parse HEAD > ../../head-tkn
+        git rev-parse HEAD > ../head
         popd
-        rm -rf upstream/cli/.git
-        git add upstream/cli head-tkn openshift
+        rm -rf upstream/.git
+        git add upstream head openshift
 
         if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
           echo "No change, exiting"
@@ -57,56 +57,6 @@ jobs:
         $(cat /tmp/diff.txt | sed 's/^/    /')
         
         https://github.com/tektoncd/cli/compare/${NEW_COMMIT}..${OLD_COMMIT}
-        EOF
-        
-        git push -f origin actions/update/sources-main
-
-        if [ "$(gh pr list --base main --head actions/update/sources-main --json url --jq 'length')" = "0" ]; then
-          echo "creating PR..."
-          gh pr create -B main -H actions/update/sources-main --fill
-        else
-          echo "a PR already exists, skipping..."
-        fi
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Clone openshift-pipelines/pipelines-as-code
-      run: |
-        rm -fR upstream
-        git clone https://github.com/openshift-pipelines/pipelines-as-code upstream/tkn-pac
-        pushd upstream/tkn-pac
-        git checkout -B main origin/main
-        popd
-
-    - name: Commit new changes
-      run: |
-        git config user.name openshift-pipelines-bot
-        git config user.email pipelines-extcomm@redhat.com
-        git checkout -b actions/update/sources-main
-        pushd upstream/tkn-pac
-        OLD_COMMIT=$(cat ../../head-tkn-pac)
-        NEW_COMMIT=$(git rev-parse HEAD)
-        echo Previous commit: ${OLD_COMMIT}
-        git show --stat ${OLD_COMMIT}
-        echo New commit: ${NEW_COMMIT}
-        git show --stat ${NEW_COMMIT}
-        git diff --stat ${NEW_COMMIT}..${OLD_COMMIT} > /tmp/diff.txt
-        git rev-parse HEAD > ../../head-tkn-pac
-        popd
-        rm -rf upstream/tkn-pac/.git
-        git add upstream/tkn-pac/ head-tkn-pac openshift
-
-        if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
-          echo "No change, exiting"
-          exit 0
-        fi
-
-        git commit -F- <<EOF
-        [bot] Update from openshift-pipelines/pipelines-as-code to ${NEW_COMMIT}
-
-            $ git diff --stat ${NEW_COMMIT}..${OLD_COMMIT}
-        $(cat /tmp/diff.txt | sed 's/^/    /')
-        
-        https://github.com/openshift-pipelines/pipelines-as-code/compare/${NEW_COMMIT}..${OLD_COMMIT}
         EOF
         
         git push -f origin actions/update/sources-main
