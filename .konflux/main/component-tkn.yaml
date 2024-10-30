@@ -4,7 +4,7 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Component
 metadata:
   annotations:
-    build.appstudio.openshift.io/pipeline: '{"name":"docker-build","bundle":"latest"}'
+    build.appstudio.openshift.io/pipeline: '{"name":"docker-build-ta","bundle":"latest"}'
   name: tektoncd-cli-main-tkn
 spec:
   componentName: tkn
@@ -14,5 +14,5 @@ spec:
   source:
     git:
       url: https://github.com/openshift-pipelines/tektoncd-cli
-      dockerfileUrl: openshift/dockerfiles/tkn.Dockerfile
+      dockerfileUrl: .konflux/dockerfiles/tkn.Dockerfile
       revision: main

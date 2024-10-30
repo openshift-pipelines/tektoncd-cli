@@ -9,8 +9,8 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
       == "main" &&
-      ("upstream/***".pathChanged() || "openshift/patches/***".pathChanged() || "openshift/rpms/***".pathChanged() ||
-      "openshift/dockerfiles/tkn.Dockerfile".pathChanged() ||
+      ("upstream/***".pathChanged() || ".konflux/patches/***".pathChanged() || ".konflux/rpms/***".pathChanged() ||
+      ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
       ".tekton/tektoncd-cli-main-tkn-push.yaml".pathChanged() ||
       ".tekton/docker-build-ta.yaml".pathChanged())
   creationTimestamp: null
@@ -29,10 +29,10 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/tektoncd-cli-main/tkn:{{revision}}
   - name: dockerfile
-    value: openshift/dockerfiles/tkn.Dockerfile
+    value: .konflux/dockerfiles/tkn.Dockerfile
   - name: prefetch-input
     value: |
-      {"type": "rpm", "path": "openshift/rpms"}
+      {"type": "rpm", "path": ".konflux/rpms"}
   pipelineRef:
     name: docker-build-ta
   workspaces:
