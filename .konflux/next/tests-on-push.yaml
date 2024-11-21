@@ -3,7 +3,7 @@
 apiVersion: appstudio.redhat.com/v1beta2
 kind: IntegrationTestScenario
 metadata:
-  name: tektoncd-cli-next-enterprise-contract
+  name: tektoncd-cli-next-enterprise-contract-push
 spec:
   application: tektoncd-cli-next
   contexts:
