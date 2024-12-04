@@ -1,5 +1,5 @@
 diff --git a/go.mod b/go.mod
-index 6669cf5e6..f0787050e 100644
+index d032bb1c0..d9ab14e56 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,6 +1,6 @@
@@ -11,7 +11,7 @@ index 6669cf5e6..f0787050e 100644
  require (
  	github.com/AlecAivazis/survey/v2 v2.3.7
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index e9acf2628..4c21ff601 100644
+index 8dedbe636..61037183d 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -1101,7 +1101,7 @@ github.com/ktr0731/go-fuzzyfinder/scoring
