@@ -1,5 +1,5 @@
 diff --git a/go.mod b/go.mod
-index 9e1fc4c54..97b0eaca6 100644
+index 42b467031..998521ef3 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,6 +1,6 @@
@@ -11,7 +11,7 @@ index 9e1fc4c54..97b0eaca6 100644
  require (
  	github.com/AlecAivazis/survey/v2 v2.3.7
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 412a7d616..e4b37aa1c 100644
+index c35fbb9b4..1765c2c9c 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -1101,7 +1101,7 @@ github.com/ktr0731/go-fuzzyfinder/scoring
@@ -110,7 +110,7 @@ index 412a7d616..e4b37aa1c 100644
 @@ -2290,7 +2290,7 @@ gotest.tools/v3/internal/difflib
  gotest.tools/v3/internal/format
  gotest.tools/v3/internal/source
- # k8s.io/api v0.31.3
+ # k8s.io/api v0.31.4
 -## explicit; go 1.22.0
 +## explicit; go 1.22
  k8s.io/api/admissionregistration/v1
@@ -119,7 +119,7 @@ index 412a7d616..e4b37aa1c 100644
 @@ -2352,7 +2352,7 @@ k8s.io/api/storagemigration/v1alpha1
  k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
  k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
- # k8s.io/apimachinery v0.31.3
+ # k8s.io/apimachinery v0.31.4
 -## explicit; go 1.22.0
 +## explicit; go 1.22
  k8s.io/apimachinery/pkg/api/equality
@@ -128,7 +128,7 @@ index 412a7d616..e4b37aa1c 100644
 @@ -2416,7 +2416,7 @@ k8s.io/cli-runtime/pkg/genericiooptions
  k8s.io/cli-runtime/pkg/printers
  k8s.io/cli-runtime/pkg/resource
- # k8s.io/client-go v0.31.3
+ # k8s.io/client-go v0.31.4
 -## explicit; go 1.22.0
 +## explicit; go 1.22
  k8s.io/client-go/applyconfigurations
