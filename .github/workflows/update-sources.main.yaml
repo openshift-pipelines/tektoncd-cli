@@ -29,19 +29,6 @@ jobs:
         popd
 
 
-    - name: Generate patches
-      run: |
-        pushd upstream
-
-        sed -i "s%go 1.22.*%go 1.22%g" go.mod
-        sed -i "s%go 1.22.*%go 1.22%g" vendor/modules.txt
-        git diff > ../.konflux/patches/0000-go1.22.patch
-        # clean after yourself >:D
-        git checkout HEAD go.mod vendor/modules.txt
-        
-
-        popd
-
     - name: Commit new changes
       run: |
         git config user.name openshift-pipelines-bot
