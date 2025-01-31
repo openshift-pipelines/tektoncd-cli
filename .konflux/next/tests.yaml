@@ -3,17 +3,19 @@
 apiVersion: appstudio.redhat.com/v1beta2
 kind: IntegrationTestScenario
 metadata:
-  name: tektoncd-cli-next-enterprise-contract-group
+  name: tektoncd-cli-next-enterprise-contract
 spec:
   application: tektoncd-cli-next
   contexts:
-    - description: Application testing
-      name: pull_request
+    - description: Application testing for tektoncd-cli-next-tkn
+      name: component_tektoncd-cli-next-tkn
   params:
     - name: POLICY_CONFIGURATION
       value: tekton-ecosystem-tenant/tekton-ecosystem-tenant-containers
     - name: TIMEOUT
       value: "15m0s"
+    - name: SINGLE_COMPONENT
+      value: "true"
   resolverRef:
     params:
       - name: url
