@@ -6,7 +6,7 @@ FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
 
-ARG TKN_VERSION=main
+ARG TKN_VERSION=1.18
 
 WORKDIR $REMOTE_SOURCE
 
@@ -24,12 +24,12 @@ FROM $PAC_BUILDER AS pacbuilder
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-main
+ARG VERSION=tkn-1.18
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 LABEL \
       com.redhat.component="openshift-pipelines-cli-tkn-container" \
-      name="openshift-pipelines/pipelines-cli-tkn-rhel8" \
+      name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
       version=$VERSION \
       summary="Red Hat OpenShift pipelines tkn CLI" \
       description="CLI client 'tkn' for managing openshift pipelines" \
