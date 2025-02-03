@@ -16,7 +16,7 @@ metadata:
       ".tekton/tektoncd-cli-1-18-tkn-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: tektoncd-cli-1.18
+    appstudio.openshift.io/application: tektoncd-cli-1-18
     appstudio.openshift.io/component: tektoncd-cli-1-18-tkn
     pipelines.appstudio.openshift.io/type: build
   name: tektoncd-cli-1-18-tkn-on-push
