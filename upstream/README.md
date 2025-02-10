@@ -11,7 +11,7 @@ The _Tekton Pipelines CLI_ project provides a command-line interface (CLI) for i
 
 ## Installing `tkn`
 
-Download the latest binary executable for your operating system
+Download the latest binary executable for your operating system.
 
 ### Mac OS X
 
