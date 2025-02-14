@@ -15,7 +15,6 @@
 package gcp
 
 import (
-	"context"
 	"fmt"
 	"strings"
 )
@@ -32,15 +31,8 @@ const (
 )
 
 func (d *Detector) onGKE() bool {
-	// Check if we are on k8s first
 	_, found := d.os.LookupEnv(k8sServiceHostEnv)
-	if !found {
-		return false
-	}
-	// If we are on k8s, make sure that we are actually on GKE, and not a
-	// different managed k8s platform.
-	_, err := d.metadata.InstanceAttributeValueWithContext(context.TODO(), clusterLocationMetadataAttr)
-	return err == nil
+	return found
 }
 
 // GKEHostID returns the instance ID of the instance on which this program is running.
@@ -50,7 +42,7 @@ func (d *Detector) GKEHostID() (string, error) {
 
 // GKEClusterName returns the name if the GKE cluster in which this program is running.
 func (d *Detector) GKEClusterName() (string, error) {
-	return d.metadata.InstanceAttributeValueWithContext(context.TODO(), clusterNameMetadataAttr)
+	return d.metadata.InstanceAttributeValue(clusterNameMetadataAttr)
 }
 
 type LocationType int64
@@ -63,7 +55,7 @@ const (
 
 // GKEAvailabilityZoneOrRegion returns the location of the cluster and whether the cluster is zonal or regional.
 func (d *Detector) GKEAvailabilityZoneOrRegion() (string, LocationType, error) {
-	clusterLocation, err := d.metadata.InstanceAttributeValueWithContext(context.TODO(), clusterLocationMetadataAttr)
+	clusterLocation, err := d.metadata.InstanceAttributeValue(clusterLocationMetadataAttr)
 	if err != nil {
 		return "", UndefinedLocation, err
 	}

@@ -251,17 +251,18 @@ func (r *PeriodicReader) collect(ctx context.Context, p interface{}, rm *metricd
 	if err != nil {
 		return err
 	}
+	var errs []error
 	for _, producer := range r.externalProducers.Load().([]Producer) {
-		externalMetrics, e := producer.Produce(ctx)
-		if e != nil {
-			err = errors.Join(err, e)
+		externalMetrics, err := producer.Produce(ctx)
+		if err != nil {
+			errs = append(errs, err)
 		}
 		rm.ScopeMetrics = append(rm.ScopeMetrics, externalMetrics...)
 	}
 
 	global.Debug("PeriodicReader collection", "Data", rm)
 
-	return err
+	return unifyErrors(errs)
 }
 
 // export exports metric data m using r's exporter.

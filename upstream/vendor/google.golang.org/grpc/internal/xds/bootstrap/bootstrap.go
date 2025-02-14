@@ -22,11 +22,9 @@ package bootstrap
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"maps"
-	"net"
 	"net/url"
 	"os"
 	"slices"
@@ -181,7 +179,6 @@ type ServerConfig struct {
 	// credentials and store it here for easy access.
 	selectedCreds   ChannelCreds
 	credsDialOption grpc.DialOption
-	dialerOption    grpc.DialOption
 
 	cleanups []func()
 }
@@ -220,14 +217,10 @@ func (sc *ServerConfig) ServerFeaturesIgnoreResourceDeletion() bool {
 	return false
 }
 
-// DialOptions returns a slice of all the configured dial options for this
-// server.
-func (sc *ServerConfig) DialOptions() []grpc.DialOption {
-	dopts := []grpc.DialOption{sc.credsDialOption}
-	if sc.dialerOption != nil {
-		dopts = append(dopts, sc.dialerOption)
-	}
-	return dopts
+// CredsDialOption returns the first supported transport credentials from the
+// configuration, as a dial option.
+func (sc *ServerConfig) CredsDialOption() grpc.DialOption {
+	return sc.credsDialOption
 }
 
 // Cleanups returns a collection of functions to be called when the xDS client
@@ -282,12 +275,6 @@ func (sc *ServerConfig) MarshalJSON() ([]byte, error) {
 	return json.Marshal(server)
 }
 
-// dialer captures the Dialer method specified via the credentials bundle.
-type dialer interface {
-	// Dialer specifies how to dial the xDS server.
-	Dialer(context.Context, string) (net.Conn, error)
-}
-
 // UnmarshalJSON takes the json data (a server) and unmarshals it to the struct.
 func (sc *ServerConfig) UnmarshalJSON(data []byte) error {
 	server := serverConfigJSON{}
@@ -311,9 +298,6 @@ func (sc *ServerConfig) UnmarshalJSON(data []byte) error {
 		}
 		sc.selectedCreds = cc
 		sc.credsDialOption = grpc.WithCredentialsBundle(bundle)
-		if d, ok := bundle.(dialer); ok {
-			sc.dialerOption = grpc.WithContextDialer(d.Dialer)
-		}
 		sc.cleanups = append(sc.cleanups, cancel)
 		break
 	}

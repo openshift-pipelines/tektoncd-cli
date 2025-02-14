@@ -81,8 +81,8 @@ type EndpointsResourceData struct {
 	Resource EndpointsUpdate
 }
 
-// RawEqual returns true if other is equal to r.
-func (e *EndpointsResourceData) RawEqual(other ResourceData) bool {
+// Equal returns true if other is equal to r.
+func (e *EndpointsResourceData) Equal(other ResourceData) bool {
 	if e == nil && other == nil {
 		return true
 	}

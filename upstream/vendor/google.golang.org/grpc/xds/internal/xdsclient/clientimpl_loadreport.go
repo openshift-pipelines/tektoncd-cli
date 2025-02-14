@@ -28,14 +28,20 @@ import (
 // It returns a Store for the user to report loads, a function to cancel the
 // load reporting stream.
 func (c *clientImpl) ReportLoad(server *bootstrap.ServerConfig) (*load.Store, func()) {
-	xc, releaseChannelRef, err := c.getChannelForLRS(server)
+	c.authorityMu.Lock()
+	a, err := c.newAuthorityLocked(server)
 	if err != nil {
-		c.logger.Warningf("Failed to create a channel to the management server to report load: %v", server, err)
+		c.authorityMu.Unlock()
+		c.logger.Warningf("Failed to connect to the management server to report load for authority %q: %v", server, err)
 		return nil, func() {}
 	}
-	load, stopLoadReporting := xc.reportLoad()
-	return load, func() {
-		stopLoadReporting()
-		releaseChannelRef()
+	// Hold the ref before starting load reporting.
+	a.refLocked()
+	c.authorityMu.Unlock()
+
+	store, cancelF := a.reportLoad()
+	return store, func() {
+		cancelF()
+		c.unrefAuthority(a)
 	}
 }

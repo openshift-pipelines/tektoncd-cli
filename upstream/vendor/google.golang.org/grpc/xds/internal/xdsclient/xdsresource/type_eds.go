@@ -49,7 +49,7 @@ const (
 
 // Endpoint contains information of an endpoint.
 type Endpoint struct {
-	Addresses    []string
+	Address      string
 	HealthStatus EndpointHealthStatus
 	Weight       uint32
 }

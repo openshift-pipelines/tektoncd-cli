@@ -20,14 +20,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	"cloud.google.com/go/auth"
 	detect "cloud.google.com/go/auth/credentials"
 	"cloud.google.com/go/auth/internal"
 	"cloud.google.com/go/auth/internal/transport"
-	"github.com/googleapis/gax-go/v2/internallog"
 )
 
 // ClientCertProvider is a function that returns a TLS client certificate to be
@@ -71,11 +69,6 @@ type Options struct {
 	// configured for the client, which will be compared to the universe domain
 	// that is separately configured for the credentials.
 	UniverseDomain string
-	// Logger is used for debug logging. If provided, logging will be enabled
-	// at the loggers configured level. By default logging is disabled unless
-	// enabled by setting GOOGLE_SDK_GO_LOGGING_LEVEL in which case a default
-	// logger will be used. Optional.
-	Logger *slog.Logger
 
 	// InternalOptions are NOT meant to be set directly by consumers of this
 	// package, they should only be set by generated client code.
@@ -108,10 +101,6 @@ func (o *Options) client() *http.Client {
 	return nil
 }
 
-func (o *Options) logger() *slog.Logger {
-	return internallog.New(o.Logger)
-}
-
 func (o *Options) resolveDetectOptions() *detect.DetectOptions {
 	io := o.InternalOptions
 	// soft-clone these so we are not updating a ref the user holds and may reuse
@@ -136,9 +125,6 @@ func (o *Options) resolveDetectOptions() *detect.DetectOptions {
 		do.Client = transport.DefaultHTTPClientWithTLS(tlsConfig)
 		do.TokenURL = detect.GoogleMTLSTokenURL
 	}
-	if do.Logger == nil {
-		do.Logger = o.logger()
-	}
 	return do
 }
 
@@ -161,13 +147,8 @@ type InternalOptions struct {
 	// service.
 	DefaultScopes []string
 	// SkipValidation bypasses validation on Options. It should only be used
-	// internally for clients that need more control over their transport.
+	// internally for clients that needs more control over their transport.
 	SkipValidation bool
-	// SkipUniverseDomainValidation skips the verification that the universe
-	// domain configured for the client matches the universe domain configured
-	// for the credentials. It should only be used internally for clients that
-	// need more control over their transport. The default is false.
-	SkipUniverseDomainValidation bool
 }
 
 // AddAuthorizationMiddleware adds a middleware to the provided client's
@@ -211,7 +192,6 @@ func NewClient(opts *Options) (*http.Client, error) {
 		ClientCertProvider: opts.ClientCertProvider,
 		Client:             opts.client(),
 		UniverseDomain:     opts.UniverseDomain,
-		Logger:             opts.logger(),
 	}
 	if io := opts.InternalOptions; io != nil {
 		tOpts.DefaultEndpointTemplate = io.DefaultEndpointTemplate

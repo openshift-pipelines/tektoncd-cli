@@ -20,15 +20,15 @@
 package adaptive
 
 import (
-	rand "math/rand/v2"
+	"math/rand"
 	"sync"
 	"time"
 )
 
 // For overriding in unittests.
 var (
-	timeNowFunc = time.Now
-	randFunc    = rand.Float64
+	timeNowFunc = func() time.Time { return time.Now() }
+	randFunc    = func() float64 { return rand.Float64() }
 )
 
 const (

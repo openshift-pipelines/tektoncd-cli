@@ -826,16 +826,7 @@ func (m *CertificateProviderPluginInstance) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetInstanceName()) < 1 {
-		err := CertificateProviderPluginInstanceValidationError{
-			field:  "InstanceName",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for InstanceName
 
 	// no validation rules for CertificateName
 

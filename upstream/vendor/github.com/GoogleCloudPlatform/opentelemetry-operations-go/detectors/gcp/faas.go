@@ -15,7 +15,6 @@
 package gcp
 
 import (
-	"context"
 	"strings"
 )
 
@@ -90,7 +89,7 @@ func (d *Detector) CloudRunJobTaskIndex() (string, error) {
 
 // FaaSID returns the instance id of the Cloud Run or Cloud Function.
 func (d *Detector) FaaSID() (string, error) {
-	return d.instanceID()
+	return d.metadata.InstanceID()
 }
 
 // FaaSCloudRegion detects region from the metadata server.
@@ -98,7 +97,7 @@ func (d *Detector) FaaSID() (string, error) {
 //
 // https://cloud.google.com/run/docs/reference/container-contract#metadata-server
 func (d *Detector) FaaSCloudRegion() (string, error) {
-	region, err := d.metadata.GetWithContext(context.TODO(), regionMetadataAttr)
+	region, err := d.metadata.Get(regionMetadataAttr)
 	if err != nil {
 		return "", err
 	}

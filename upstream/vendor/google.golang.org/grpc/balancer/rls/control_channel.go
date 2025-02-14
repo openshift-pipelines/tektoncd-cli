@@ -209,9 +209,7 @@ func (cc *controlChannel) lookup(reqKeys map[string]string, reason rlspb.RouteLo
 			Reason:          reason,
 			StaleHeaderData: staleHeaders,
 		}
-		if cc.logger.V(2) {
-			cc.logger.Infof("Sending RLS request %+v", pretty.ToJSON(req))
-		}
+		cc.logger.Infof("Sending RLS request %+v", pretty.ToJSON(req))
 
 		ctx, cancel := context.WithTimeout(context.Background(), cc.rpcTimeout)
 		defer cancel()

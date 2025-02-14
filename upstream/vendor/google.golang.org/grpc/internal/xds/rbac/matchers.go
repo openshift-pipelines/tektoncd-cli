@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/netip"
 	"regexp"
 
 	v3corepb "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -345,8 +344,7 @@ func newRemoteIPMatcher(cidrRange *v3corepb.CidrRange) (*remoteIPMatcher, error)
 }
 
 func (sim *remoteIPMatcher) match(data *rpcData) bool {
-	ip, _ := netip.ParseAddr(data.peerInfo.Addr.String())
-	return sim.ipNet.Contains(net.IP(ip.AsSlice()))
+	return sim.ipNet.Contains(net.IP(net.ParseIP(data.peerInfo.Addr.String())))
 }
 
 type localIPMatcher struct {
@@ -363,8 +361,7 @@ func newLocalIPMatcher(cidrRange *v3corepb.CidrRange) (*localIPMatcher, error) {
 }
 
 func (dim *localIPMatcher) match(data *rpcData) bool {
-	ip, _ := netip.ParseAddr(data.localAddr.String())
-	return dim.ipNet.Contains(net.IP(ip.AsSlice()))
+	return dim.ipNet.Contains(net.IP(net.ParseIP(data.localAddr.String())))
 }
 
 // portMatcher matches on whether the destination port of the RPC matches the

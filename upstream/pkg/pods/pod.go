@@ -77,7 +77,7 @@ func (p *Pod) Wait() (*corev1.Pod, error) {
 	}
 
 	stopC := make(chan struct{})
-	eventC := make(chan interface{}, 10)
+	eventC := make(chan interface{})
 	mu := sync.Mutex{}
 	defer func() {
 		mu.Lock()

@@ -47,7 +47,7 @@ type dnsDiscoveryMechanism struct {
 	logger           *grpclog.PrefixLogger
 
 	mu             sync.Mutex
-	endpoints      []resolver.Endpoint
+	addrs          []string
 	updateReceived bool
 }
 
@@ -103,7 +103,7 @@ func (dr *dnsDiscoveryMechanism) lastUpdate() (any, bool) {
 	if !dr.updateReceived {
 		return nil, false
 	}
-	return dr.endpoints, true
+	return dr.addrs, true
 }
 
 func (dr *dnsDiscoveryMechanism) resolveNow() {
@@ -133,15 +133,23 @@ func (dr *dnsDiscoveryMechanism) UpdateState(state resolver.State) error {
 	}
 
 	dr.mu.Lock()
-	var endpoints = state.Endpoints
-	if len(endpoints) == 0 {
-		endpoints = make([]resolver.Endpoint, len(state.Addresses))
+	var addrs []string
+	if len(state.Endpoints) > 0 {
+		// Assume 1 address per endpoint, which is how DNS is expected to
+		// behave.  The slice will grow as needed, however.
+		addrs = make([]string, 0, len(state.Endpoints))
+		for _, e := range state.Endpoints {
+			for _, a := range e.Addresses {
+				addrs = append(addrs, a.Addr)
+			}
+		}
+	} else {
+		addrs = make([]string, len(state.Addresses))
 		for i, a := range state.Addresses {
-			endpoints[i] = resolver.Endpoint{Addresses: []resolver.Address{a}}
-			endpoints[i].Attributes = a.BalancerAttributes
+			addrs[i] = a.Addr
 		}
 	}
-	dr.endpoints = endpoints
+	dr.addrs = addrs
 	dr.updateReceived = true
 	dr.mu.Unlock()
 
@@ -164,7 +172,7 @@ func (dr *dnsDiscoveryMechanism) ReportError(err error) {
 		dr.mu.Unlock()
 		return
 	}
-	dr.endpoints = nil
+	dr.addrs = nil
 	dr.updateReceived = true
 	dr.mu.Unlock()
 

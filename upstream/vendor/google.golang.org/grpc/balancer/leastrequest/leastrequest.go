@@ -22,7 +22,7 @@ package leastrequest
 import (
 	"encoding/json"
 	"fmt"
-	rand "math/rand/v2"
+	"math/rand"
 	"sync/atomic"
 
 	"google.golang.org/grpc/balancer"

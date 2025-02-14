@@ -14,8 +14,6 @@
 
 package gcp
 
-import "context"
-
 const (
 	// See https://cloud.google.com/appengine/docs/flexible/python/migrating#modules
 	// for the environment variables available in GAE environments.
@@ -69,7 +67,7 @@ func (d *Detector) AppEngineFlexAvailabilityZoneAndRegion() (string, string, err
 
 // AppEngineStandardAvailabilityZone returns the zone the app engine service is running in.
 func (d *Detector) AppEngineStandardAvailabilityZone() (string, error) {
-	return d.metadata.ZoneWithContext(context.TODO())
+	return d.metadata.Zone()
 }
 
 // AppEngineStandardCloudRegion returns the region the app engine service is running in.

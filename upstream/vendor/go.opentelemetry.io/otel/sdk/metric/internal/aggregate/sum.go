@@ -9,24 +9,25 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/metric/internal/exemplar"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
 type sumValue[N int64 | float64] struct {
 	n     N
-	res   FilteredExemplarReservoir[N]
+	res   exemplar.FilteredReservoir[N]
 	attrs attribute.Set
 }
 
 // valueMap is the storage for sums.
 type valueMap[N int64 | float64] struct {
 	sync.Mutex
-	newRes func(attribute.Set) FilteredExemplarReservoir[N]
+	newRes func() exemplar.FilteredReservoir[N]
 	limit  limiter[sumValue[N]]
 	values map[attribute.Distinct]sumValue[N]
 }
 
-func newValueMap[N int64 | float64](limit int, r func(attribute.Set) FilteredExemplarReservoir[N]) *valueMap[N] {
+func newValueMap[N int64 | float64](limit int, r func() exemplar.FilteredReservoir[N]) *valueMap[N] {
 	return &valueMap[N]{
 		newRes: r,
 		limit:  newLimiter[sumValue[N]](limit),
@@ -41,7 +42,7 @@ func (s *valueMap[N]) measure(ctx context.Context, value N, fltrAttr attribute.S
 	attr := s.limit.Attributes(fltrAttr, s.values)
 	v, ok := s.values[attr.Equivalent()]
 	if !ok {
-		v.res = s.newRes(attr)
+		v.res = s.newRes()
 	}
 
 	v.attrs = attr
@@ -54,7 +55,7 @@ func (s *valueMap[N]) measure(ctx context.Context, value N, fltrAttr attribute.S
 // newSum returns an aggregator that summarizes a set of measurements as their
 // arithmetic sum. Each sum is scoped by attributes and the aggregation cycle
 // the measurements were made in.
-func newSum[N int64 | float64](monotonic bool, limit int, r func(attribute.Set) FilteredExemplarReservoir[N]) *sum[N] {
+func newSum[N int64 | float64](monotonic bool, limit int, r func() exemplar.FilteredReservoir[N]) *sum[N] {
 	return &sum[N]{
 		valueMap:  newValueMap[N](limit, r),
 		monotonic: monotonic,
@@ -141,9 +142,9 @@ func (s *sum[N]) cumulative(dest *metricdata.Aggregation) int {
 }
 
 // newPrecomputedSum returns an aggregator that summarizes a set of
-// observations as their arithmetic sum. Each sum is scoped by attributes and
+// observatrions as their arithmetic sum. Each sum is scoped by attributes and
 // the aggregation cycle the measurements were made in.
-func newPrecomputedSum[N int64 | float64](monotonic bool, limit int, r func(attribute.Set) FilteredExemplarReservoir[N]) *precomputedSum[N] {
+func newPrecomputedSum[N int64 | float64](monotonic bool, limit int, r func() exemplar.FilteredReservoir[N]) *precomputedSum[N] {
 	return &precomputedSum[N]{
 		valueMap:  newValueMap[N](limit, r),
 		monotonic: monotonic,
@@ -151,7 +152,7 @@ func newPrecomputedSum[N int64 | float64](monotonic bool, limit int, r func(attr
 	}
 }
 
-// precomputedSum summarizes a set of observations as their arithmetic sum.
+// precomputedSum summarizes a set of observatrions as their arithmetic sum.
 type precomputedSum[N int64 | float64] struct {
 	*valueMap[N]
 

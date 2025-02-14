@@ -100,13 +100,8 @@ func (ts *tokenSourceAdapter) Token() (*oauth2.Token, error) {
 		Expiry:      tok.Expiry,
 	}
 	// Preserve token metadata.
-	m := tok.Metadata
-	if m != nil {
-		// Copy map to avoid concurrent map writes error (#11161).
-		metadata := make(map[string]interface{}, len(m)+2)
-		for k, v := range m {
-			metadata[k] = v
-		}
+	metadata := tok.Metadata
+	if metadata != nil {
 		// Append compute token metadata in converted form.
 		if val, ok := metadata[authTokenSourceKey].(string); ok && val != "" {
 			metadata[oauth2TokenSourceKey] = val

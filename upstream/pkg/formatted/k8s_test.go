@@ -107,7 +107,7 @@ func TestCondition(t *testing.T) {
 				Status: corev1.ConditionFalse,
 				Reason: "Cancelled",
 			}},
-			want: "Cancelled",
+			want: "Cancelled(Cancelled)",
 		},
 		{
 			name: "PipelineRunTimeout status reason",
