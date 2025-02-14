@@ -31,10 +31,6 @@ spec:
     value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/tektoncd-cli-1-18/tkn:{{revision}}
   - name: dockerfile
     value: .konflux/dockerfiles/tkn.Dockerfile
-  - name: build-platforms
-    value:
-    - linux/x86_64
-    - linux-m2xlarge/arm64
   - name: prefetch-input
     value: |
       {"type": "rpm", "path": ".konflux/rpms"}
