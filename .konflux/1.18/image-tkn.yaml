@@ -11,5 +11,5 @@ metadata:
     appstudio.redhat.com/application: tektoncd-cli-1-18
 spec:
   image:
-   name: 1-18/cli-tkn-rhel9
+   name: 1-18/cli-tknrhel9
    visibility: public
