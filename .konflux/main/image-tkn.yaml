@@ -3,7 +3,7 @@
 apiVersion: appstudio.redhat.com/v1alpha1
 kind: ImageRepository
 metadata:
-  name: tektoncd-cli-main-tkn
+  name: main-cli-tkn-rhel9
   annotations:
     image-controller.appstudio.redhat.com/update-component-image: "true"
   labels:
@@ -11,5 +11,5 @@ metadata:
     appstudio.redhat.com/application: tektoncd-cli-main
 spec:
   image:
-   name: tektoncd-cli-main/tkn
+   name: main/cli-tkn-rhel9
    visibility: public
