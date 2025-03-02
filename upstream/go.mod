@@ -6,7 +6,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/cpuguy83/go-md2man v1.0.10
+	github.com/cpuguy83/go-md2man/v2 v2.0.6
 	github.com/creack/pty v1.1.24
 	github.com/docker/cli v28.0.0+incompatible
 	github.com/docker/docker v28.0.0+incompatible
