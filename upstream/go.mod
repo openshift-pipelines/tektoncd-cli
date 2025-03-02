@@ -43,7 +43,7 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
-replace github.com/alibabacloud-go/cr-20160607 => github.com/vdemeester/cr-20160607 v1.0.1
+replace github.com/alibabacloud-go/cr-20160607 => github.com/vdemeester/cr-20160607/v2 v2.0.0
 
 require (
 	cel.dev/expr v0.19.1 // indirect
