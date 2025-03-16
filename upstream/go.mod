@@ -26,7 +26,7 @@ require (
 	github.com/tektoncd/chains v0.24.0
 	github.com/tektoncd/hub v1.20.0
 	github.com/tektoncd/pipeline v0.68.0
-	github.com/tektoncd/plumbing v0.0.0-20250116154805-bf07e665a460
+	github.com/tektoncd/plumbing v0.0.0-20250313115811-582146ce551e
 	github.com/tektoncd/triggers v0.31.0
 	github.com/theupdateframework/go-tuf v0.7.0
 	go.opencensus.io v0.24.0
@@ -321,10 +321,10 @@ require (
 	gocloud.dev v0.40.0 // indirect
 	gocloud.dev/docstore/mongodocstore v0.40.0 // indirect
 	gocloud.dev/pubsub/kafkapubsub v0.40.0 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/oauth2 v0.26.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
