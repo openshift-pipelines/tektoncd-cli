@@ -1,6 +1,6 @@
 ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23
 ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:bafd57451de2daa71ed301b277d49bd120b474ed438367f087eac0b885a668dc
-ARG PAC_BUILDER=quay.io/openshift-pipeline/pipelines-pipelines-as-code-cli-rhel9@sha256:8efe03f55d93f5f5c8a43b87d530265aa04e8bfde7bc38ca4ed14cc257e25889
+ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel9@sha256:8efe03f55d93f5f5c8a43b87d530265aa04e8bfde7bc38ca4ed14cc257e25889
 
 FROM $GO_BUILDER AS builder
 
