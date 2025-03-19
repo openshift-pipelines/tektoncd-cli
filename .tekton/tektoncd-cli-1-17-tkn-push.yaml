@@ -5,21 +5,21 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/cancel-in-progress: "true" # Cancel in-progress pipelines
     pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/openshift-pipelines/operator/refs/heads/main/.tekton/docker-build-ta.yaml"
-    build.appstudio.openshift.io/repo: https://github.com/openshift-pipelines/tektoncd-cli?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/openshift-pipelines/tektoncd-cli.git?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "next" &&
+      == "release-v1.17.x" &&
       ("upstream/***".pathChanged() || ".konflux/patches/***".pathChanged() || ".konflux/rpms/***".pathChanged() ||
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
-      ".tekton/tektoncd-cli-next-tkn-push.yaml".pathChanged())
+      ".tekton/tektoncd-cli-1-17-tkn-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: tektoncd-cli-next
-    appstudio.openshift.io/component: tektoncd-cli-next-tkn
+    appstudio.openshift.io/application: openshift-pipelines-1-17
+    appstudio.openshift.io/component: tektoncd-cli-1-17-tkn
     pipelines.appstudio.openshift.io/type: build
-  name: tektoncd-cli-next-tkn-on-push
+  name: tektoncd-cli-1-17-tkn-on-push
   namespace: tekton-ecosystem-tenant
 spec:
   params:
@@ -28,7 +28,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/next/cli-tkn-rhel9:{{revision}}
+    value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/1-17/cli-tkn-rhel9:{{revision}}
   - name: dockerfile
     value: .konflux/dockerfiles/tkn.Dockerfile
   - name: prefetch-input
