@@ -1,5 +1,5 @@
 ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23
-ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:bafd57451de2daa71ed301b277d49bd120b474ed438367f087eac0b885a668dc
+ARG RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal@sha256:e4ca1025efad7cc944fb991c716067b12e25ecbe05e6e81715a337179e417aa8
 ARG PAC_BUILDER=quay.io/openshift-pipeline/pipelines-pipelines-as-code-cli-rhel9@sha256:b841a6038b545aa9f5c4389ea86ada79001c32299e62854732eff3d8c4e83b80
 
 FROM $GO_BUILDER AS builder
@@ -38,5 +38,7 @@ LABEL \
       io.k8s.description="Red Hat OpenShift Pipelines tkn CLI" \
       io.openshift.tags="pipelines,tekton,openshift"
 
-RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
+RUN microdnf install -y shadow-utils && \
+    groupadd -r -g 65532 nonroot && \
+    useradd --no-log-init -r -u 65532 -g nonroot nonroot
 USER 65532
