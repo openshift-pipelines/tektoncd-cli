@@ -10,8 +10,7 @@
 - Type parameters
 - Item expiration and automatic deletion
 - Automatic expiration time extension on each `Get` call
-- `Loader` interface that may be used to load/lazily initialize missing cache
-- Thread Safe
+- `Loader` interface that may be used to load/lazily initialize missing cache 
 items
 - Event handlers (insertion and eviction)
 - Metrics

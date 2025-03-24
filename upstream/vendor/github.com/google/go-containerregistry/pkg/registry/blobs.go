@@ -93,14 +93,6 @@ type redirectError struct {
 	Code int
 }
 
-type bytesCloser struct {
-	*bytes.Reader
-}
-
-func (r *bytesCloser) Close() error {
-	return nil
-}
-
 func (e redirectError) Error() string { return fmt.Sprintf("redirecting (%d): %s", e.Code, e.Location) }
 
 // errNotFound represents an error locating the blob.
@@ -123,7 +115,6 @@ func (m *memHandler) Stat(_ context.Context, _ string, h v1.Hash) (int64, error)
 	}
 	return int64(len(b)), nil
 }
-
 func (m *memHandler) Get(_ context.Context, _ string, h v1.Hash) (io.ReadCloser, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -132,9 +123,8 @@ func (m *memHandler) Get(_ context.Context, _ string, h v1.Hash) (io.ReadCloser,
 	if !found {
 		return nil, errNotFound
 	}
-	return &bytesCloser{bytes.NewReader(b)}, nil
+	return io.NopCloser(bytes.NewReader(b)), nil
 }
-
 func (m *memHandler) Put(_ context.Context, _ string, h v1.Hash, rc io.ReadCloser) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -147,7 +137,6 @@ func (m *memHandler) Put(_ context.Context, _ string, h v1.Hash, rc io.ReadClose
 	m.m[h.String()] = all
 	return nil
 }
-
 func (m *memHandler) Delete(_ context.Context, _ string, h v1.Hash) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -188,7 +177,6 @@ func (b *blobs) handle(resp http.ResponseWriter, req *http.Request) *regError {
 	service := elem[len(elem)-2]
 	digest := req.URL.Query().Get("digest")
 	contentRange := req.Header.Get("Content-Range")
-	rangeHeader := req.Header.Get("Range")
 
 	repo := req.URL.Host + path.Join(elem[1:len(elem)-2]...)
 
@@ -277,10 +265,8 @@ func (b *blobs) handle(resp http.ResponseWriter, req *http.Request) *regError {
 
 				return regErrInternal(err)
 			}
-
 			defer rc.Close()
 			r = rc
-
 		} else {
 			tmp, err := b.blobHandler.Get(req.Context(), repo, h)
 			if errors.Is(err, errNotFound) {
@@ -301,48 +287,9 @@ func (b *blobs) handle(resp http.ResponseWriter, req *http.Request) *regError {
 			r = &buf
 		}
 
-		if rangeHeader != "" {
-			start, end := int64(0), int64(0)
-			if _, err := fmt.Sscanf(rangeHeader, "bytes=%d-%d", &start, &end); err != nil {
-				return &regError{
-					Status:  http.StatusRequestedRangeNotSatisfiable,
-					Code:    "BLOB_UNKNOWN",
-					Message: "We don't understand your Range",
-				}
-			}
-
-			n := (end + 1) - start
-			if ra, ok := r.(io.ReaderAt); ok {
-				if end+1 > size {
-					return &regError{
-						Status:  http.StatusRequestedRangeNotSatisfiable,
-						Code:    "BLOB_UNKNOWN",
-						Message: fmt.Sprintf("range end %d > %d size", end+1, size),
-					}
-				}
-				r = io.NewSectionReader(ra, start, n)
-			} else {
-				if _, err := io.CopyN(io.Discard, r, start); err != nil {
-					return &regError{
-						Status:  http.StatusRequestedRangeNotSatisfiable,
-						Code:    "BLOB_UNKNOWN",
-						Message: fmt.Sprintf("Failed to discard %d bytes", start),
-					}
-				}
-
-				r = io.LimitReader(r, n)
-			}
-
-			resp.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, size))
-			resp.Header().Set("Content-Length", fmt.Sprint(n))
-			resp.Header().Set("Docker-Content-Digest", h.String())
-			resp.WriteHeader(http.StatusPartialContent)
-		} else {
-			resp.Header().Set("Content-Length", fmt.Sprint(size))
-			resp.Header().Set("Docker-Content-Digest", h.String())
-			resp.WriteHeader(http.StatusOK)
-		}
-
+		resp.Header().Set("Content-Length", fmt.Sprint(size))
+		resp.Header().Set("Docker-Content-Digest", h.String())
+		resp.WriteHeader(http.StatusOK)
 		io.Copy(resp, r)
 		return nil
 

@@ -156,11 +156,7 @@ or
 			}
 
 			if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObjectV1(clustertaskGroupResource, opts.ClusterTaskName, cmd.OutOrStdout(), cs, p, "")
+				return actions.PrintObjectV1(clustertaskGroupResource, opts.ClusterTaskName, cmd.OutOrStdout(), cs, f, "")
 			}
 
 			return printClusterTaskDescription(s, cs, opts.ClusterTaskName, p.Namespace(), p.Time())

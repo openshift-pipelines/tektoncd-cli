@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
-	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/tektoncd/chains/pkg/artifacts"
 	"github.com/tektoncd/chains/pkg/chains/formats"
 	"github.com/tektoncd/chains/pkg/chains/objects"
@@ -30,8 +29,6 @@ import (
 	"github.com/tektoncd/chains/pkg/chains/storage"
 	"github.com/tektoncd/chains/pkg/config"
 	versioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
-	"golang.org/x/exp/maps"
-	"google.golang.org/protobuf/encoding/protojson"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"knative.dev/pkg/logging"
 )
@@ -172,7 +169,7 @@ func (o *ObjectSigner) Sign(ctx context.Context, tektonObj objects.TektonObject)
 			}
 
 			logger.Infof("Signing object with %s", signerType)
-			rawPayload, err := getRawPayload(payload)
+			rawPayload, err := json.Marshal(payload)
 			if err != nil {
 				logger.Warnf("Unable to marshal payload: %v", signerType, obj)
 				continue
@@ -187,14 +184,7 @@ func (o *ObjectSigner) Sign(ctx context.Context, tektonObj objects.TektonObject)
 
 			// Now store those!
 			for _, backend := range sets.List[string](signableType.StorageBackend(cfg)) {
-				b, ok := o.Backends[backend]
-				if !ok {
-					backendErr := fmt.Errorf("could not find backend '%s' in configured backends (%v) while trying sign: %s/%s", backend, maps.Keys(o.Backends), tektonObj.GetKindName(), tektonObj.GetName())
-					logger.Error(backendErr)
-					merr = multierror.Append(merr, backendErr)
-					continue
-				}
-
+				b := o.Backends[backend]
 				storageOpts := config.StorageOpts{
 					ShortKey:      signableType.ShortKey(obj),
 					FullKey:       signableType.FullKey(obj),
@@ -257,20 +247,4 @@ func HandleRetry(ctx context.Context, obj objects.TektonObject, ps versioned.Int
 		return AddRetry(ctx, obj, ps, annotations)
 	}
 	return MarkFailed(ctx, obj, ps, annotations)
-}
-
-// getRawPayload returns the payload as a json string. If the given payload is a intoto.Statement type, protojson.Marshal
-// is used to get the proper labels/field names in the resulting json.
-func getRawPayload(payload interface{}) ([]byte, error) {
-	switch payloadObj := payload.(type) {
-	case intoto.Statement:
-		return protojson.Marshal(&payloadObj)
-	case *intoto.Statement:
-		if payloadObj == nil {
-			return json.Marshal(payload)
-		}
-		return protojson.Marshal(payloadObj)
-	default:
-		return json.Marshal(payload)
-	}
 }

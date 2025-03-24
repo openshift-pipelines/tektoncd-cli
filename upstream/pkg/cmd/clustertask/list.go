@@ -63,11 +63,7 @@ func listCommand(p cli.Params) *cobra.Command {
 
 			if output != "" {
 				ctGroupResource := schema.GroupVersionResource{Group: "tekton.dev", Resource: "clustertasks"}
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObjects(ctGroupResource, cmd.OutOrStdout(), cs.Dynamic, cs.Tekton.Discovery(), p, "")
+				return actions.PrintObjects(ctGroupResource, cmd.OutOrStdout(), cs.Dynamic, cs.Tekton.Discovery(), f, "")
 			}
 			stream := &cli.Stream{
 				Out: cmd.OutOrStdout(),

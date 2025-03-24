@@ -23,6 +23,7 @@ import (
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/clustertriggerbinding"
 	"github.com/tektoncd/cli/pkg/formatted"
+	"github.com/tektoncd/cli/pkg/printer"
 	"github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cliopts "k8s.io/cli-runtime/pkg/genericclioptions"
@@ -88,11 +89,7 @@ or
 				}
 				return nil
 			} else if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return p.PrintObj(tbs, stream.Out)
+				return printer.PrintObject(stream.Out, tbs, f)
 			}
 
 			if err = printFormatted(stream, tbs, p, opts.NoHeaders); err != nil {

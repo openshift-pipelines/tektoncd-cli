@@ -56,6 +56,7 @@ type rttMonitor struct {
 	cfg      *rttConfig
 	ctx      context.Context
 	cancelFn context.CancelFunc
+	started  bool
 }
 
 var _ driver.RTTMonitor = &rttMonitor{}
@@ -82,6 +83,7 @@ func (r *rttMonitor) connect() {
 	r.connMu.Lock()
 	defer r.connMu.Unlock()
 
+	r.started = true
 	r.closeWg.Add(1)
 
 	go func() {
@@ -94,6 +96,10 @@ func (r *rttMonitor) connect() {
 func (r *rttMonitor) disconnect() {
 	r.connMu.Lock()
 	defer r.connMu.Unlock()
+
+	if !r.started {
+		return
+	}
 
 	r.cancelFn()
 
@@ -316,10 +322,7 @@ func (r *rttMonitor) Stats() string {
 		}
 	}
 
-	return fmt.Sprintf(
-		"network round-trip time stats: avg: %v, min: %v, 90th pct: %v, stddev: %v",
-		time.Duration(avg),
-		r.minRTT,
-		r.rtt90,
-		time.Duration(stdDev))
+	return fmt.Sprintf(`Round-trip-time monitor statistics:`+"\n"+
+		`average RTT: %v, minimum RTT: %v, 90th percentile RTT: %v, standard dev: %v`+"\n",
+		time.Duration(avg), r.minRTT, r.rtt90, time.Duration(stdDev))
 }

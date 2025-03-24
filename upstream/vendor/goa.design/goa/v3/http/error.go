@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"encoding/xml"
-	"errors"
 	"net/http"
 
 	goa "goa.design/goa/v3/pkg"
@@ -44,8 +43,7 @@ var (
 
 // NewErrorResponse creates a HTTP response from the given error.
 func NewErrorResponse(ctx context.Context, err error) Statuser {
-	var gerr *goa.ServiceError
-	if errors.As(err, &gerr) {
+	if gerr, ok := err.(*goa.ServiceError); ok {
 		return &ErrorResponse{
 			Name:      gerr.Name,
 			ID:        gerr.ID,
@@ -55,7 +53,7 @@ func NewErrorResponse(ctx context.Context, err error) Statuser {
 			Fault:     gerr.Fault,
 		}
 	}
-	return NewErrorResponse(ctx, goa.Fault("%s", err.Error()))
+	return NewErrorResponse(ctx, goa.Fault(err.Error()))
 }
 
 func (resp *ErrorResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
@@ -83,9 +81,6 @@ func (resp *ErrorResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error 
 // error. This method is used by the generated server code when the error is not
 // described explicitly in the design.
 func (resp *ErrorResponse) StatusCode() int {
-	if resp.Name == goa.UnsupportedMediaType {
-		return http.StatusUnsupportedMediaType
-	}
 	if resp.Fault {
 		return http.StatusInternalServerError
 	}

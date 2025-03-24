@@ -36,7 +36,7 @@ func ValidateParamType(params []v1beta1.ParamSpec) error {
 		for _, param := range paramsWithInvalidType {
 			errString += fmt.Sprintf(" '%s'", param.Name)
 		}
-		return fmt.Errorf("%s", errString)
+		return fmt.Errorf(errString)
 	}
 
 	return nil

@@ -26,7 +26,7 @@ import (
 
 	"knative.dev/pkg/logging"
 
-	intoto "github.com/in-toto/attestation/go/v1"
+	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/secure-systems-lab/go-securesystemslib/dsse"
 
 	"github.com/google/go-containerregistry/pkg/authn/k8schain"
@@ -92,7 +92,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 	}
 
 	if _, ok := formats.IntotoAttestationSet[storageOpts.PayloadFormat]; ok {
-		attestation := intoto.Statement{}
+		attestation := in_toto.Statement{}
 		if err := json.Unmarshal(rawPayload, &attestation); err != nil {
 			return errors.Wrap(err, "unmarshal attestation")
 		}
@@ -106,7 +106,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 			return nil
 		}
 
-		return b.uploadAttestation(ctx, &attestation, signature, storageOpts, auth)
+		return b.uploadAttestation(ctx, attestation, signature, storageOpts, auth)
 	}
 
 	// Fallback in case unsupported payload format is used or the deprecated "tekton" format
@@ -152,7 +152,7 @@ func (b *Backend) uploadSignature(ctx context.Context, format simple.SimpleConta
 	return nil
 }
 
-func (b *Backend) uploadAttestation(ctx context.Context, attestation *intoto.Statement, signature string, storageOpts config.StorageOpts, remoteOpts ...remote.Option) error {
+func (b *Backend) uploadAttestation(ctx context.Context, attestation in_toto.Statement, signature string, storageOpts config.StorageOpts, remoteOpts ...remote.Option) error {
 	logger := logging.FromContext(ctx)
 	// upload an attestation for each subject
 	logger.Info("Starting to upload attestations to OCI ...")
@@ -176,7 +176,7 @@ func (b *Backend) uploadAttestation(ctx context.Context, attestation *intoto.Sta
 		}
 		// TODO: make these creation opts.
 		store.remoteOpts = remoteOpts
-		if _, err := store.Store(ctx, &api.StoreRequest[name.Digest, *intoto.Statement]{
+		if _, err := store.Store(ctx, &api.StoreRequest[name.Digest, in_toto.Statement]{
 			Object:   nil,
 			Artifact: ref,
 			Payload:  attestation,
@@ -271,7 +271,7 @@ func (b *Backend) RetrievePayloads(ctx context.Context, obj objects.TektonObject
 
 func (b *Backend) RetrieveArtifact(ctx context.Context, obj objects.TektonObject, opts config.StorageOpts) (map[string]oci.SignedImage, error) {
 	// Given the TaskRun, retrieve the OCI images.
-	images := artifacts.ExtractOCIImagesFromResults(ctx, obj.GetResults())
+	images := artifacts.ExtractOCIImagesFromResults(ctx, obj)
 	m := make(map[string]oci.SignedImage)
 
 	for _, image := range images {

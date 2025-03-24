@@ -24,6 +24,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/common"
 	"github.com/opencontainers/go-digest"
+	"github.com/opentracing/opentracing-go/log"
 	"github.com/tektoncd/chains/internal/backport"
 	"github.com/tektoncd/chains/pkg/chains/objects"
 	"github.com/tektoncd/chains/pkg/config"
@@ -38,10 +39,6 @@ const (
 	ArtifactsOutputsResultName = "ARTIFACT_OUTPUTS"
 	OCIScheme                  = "oci://"
 	GitSchemePrefix            = "git+"
-	isBuildArtifactField       = "isBuildArtifact"
-	OCIImageURLResultName      = "IMAGE_URL"
-	OCIImageDigestResultName   = "IMAGE_DIGEST"
-	OCIImagesResultName        = "IMAGES"
 )
 
 var (
@@ -154,7 +151,6 @@ type image struct {
 }
 
 func (oa *OCIArtifact) ExtractObjects(ctx context.Context, obj objects.TektonObject) []interface{} {
-	logger := logging.FromContext(ctx)
 	objs := []interface{}{}
 
 	// TODO: Not applicable to PipelineRuns, should look into a better way to separate this out
@@ -185,7 +181,7 @@ func (oa *OCIArtifact) ExtractObjects(ctx context.Context, obj objects.TektonObj
 			for _, image := range imageResourceNames {
 				dgst, err := name.NewDigest(fmt.Sprintf("%s@%s", image.url, image.digest))
 				if err != nil {
-					logger.Error(err)
+					log.Error(err)
 					continue
 				}
 
@@ -195,23 +191,22 @@ func (oa *OCIArtifact) ExtractObjects(ctx context.Context, obj objects.TektonObj
 	}
 
 	// Now check TaskResults
-	resultImages := ExtractOCIImagesFromResults(ctx, obj.GetResults())
+	resultImages := ExtractOCIImagesFromResults(ctx, obj)
 	objs = append(objs, resultImages...)
 
 	return objs
 }
 
-// ExtractOCIImagesFromResults returns all the results marked as OCIImage type-hint result.
-func ExtractOCIImagesFromResults(ctx context.Context, results []objects.Result) []interface{} {
+func ExtractOCIImagesFromResults(ctx context.Context, obj objects.TektonObject) []interface{} {
 	logger := logging.FromContext(ctx)
 	objs := []interface{}{}
 
 	extractor := structuredSignableExtractor{
-		uriSuffix:    OCIImageURLResultName,
-		digestSuffix: OCIImageDigestResultName,
+		uriSuffix:    "IMAGE_URL",
+		digestSuffix: "IMAGE_DIGEST",
 		isValid:      hasImageRequirements,
 	}
-	for _, s := range extractor.extract(ctx, results) {
+	for _, s := range extractor.extract(ctx, obj) {
 		dgst, err := name.NewDigest(fmt.Sprintf("%s@%s", s.URI, s.Digest))
 		if err != nil {
 			logger.Errorf("error getting digest: %v", err)
@@ -221,8 +216,8 @@ func ExtractOCIImagesFromResults(ctx context.Context, results []objects.Result) 
 	}
 
 	// look for a comma separated list of images
-	for _, key := range results {
-		if key.Name != OCIImagesResultName {
+	for _, key := range obj.GetResults() {
+		if key.Name != "IMAGES" {
 			continue
 		}
 		imgs := strings.FieldsFunc(key.Value.StringVal, split)
@@ -261,7 +256,7 @@ func ExtractSignableTargetFromResults(ctx context.Context, obj objects.TektonObj
 			return true
 		},
 	}
-	return extractor.extract(ctx, obj.GetResults())
+	return extractor.extract(ctx, obj)
 }
 
 // FullRef returns the full reference of the signable artifact in the format of URI@DIGEST
@@ -269,12 +264,12 @@ func (s *StructuredSignable) FullRef() string {
 	return fmt.Sprintf("%s@%s", s.URI, s.Digest)
 }
 
-// RetrieveMaterialsFromStructuredResults retrieves structured results from Object Results, and convert them into materials.
-func RetrieveMaterialsFromStructuredResults(ctx context.Context, objResults []objects.Result) []common.ProvenanceMaterial {
+// RetrieveMaterialsFromStructuredResults retrieves structured results from Tekton Object, and convert them into materials.
+func RetrieveMaterialsFromStructuredResults(ctx context.Context, obj objects.TektonObject, categoryMarker string) []common.ProvenanceMaterial {
 	logger := logging.FromContext(ctx)
 	// Retrieve structured provenance for inputs.
 	mats := []common.ProvenanceMaterial{}
-	ssts := ExtractStructuredTargetFromResults(ctx, objResults, ArtifactsInputsResultName)
+	ssts := ExtractStructuredTargetFromResults(ctx, obj, ArtifactsInputsResultName)
 	for _, s := range ssts {
 		alg, digest, err := ParseDigest(s.Digest)
 		if err != nil {
@@ -291,7 +286,7 @@ func RetrieveMaterialsFromStructuredResults(ctx context.Context, objResults []ob
 
 // ExtractStructuredTargetFromResults extracts structured signable targets aim to generate intoto provenance as materials within TaskRun results and store them as StructuredSignable.
 // categoryMarker categorizes signable targets into inputs and outputs.
-func ExtractStructuredTargetFromResults(ctx context.Context, objResults []objects.Result, categoryMarker string) []*StructuredSignable {
+func ExtractStructuredTargetFromResults(ctx context.Context, obj objects.TektonObject, categoryMarker string) []*StructuredSignable {
 	logger := logging.FromContext(ctx)
 	objs := []*StructuredSignable{}
 	if categoryMarker != ArtifactsInputsResultName && categoryMarker != ArtifactsOutputsResultName {
@@ -299,7 +294,14 @@ func ExtractStructuredTargetFromResults(ctx context.Context, objResults []object
 	}
 
 	// TODO(#592): support structured results using Run
-	for _, res := range objResults {
+	results := []objects.Result{}
+	for _, res := range obj.GetResults() {
+		results = append(results, objects.Result{
+			Name:  res.Name,
+			Value: res.Value,
+		})
+	}
+	for _, res := range results {
 		if strings.HasSuffix(res.Name, categoryMarker) {
 			valid, err := isStructuredResult(res, categoryMarker)
 			if err != nil {
@@ -314,41 +316,6 @@ func ExtractStructuredTargetFromResults(ctx context.Context, objResults []object
 	return objs
 }
 
-// ExtractBuildArtifactsFromResults extracts all the structured signable targets from the given results, only processing the ones marked as build artifacts.
-func ExtractBuildArtifactsFromResults(ctx context.Context, results []objects.Result) (objs []*StructuredSignable) {
-	logger := logging.FromContext(ctx)
-
-	for _, res := range results {
-		valid, err := IsBuildArtifact(res)
-		if err != nil {
-			logger.Debugf("ExtractBuildArtifactsFromResults failed validatin artifact %v, ignoring artifact, err: %v", res.Name, err)
-			continue
-		}
-		if valid {
-			logger.Debugf("Extracted Build artifact data from Result %s, %s", res.Value.ObjectVal["uri"], res.Value.ObjectVal["digest"])
-			objs = append(objs, &StructuredSignable{URI: res.Value.ObjectVal["uri"], Digest: res.Value.ObjectVal["digest"]})
-		}
-	}
-	return
-}
-
-// IsBuildArtifact indicates if a given result was marked as a Build Artifact.
-func IsBuildArtifact(res objects.Result) (bool, error) {
-	if !strings.HasSuffix(res.Name, ArtifactsOutputsResultName) {
-		return false, nil
-	}
-
-	if res.Value.ObjectVal == nil {
-		return false, fmt.Errorf("%s should be an object: %v", res.Name, res.Value.ObjectVal)
-	}
-
-	if res.Value.ObjectVal[isBuildArtifactField] != "true" {
-		return false, nil
-	}
-
-	return isValidArtifactOutput(res)
-}
-
 func isStructuredResult(res objects.Result, categoryMarker string) (bool, error) {
 	if !strings.HasSuffix(res.Name, categoryMarker) {
 		return false, nil
@@ -356,10 +323,6 @@ func isStructuredResult(res objects.Result, categoryMarker string) (bool, error)
 	if res.Value.ObjectVal == nil {
 		return false, fmt.Errorf("%s should be an object: %v", res.Name, res.Value.ObjectVal)
 	}
-	return isValidArtifactOutput(res)
-}
-
-func isValidArtifactOutput(res objects.Result) (bool, error) {
 	if res.Value.ObjectVal["uri"] == "" {
 		return false, fmt.Errorf("%s should have uri field: %v", res.Name, res.Value.ObjectVal)
 	}

@@ -30,10 +30,9 @@ func (c *Client) GetRoleCredentials(ctx context.Context, params *GetRoleCredenti
 
 type GetRoleCredentialsInput struct {
 
-	// The token issued by the CreateToken API call. For more information, see [CreateToken] in the
-	// IAM Identity Center OIDC API Reference Guide.
-	//
-	// [CreateToken]: https://docs.aws.amazon.com/singlesignon/latest/OIDCAPIReference/API_CreateToken.html
+	// The token issued by the CreateToken API call. For more information, see
+	// CreateToken (https://docs.aws.amazon.com/singlesignon/latest/OIDCAPIReference/API_CreateToken.html)
+	// in the IAM Identity Center OIDC API Reference Guide.
 	//
 	// This member is required.
 	AccessToken *string
@@ -102,9 +101,6 @@ func (c *Client) addOperationGetRoleCredentialsMiddlewares(stack *middleware.Sta
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
-	if err = addSpanRetryLoop(stack, options); err != nil {
-		return err
-	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -115,12 +111,6 @@ func (c *Client) addOperationGetRoleCredentialsMiddlewares(stack *middleware.Sta
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
-		return err
-	}
-	if err = addTimeOffsetBuild(stack, c); err != nil {
-		return err
-	}
-	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetRoleCredentialsValidationMiddleware(stack); err != nil {
@@ -142,18 +132,6 @@ func (c *Client) addOperationGetRoleCredentialsMiddlewares(stack *middleware.Sta
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
-		return err
-	}
-	if err = addSpanInitializeStart(stack); err != nil {
-		return err
-	}
-	if err = addSpanInitializeEnd(stack); err != nil {
-		return err
-	}
-	if err = addSpanBuildRequestStart(stack); err != nil {
-		return err
-	}
-	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil
