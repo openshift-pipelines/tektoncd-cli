@@ -18,7 +18,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	intoto "github.com/in-toto/attestation/go/v1"
+	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/tektoncd/chains/pkg/chains/objects"
 	"github.com/tektoncd/chains/pkg/chains/signing"
 	"github.com/tektoncd/chains/pkg/chains/storage/api"
@@ -59,7 +59,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 		client: b.pipelineclientset,
 		key:    opts.ShortKey,
 	}
-	if _, err := store.Store(ctx, &api.StoreRequest[objects.TektonObject, *intoto.Statement]{
+	if _, err := store.Store(ctx, &api.StoreRequest[objects.TektonObject, *in_toto.Statement]{
 		Object:   obj,
 		Artifact: obj,
 		// We don't actually use payload - we store the raw bundle values directly.
@@ -89,7 +89,7 @@ func (b *Backend) retrieveAnnotationValue(ctx context.Context, obj objects.Tekto
 	var annotationValue string
 	annotations, err := obj.GetLatestAnnotations(ctx, b.pipelineclientset)
 	if err != nil {
-		return "", fmt.Errorf("error retrieving the annotation value for the key %q: %w", annotationKey, err)
+		return "", fmt.Errorf("error retrieving the annotation value for the key %q: %s", annotationKey, err)
 	}
 	val, ok := annotations[annotationKey]
 
@@ -99,7 +99,7 @@ func (b *Backend) retrieveAnnotationValue(ctx context.Context, obj objects.Tekto
 		if decode {
 			decodedAnnotation, err := base64.StdEncoding.DecodeString(val)
 			if err != nil {
-				return "", fmt.Errorf("error decoding the annotation value for the key %q: %w", annotationKey, err)
+				return "", fmt.Errorf("error decoding the annotation value for the key %q: %s", annotationKey, err)
 			}
 			annotationValue = string(decodedAnnotation)
 		} else {
@@ -153,11 +153,11 @@ type Storer struct {
 }
 
 var (
-	_ api.Storer[objects.TektonObject, *intoto.Statement] = &Storer{}
+	_ api.Storer[objects.TektonObject, *in_toto.Statement] = &Storer{}
 )
 
 // Store stores the statement in the TaskRun metadata as an annotation.
-func (s *Storer) Store(ctx context.Context, req *api.StoreRequest[objects.TektonObject, *intoto.Statement]) (*api.StoreResponse, error) {
+func (s *Storer) Store(ctx context.Context, req *api.StoreRequest[objects.TektonObject, *in_toto.Statement]) (*api.StoreResponse, error) {
 	logger := logging.FromContext(ctx)
 
 	obj := req.Object

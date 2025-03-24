@@ -80,7 +80,7 @@ func RunInspections(layout Layout, runDir string, lineNormalization bool, useDSS
 // verifyMatchRule is a helper function to process artifact rules of
 // type MATCH. See VerifyArtifacts for more details.
 func verifyMatchRule(ruleData map[string]string,
-	srcArtifacts map[string]HashObj, srcArtifactQueue Set,
+	srcArtifacts map[string]interface{}, srcArtifactQueue Set,
 	itemsMetadata map[string]Metadata) Set {
 	consumed := NewSet()
 	// Get destination link metadata
@@ -92,7 +92,7 @@ func verifyMatchRule(ruleData map[string]string,
 	}
 
 	// Get artifacts from destination link metadata
-	var dstArtifacts map[string]HashObj
+	var dstArtifacts map[string]interface{}
 	switch ruleData["dstType"] {
 	case "materials":
 		dstArtifacts = dstLinkEnv.GetPayload().(Link).Materials
@@ -223,11 +223,11 @@ func VerifyArtifacts(items []interface{},
 		// hashes). We extract them from the corresponding maps and store them as
 		// sets for convenience in further processing
 		materialPaths := NewSet()
-		for _, p := range artifactsDictKeyStrings(materials) {
+		for _, p := range InterfaceKeyStrings(materials) {
 			materialPaths.Add(path.Clean(p))
 		}
 		productPaths := NewSet()
-		for _, p := range artifactsDictKeyStrings(products) {
+		for _, p := range InterfaceKeyStrings(products) {
 			productPaths.Add(path.Clean(p))
 		}
 
@@ -270,7 +270,7 @@ func VerifyArtifacts(items []interface{},
 			// fmt.Printf("%s...\n", verificationData["srcType"])
 
 			rules := verificationData["rules"].([][]string)
-			artifacts := verificationData["artifacts"].(map[string]HashObj)
+			artifacts := verificationData["artifacts"].(map[string]interface{})
 
 			// Use artifacts (without hashes) as base queue. Each rule only operates
 			// on artifacts in that queue.  If a rule consumes an artifact (i.e. can

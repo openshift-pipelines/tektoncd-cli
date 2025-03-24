@@ -1,7 +1,6 @@
 package in_toto
 
 import (
-	ita1 "github.com/in-toto/attestation/go/v1"
 	"github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/common"
 	slsa01 "github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/v0.1"
 	slsa02 "github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/v0.2"
@@ -12,11 +11,6 @@ const (
 	// StatementInTotoV01 is the statement type for the generalized link format
 	// containing statements. This is constant for all predicate types.
 	StatementInTotoV01 = "https://in-toto.io/Statement/v0.1"
-
-	// StatementInTotoV1 is the type URI for ITE-6 v1 Statements.
-	// This is constant for all predicate types.
-	StatementInTotoV1 = ita1.StatementTypeUri
-
 	// PredicateSPDX represents a SBOM using the SPDX standard.
 	// The SPDX mandates 'spdxVersion' field, so predicate type can omit
 	// version.
@@ -28,28 +22,12 @@ const (
 )
 
 // Subject describes the set of software artifacts the statement applies to.
-//
-// Deprecated: This implementation of Subject exists for historical
-// compatibility and should not be used. This implementation has been
-// superseded by a ResourceDescriptor struct generated from the Protobuf
-// definition in
-// https://github.com/in-toto/attestation/tree/main/protos/in_toto_attestation/v1.
-// To generate an ITE-6 v1 Statement subject, use the ResourceDescriptor Go
-// APIs provided in https://github.com/in-toto/attestation/tree/main/go/v1.
 type Subject struct {
 	Name   string           `json:"name"`
 	Digest common.DigestSet `json:"digest"`
 }
 
 // StatementHeader defines the common fields for all statements
-//
-// Deprecated: This implementation of StatementHeader exists for historical
-// compatibility and should not be used. This implementation has been
-// superseded by the Statement struct generated from the Protobuf
-// definition in
-// https://github.com/in-toto/attestation/tree/main/protos/in_toto_attestation/v1.
-// To generate an ITE-6 v1 Statement, use the Go APIs provided in
-// https://github.com/in-toto/attestation/tree/main/go/v1.
 type StatementHeader struct {
 	Type          string    `json:"_type"`
 	PredicateType string    `json:"predicateType"`
@@ -60,13 +38,6 @@ type StatementHeader struct {
 Statement binds the attestation to a particular subject and identifies the
 of the predicate. This struct represents a generic statement.
 */
-// Deprecated: This implementation of Statement exists for historical
-// compatibility and should not be used. This implementation has been
-// superseded by the Statement struct generated from the Protobuf
-// definition in
-// https://github.com/in-toto/attestation/tree/main/protos/in_toto_attestation/v1.
-// To generate an ITE-6 v1 Statement, use the Go APIs provided in
-// https://github.com/in-toto/attestation/tree/main/go/v1.
 type Statement struct {
 	StatementHeader
 	// Predicate contains type speficic metadata.
@@ -86,11 +57,6 @@ type ProvenanceStatementSLSA02 struct {
 }
 
 // ProvenanceStatementSLSA1 is the definition for an entire provenance statement with SLSA 1.0 predicate.
-//
-// Deprecated: ProvenanceStatementSLSA1 exists for historical
-// compatibility and should not be used. To generate an ITE-6 v1 Statement
-// with an ITE-9 Provenance v1 predicate, use the Go APIs provided in
-// https://github.com/in-toto/attestation/tree/main/go.
 type ProvenanceStatementSLSA1 struct {
 	StatementHeader
 	Predicate slsa1.ProvenancePredicate `json:"predicate"`

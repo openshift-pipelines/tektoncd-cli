@@ -119,11 +119,7 @@ or
 			}
 
 			if output != "" {
-				printer, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObject(triggertemplateGroupResource, opts.TriggerTemplateName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), printer, p.Namespace())
+				return actions.PrintObject(triggertemplateGroupResource, opts.TriggerTemplateName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), f, p.Namespace())
 			}
 
 			return printTriggerTemplateDescription(s, p, opts.TriggerTemplateName)

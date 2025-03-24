@@ -415,9 +415,6 @@ func (g *gcpClient) createKeyRing(ctx context.Context) error {
 		KeyRingId: g.keyRing,
 	}
 	result, err := g.kmsClient.CreateKeyRing(ctx, createKeyRingRequest)
-	if err != nil {
-		return fmt.Errorf("creating keyring: %w", err)
-	}
 	log.Printf("Created key ring %s in GCP KMS.\n", result.GetName())
-	return nil
+	return err
 }

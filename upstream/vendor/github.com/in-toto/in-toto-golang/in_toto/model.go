@@ -1,11 +1,9 @@
 package in_toto
 
 import (
-	"context"
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,8 +17,6 @@ import (
 	"github.com/secure-systems-lab/go-securesystemslib/cjson"
 	"github.com/secure-systems-lab/go-securesystemslib/dsse"
 )
-
-type HashObj = map[string]string
 
 /*
 KeyVal contains the actual values of a key, as opposed to key metadata such as
@@ -341,8 +337,8 @@ writing to disk.
 type Link struct {
 	Type        string                 `json:"_type"`
 	Name        string                 `json:"name"`
-	Materials   map[string]HashObj     `json:"materials"`
-	Products    map[string]HashObj     `json:"products"`
+	Materials   map[string]interface{} `json:"materials"`
+	Products    map[string]interface{} `json:"products"`
 	ByProducts  map[string]interface{} `json:"byproducts"`
 	Command     []string               `json:"command"`
 	Environment map[string]interface{} `json:"environment"`
@@ -351,7 +347,7 @@ type Link struct {
 /*
 validateArtifacts is a general function used to validate products and materials.
 */
-func validateArtifacts(artifacts map[string]HashObj) error {
+func validateArtifacts(artifacts map[string]interface{}) error {
 	for artifactName, artifact := range artifacts {
 		artifactValue := reflect.ValueOf(artifact).MapRange()
 		for artifactValue.Next() {
@@ -900,26 +896,14 @@ func (mb *Metablock) VerifySignature(key Key) error {
 		return err
 	}
 
-	verifier, err := getSignerVerifierFromKey(key)
+	dataCanonical, err := mb.GetSignableRepresentation()
 	if err != nil {
 		return err
 	}
 
-	payload, err := mb.GetSignableRepresentation()
-	if err != nil {
+	if err := VerifySignature(key, sig, dataCanonical); err != nil {
 		return err
 	}
-
-	sigBytes, err := hex.DecodeString(sig.Sig)
-	if err != nil {
-		return err
-	}
-
-	err = verifier.Verify(context.Background(), payload, sigBytes)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -967,26 +951,17 @@ field as provided. It returns an error if the Signed object cannot be
 canonicalized, or if the key is invalid or not supported.
 */
 func (mb *Metablock) Sign(key Key) error {
-	signer, err := getSignerVerifierFromKey(key)
+
+	dataCanonical, err := mb.GetSignableRepresentation()
 	if err != nil {
 		return err
 	}
 
-	payload, err := mb.GetSignableRepresentation()
+	newSignature, err := GenerateSignature(dataCanonical, key)
 	if err != nil {
 		return err
 	}
 
-	signature, err := signer.Sign(context.Background(), payload)
-	if err != nil {
-		return err
-	}
-
-	mb.Signatures = append(mb.Signatures, Signature{
-		KeyID:       key.KeyID,
-		Sig:         hex.EncodeToString(signature),
-		Certificate: key.KeyVal.Certificate,
-	})
-
+	mb.Signatures = append(mb.Signatures, newSignature)
 	return nil
 }

@@ -2,7 +2,6 @@ package http
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -217,8 +216,7 @@ func ErrInvalidResponse(svc, m string, code int, body string) error {
 func ErrRequestError(svc, m string, err error) error {
 	temporary := false
 	timeout := false
-	var nerr net.Error
-	if errors.As(err, &nerr) {
+	if nerr, ok := err.(net.Error); ok {
 		timeout = nerr.Timeout()
 	}
 	return &ClientError{Name: "request_error", Message: err.Error(), Service: svc, Method: m,

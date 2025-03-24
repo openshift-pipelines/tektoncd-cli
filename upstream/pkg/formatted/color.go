@@ -83,7 +83,7 @@ func DecorateAttr(attrString, message string) string {
 	case "underline":
 		attr = color.Underline
 	case "underline bold":
-		return color.New(color.Underline).Add(color.Bold).Sprintf("%s", message)
+		return color.New(color.Underline).Add(color.Bold).Sprintf(message)
 	case "bold":
 		attr = color.Bold
 	case "yellow":
@@ -104,7 +104,7 @@ func DecorateAttr(attrString, message string) string {
 		attr = color.FgHiWhite
 	}
 
-	return color.New(attr).Sprintf("%s", message)
+	return color.New(attr).Sprintf(message)
 }
 
 type atomicCounter struct {
@@ -115,8 +115,6 @@ type atomicCounter struct {
 func (c *atomicCounter) next() int {
 	v := atomic.AddUint32(&c.value, 1)
 	next := int(v-1) % c.threshold
-	// nolint
-	// this conversion is throwing error for golangci-lint G115
 	atomic.CompareAndSwapUint32(&c.value, uint32(c.threshold), 0)
 	return next
 

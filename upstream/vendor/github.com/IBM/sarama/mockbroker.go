@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -411,29 +410,10 @@ func NewMockBroker(t TestReporter, brokerID int32) *MockBroker {
 // NewMockBrokerAddr behaves like newMockBroker but listens on the address you give
 // it rather than just some ephemeral port.
 func NewMockBrokerAddr(t TestReporter, brokerID int32, addr string) *MockBroker {
-	var (
-		listener net.Listener
-		err      error
-	)
-
-	// retry up to 20 times if address already in use (e.g., if replacing broker which hasn't cleanly shutdown)
-	for i := 0; i < 20; i++ {
-		listener, err = net.Listen("tcp", addr)
-		if err != nil {
-			if errors.Is(err, syscall.EADDRINUSE) {
-				Logger.Printf("*** mockbroker/%d waiting for %s (address already in use)", brokerID, addr)
-				time.Sleep(time.Millisecond * 100)
-				continue
-			}
-			t.Fatal(err)
-		}
-		break
-	}
-
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	return NewMockBrokerListener(t, brokerID, listener)
 }
 

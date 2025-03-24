@@ -1,28 +1,12 @@
 package sarama
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
 // AlterConfigsResponse is a response type for alter config
 type AlterConfigsResponse struct {
 	Version      int16
 	ThrottleTime time.Duration
 	Resources    []*AlterConfigsResourceResponse
-}
-
-type AlterConfigError struct {
-	Err    KError
-	ErrMsg string
-}
-
-func (c *AlterConfigError) Error() string {
-	text := c.Err.Error()
-	if c.ErrMsg != "" {
-		text = fmt.Sprintf("%s - %s", text, c.ErrMsg)
-	}
-	return text
 }
 
 // AlterConfigsResourceResponse is a response type for alter config resource

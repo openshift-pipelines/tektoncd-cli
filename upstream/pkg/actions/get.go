@@ -19,34 +19,35 @@ import (
 	"io"
 
 	"github.com/tektoncd/cli/pkg/cli"
+	"github.com/tektoncd/cli/pkg/printer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/cli-runtime/pkg/printers"
+	cliopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 )
 
 // TODO: remove as all the function uses are moved to new func
 // PrintObject is used to take a partial resource and the name of an object in the cluster, fetch it using the dynamic client, and print out the object.
-func PrintObject(groupResource schema.GroupVersionResource, obj string, w io.Writer, dynamic dynamic.Interface, discovery discovery.DiscoveryInterface, p printers.ResourcePrinter, ns string) error {
+func PrintObject(groupResource schema.GroupVersionResource, obj string, w io.Writer, dynamic dynamic.Interface, discovery discovery.DiscoveryInterface, f *cliopts.PrintFlags, ns string) error {
 	res, err := Get(groupResource, dynamic, discovery, obj, ns, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 
-	return p.PrintObj(res, w)
+	return printer.PrintObject(w, res, f)
 }
 
 // PrintObject is used to take a partial resource and the name of an object in the cluster, fetch it using the dynamic client, and print out the object.
-func PrintObjectV1(groupResource schema.GroupVersionResource, obj string, w io.Writer, client *cli.Clients, p printers.ResourcePrinter, ns string) error {
+func PrintObjectV1(groupResource schema.GroupVersionResource, obj string, w io.Writer, client *cli.Clients, f *cliopts.PrintFlags, ns string) error {
 	res, err := GetUnstructured(groupResource, client, obj, ns, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 
-	return p.PrintObj(res, w)
+	return printer.PrintObject(w, res, f)
 }
 
 // GetV1 is used to take a partial resource and the name of an object in the cluster and fetch it from the cluster using the dynamic client.

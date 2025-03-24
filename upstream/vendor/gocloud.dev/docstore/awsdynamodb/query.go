@@ -471,25 +471,17 @@ type documentIterator struct {
 
 func (it *documentIterator) Next(ctx context.Context, doc driver.Document) error {
 	// Skip the first 'n' documents where 'n' is the offset.
-	for it.count < it.offset {
-		if err := it.next(ctx, doc, false); err != nil {
-			return err
-		}
+	if it.offset > 0 && it.count < it.offset {
+		it.curr++
+		it.count++
+		return it.Next(ctx, doc)
 	}
-	return it.next(ctx, doc, true)
-}
-
-func (it *documentIterator) next(ctx context.Context, doc driver.Document, decode bool) error {
 	// Only start counting towards the limit after the offset has been reached.
-	if it.limit > 0 && it.count >= it.offset+it.limit {
+	if it.limit > 0 && it.count >= it.offset+it.limit || it.curr >= len(it.items) && it.last == nil {
 		return io.EOF
 	}
-	// it.items can be empty after a call to it.qr.run, but unless it.last is nil there may be more items.
-	for it.curr >= len(it.items) {
+	if it.curr >= len(it.items) {
 		// Make a new query request at the end of this page.
-		if it.last == nil {
-			return io.EOF
-		}
 		var err error
 		it.items, it.last, it.asFunc, err = it.qr.run(ctx, it.last)
 		if err != nil {
@@ -497,10 +489,8 @@ func (it *documentIterator) next(ctx context.Context, doc driver.Document, decod
 		}
 		it.curr = 0
 	}
-	if decode {
-		if err := decodeDoc(&dyn.AttributeValue{M: it.items[it.curr]}, doc); err != nil {
-			return err
-		}
+	if err := decodeDoc(&dyn.AttributeValue{M: it.items[it.curr]}, doc); err != nil {
+		return err
 	}
 	it.curr++
 	it.count++

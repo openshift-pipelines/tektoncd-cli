@@ -25,6 +25,7 @@ import (
 	"github.com/tektoncd/cli/pkg/actions"
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/formatted"
+	"github.com/tektoncd/cli/pkg/printer"
 	taskpkg "github.com/tektoncd/cli/pkg/task"
 	trsort "github.com/tektoncd/cli/pkg/taskrun/sort"
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
@@ -112,11 +113,7 @@ List all TaskRuns of Task 'foo' in namespace 'bar':
 				}
 				return nil
 			} else if output != "" && trs != nil {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return p.PrintObj(trs, cmd.OutOrStdout())
+				return printer.PrintObject(cmd.OutOrStdout(), trs, f)
 			}
 
 			stream := &cli.Stream{

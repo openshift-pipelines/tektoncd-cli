@@ -1,8 +1,8 @@
+version: '3.9'
 services:
   zookeeper-1:
     hostname: 'zookeeper-1'
     image: 'docker.io/library/zookeeper:3.6.3'
-    init: true
     restart: always
     environment:
       ZOO_MY_ID: '1'
@@ -15,7 +15,6 @@ services:
   zookeeper-2:
     hostname: 'zookeeper-2'
     image: 'docker.io/library/zookeeper:3.6.3'
-    init: true
     restart: always
     environment:
       ZOO_MY_ID: '2'
@@ -28,7 +27,6 @@ services:
   zookeeper-3:
     hostname: 'zookeeper-3'
     image: 'docker.io/library/zookeeper:3.6.3'
-    init: true
     restart: always
     environment:
       ZOO_MY_ID: '3'
@@ -41,7 +39,6 @@ services:
   kafka-1:
     hostname: 'kafka-1'
     image: 'sarama/fv-kafka-${KAFKA_VERSION:-3.6.0}'
-    init: true
     build:
       context: .
       dockerfile: Dockerfile.kafka
@@ -87,7 +84,6 @@ services:
   kafka-2:
     hostname: 'kafka-2'
     image: 'sarama/fv-kafka-${KAFKA_VERSION:-3.6.0}'
-    init: true
     build:
       context: .
       dockerfile: Dockerfile.kafka
@@ -133,7 +129,6 @@ services:
   kafka-3:
     hostname: 'kafka-3'
     image: 'sarama/fv-kafka-${KAFKA_VERSION:-3.6.0}'
-    init: true
     build:
       context: .
       dockerfile: Dockerfile.kafka
@@ -179,7 +174,6 @@ services:
   kafka-4:
     hostname: 'kafka-4'
     image: 'sarama/fv-kafka-${KAFKA_VERSION:-3.6.0}'
-    init: true
     build:
       context: .
       dockerfile: Dockerfile.kafka
@@ -225,7 +219,6 @@ services:
   kafka-5:
     hostname: 'kafka-5'
     image: 'sarama/fv-kafka-${KAFKA_VERSION:-3.6.0}'
-    init: true
     build:
       context: .
       dockerfile: Dockerfile.kafka
@@ -271,7 +264,6 @@ services:
   toxiproxy:
     hostname: 'toxiproxy'
     image: 'ghcr.io/shopify/toxiproxy:2.4.0'
-    init: true
     healthcheck:
       test: ['CMD', '/toxiproxy-cli', 'l']
       interval: 15s

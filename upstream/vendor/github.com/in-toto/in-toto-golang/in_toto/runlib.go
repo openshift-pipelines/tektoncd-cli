@@ -41,11 +41,11 @@ value is the error.
 NOTE: For cross-platform consistency Windows-style line separators (CRLF) are
 normalized to Unix-style line separators (LF) before hashing file contents.
 */
-func RecordArtifact(path string, hashAlgorithms []string, lineNormalization bool) (HashObj, error) {
+func RecordArtifact(path string, hashAlgorithms []string, lineNormalization bool) (map[string]interface{}, error) {
 	supportedHashMappings := getHashMapping()
 	// Read file from passed path
 	contents, err := os.ReadFile(path)
-	hashedContentsMap := make(HashObj)
+	hashedContentsMap := make(map[string]interface{})
 	if err != nil {
 		return nil, err
 	}
@@ -92,22 +92,12 @@ the following format:
 If recording an artifact fails the first return value is nil and the second
 return value is the error.
 */
-func RecordArtifacts(paths []string, hashAlgorithms []string, gitignorePatterns []string, lStripPaths []string, lineNormalization bool, followSymlinkDirs bool) (evalArtifacts map[string]HashObj, err error) {
+func RecordArtifacts(paths []string, hashAlgorithms []string, gitignorePatterns []string, lStripPaths []string, lineNormalization bool, followSymlinkDirs bool) (evalArtifacts map[string]interface{}, err error) {
 	// Make sure to initialize a fresh hashset for every RecordArtifacts call
 	visitedSymlinks = NewSet()
-	evalArtifactsUnnormalized, err := recordArtifacts(paths, hashAlgorithms, gitignorePatterns, lStripPaths, lineNormalization, followSymlinkDirs)
-	if err != nil {
-		return nil, err
-	}
-
-	// Normalize all paths in evalArtifactsUnnormalized.
-	evalArtifacts = make(map[string]HashObj, len(evalArtifactsUnnormalized))
-	for key, value := range evalArtifactsUnnormalized {
-		// Convert windows filepath to unix filepath.
-		evalArtifacts[filepath.ToSlash(key)] = value
-	}
-
-	return evalArtifacts, nil
+	evalArtifacts, err = recordArtifacts(paths, hashAlgorithms, gitignorePatterns, lStripPaths, lineNormalization, followSymlinkDirs)
+	// pass result and error through
+	return evalArtifacts, err
 }
 
 /*
@@ -128,8 +118,8 @@ the following format:
 If recording an artifact fails the first return value is nil and the second
 return value is the error.
 */
-func recordArtifacts(paths []string, hashAlgorithms []string, gitignorePatterns []string, lStripPaths []string, lineNormalization bool, followSymlinkDirs bool) (map[string]HashObj, error) {
-	artifacts := make(map[string]HashObj)
+func recordArtifacts(paths []string, hashAlgorithms []string, gitignorePatterns []string, lStripPaths []string, lineNormalization bool, followSymlinkDirs bool) (map[string]interface{}, error) {
+	artifacts := make(map[string]interface{})
 	for _, path := range paths {
 		err := filepath.Walk(path,
 			func(path string, info os.FileInfo, err error) error {
@@ -390,7 +380,7 @@ func InTotoRecordStart(name string, materialPaths []string, key Key, hashAlgorit
 		Type:        "link",
 		Name:        name,
 		Materials:   materials,
-		Products:    map[string]HashObj{},
+		Products:    map[string]interface{}{},
 		ByProducts:  map[string]interface{}{},
 		Command:     []string{},
 		Environment: map[string]interface{}{},
@@ -469,64 +459,4 @@ func InTotoRecordStop(prelimLinkEnv Metadata, productPaths []string, key Key, ha
 	}
 
 	return linkMb, nil
-}
-
-/*
-InTotoMatchProducts checks if local artifacts match products in passed link.
-
-NOTE: Does not check integrity or authenticity of passed link!
-*/
-func InTotoMatchProducts(link *Link, paths []string, hashAlgorithms []string, excludePatterns []string, lstripPaths []string) ([]string, []string, []string, error) {
-	if len(paths) == 0 {
-		paths = append(paths, ".")
-	}
-
-	artifacts, err := RecordArtifacts(paths, hashAlgorithms, excludePatterns, lstripPaths, false, false)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	artifactNames := []string{}
-	for name := range artifacts {
-		artifactNames = append(artifactNames, name)
-	}
-	artifactsSet := NewSet(artifactNames...)
-
-	productNames := []string{}
-	for name := range link.Products {
-		productNames = append(productNames, name)
-	}
-	productsSet := NewSet(productNames...)
-
-	onlyInProductsSet := productsSet.Difference(artifactsSet)
-	onlyInProducts := []string{}
-	for name := range onlyInProductsSet {
-		onlyInProducts = append(onlyInProducts, name)
-	}
-
-	notInProductsSet := artifactsSet.Difference(productsSet)
-	notInProducts := []string{}
-	for name := range notInProductsSet {
-		notInProducts = append(notInProducts, name)
-	}
-
-	inBothSet := artifactsSet.Intersection(productsSet)
-	differ := []string{}
-	for name := range inBothSet {
-		linkHashes := HashObj{}
-		for alg, val := range link.Products[name] {
-			linkHashes[alg] = val
-		}
-
-		artifactHashes := HashObj{}
-		for alg, val := range artifacts[name] {
-			artifactHashes[alg] = val
-		}
-
-		if !reflect.DeepEqual(linkHashes, artifactHashes) {
-			differ = append(differ, name)
-		}
-	}
-
-	return onlyInProducts, notInProducts, differ, nil
 }

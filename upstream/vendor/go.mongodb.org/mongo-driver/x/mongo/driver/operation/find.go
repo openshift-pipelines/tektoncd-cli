@@ -62,7 +62,6 @@ type Find struct {
 	result              driver.CursorResponse
 	serverAPI           *driver.ServerAPIOptions
 	timeout             *time.Duration
-	omitCSOTMaxTimeMS   bool
 	logger              *logger.Logger
 }
 
@@ -111,7 +110,6 @@ func (f *Find) Execute(ctx context.Context) error {
 		Timeout:           f.timeout,
 		Logger:            f.logger,
 		Name:              driverutil.FindOp,
-		OmitCSOTMaxTimeMS: f.omitCSOTMaxTimeMS,
 	}.Execute(ctx)
 
 }
@@ -551,18 +549,6 @@ func (f *Find) Timeout(timeout *time.Duration) *Find {
 	}
 
 	f.timeout = timeout
-	return f
-}
-
-// OmitCSOTMaxTimeMS omits the automatically-calculated "maxTimeMS" from the
-// command when CSOT is enabled. It does not effect "maxTimeMS" set by
-// [Find.MaxTime].
-func (f *Find) OmitCSOTMaxTimeMS(omit bool) *Find {
-	if f == nil {
-		f = new(Find)
-	}
-
-	f.omitCSOTMaxTimeMS = omit
 	return f
 }
 
