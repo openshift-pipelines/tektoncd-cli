@@ -46,7 +46,7 @@ func NewClientEncryption(keyVaultClient *Client, opts ...*options.ClientEncrypti
 
 	kmsProviders, err := marshal(ceo.KmsProviders, nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error creating KMS providers map: %w", err)
+		return nil, fmt.Errorf("error creating KMS providers map: %v", err)
 	}
 
 	mc, err := mongocrypt.NewMongoCrypt(mcopts.MongoCrypt().

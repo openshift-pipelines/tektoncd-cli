@@ -192,14 +192,15 @@ func PossibleKeyEncryptionAlgorithmValues() []KeyEncryptionAlgorithm {
 	}
 }
 
-// KeyRotationPolicyAction - The type of the action. The value should be compared case-insensitively.
+// KeyRotationPolicyAction - The type of the action.
 type KeyRotationPolicyAction string
 
 const (
-	// KeyRotationPolicyActionNotify - Trigger Event Grid events. Defaults to 30 days before expiry. Key Vault only.
-	KeyRotationPolicyActionNotify KeyRotationPolicyAction = "Notify"
+	// KeyRotationPolicyActionNotify - Trigger event grid events. For preview, the notification time is not configurable and it
+	// is default to 30 days before expiry.
+	KeyRotationPolicyActionNotify KeyRotationPolicyAction = "notify"
 	// KeyRotationPolicyActionRotate - Rotate the key based on the key policy.
-	KeyRotationPolicyActionRotate KeyRotationPolicyAction = "Rotate"
+	KeyRotationPolicyActionRotate KeyRotationPolicyAction = "rotate"
 )
 
 // PossibleKeyRotationPolicyActionValues returns the possible values for the KeyRotationPolicyAction const type.

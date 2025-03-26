@@ -37,12 +37,7 @@ func NewClient(vaultURL string, credential azcore.TokenCredential, options *Clie
 			DisableChallengeResourceVerification: options.DisableChallengeResourceVerification,
 		},
 	)
-	azcoreClient, err := azcore.NewClient(moduleName, version, runtime.PipelineOptions{
-		PerRetry: []policy.Policy{authPolicy},
-		Tracing: runtime.TracingOptions{
-			Namespace: "Microsoft.KeyVault",
-		},
-	}, &options.ClientOptions)
+	azcoreClient, err := azcore.NewClient("azkeys.Client", version, runtime.PipelineOptions{PerRetry: []policy.Policy{authPolicy}}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}

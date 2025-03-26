@@ -24,13 +24,9 @@ source $(dirname $0)/e2e-common.sh
 
 cd $(dirname $(readlink -f $0))/../
 
-E2E_SKIP_CLUSTER_CREATION=${E2E_SKIP_CLUSTER_CREATION:="false"}
-
 ci_run && {
-    header "Setting up environment"
-    if [ "${E2E_SKIP_CLUSTER_CREATION}" != "true" ]; then
-        initialize "$@"
-    fi
+  header "Setting up environment"
+  initialize $@
 }
 
 tkn() {
@@ -159,9 +155,9 @@ for res in eventlistener triggertemplate triggerbinding clustertriggerbinding; d
   kubectl delete --ignore-not-found=true ${res}.triggers.tekton.dev --all
 done
 
-# Run go e2e tests
-header "Running Go e2e tests"
+# Run the e2e tests
 export SYSTEM_NAMESPACE=${SYSTEM_NAMESPACE:-"tekton-pipelines"}
+header "Running Go e2e tests"
 failed=0
 if [[ -e ./bin/tkn ]];then
     export TEST_CLIENT_BINARY="${PWD}/bin/tkn"
@@ -170,7 +166,6 @@ else
     echo "Go Build successfull"
     export TEST_CLIENT_BINARY="${PWD}/tkn"
 fi
-
 go_test_e2e ./test/e2e/... || failed=1
 (( failed )) && fail_test
 

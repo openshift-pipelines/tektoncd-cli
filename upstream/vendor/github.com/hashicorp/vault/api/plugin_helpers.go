@@ -14,6 +14,7 @@ import (
 	"os"
 
 	"github.com/go-jose/go-jose/v3/jwt"
+
 	"github.com/hashicorp/errwrap"
 )
 

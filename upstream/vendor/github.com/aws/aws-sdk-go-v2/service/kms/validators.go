@@ -1512,6 +1512,9 @@ func validateOpGetKeyPolicyInput(v *GetKeyPolicyInput) error {
 	if v.KeyId == nil {
 		invalidParams.Add(smithy.NewErrParamRequired("KeyId"))
 	}
+	if v.PolicyName == nil {
+		invalidParams.Add(smithy.NewErrParamRequired("PolicyName"))
+	}
 	if invalidParams.Len() > 0 {
 		return invalidParams
 	} else {
@@ -1658,6 +1661,9 @@ func validateOpPutKeyPolicyInput(v *PutKeyPolicyInput) error {
 	invalidParams := smithy.InvalidParamsError{Context: "PutKeyPolicyInput"}
 	if v.KeyId == nil {
 		invalidParams.Add(smithy.NewErrParamRequired("KeyId"))
+	}
+	if v.PolicyName == nil {
+		invalidParams.Add(smithy.NewErrParamRequired("PolicyName"))
 	}
 	if v.Policy == nil {
 		invalidParams.Add(smithy.NewErrParamRequired("Policy"))

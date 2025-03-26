@@ -217,13 +217,6 @@ func resolveBaseEndpoint(cfg aws.Config, o *Options) {
 	}
 }
 
-func bindRegion(region string) *string {
-	if region == "" {
-		return nil
-	}
-	return aws.String(endpoints.MapFIPSRegion(region))
-}
-
 // EndpointParameters provides the parameters that influence how endpoints are
 // resolved.
 type EndpointParameters struct {
@@ -1048,7 +1041,7 @@ type endpointParamsBinder interface {
 func bindEndpointParams(input interface{}, options Options) *EndpointParameters {
 	params := &EndpointParameters{}
 
-	params.Region = bindRegion(options.Region)
+	params.Region = aws.String(endpoints.MapFIPSRegion(options.Region))
 	params.UseDualStack = aws.Bool(options.EndpointOptions.UseDualStackEndpoint == aws.DualStackEndpointStateEnabled)
 	params.UseFIPS = aws.Bool(options.EndpointOptions.UseFIPSEndpoint == aws.FIPSEndpointStateEnabled)
 	params.Endpoint = options.BaseEndpoint

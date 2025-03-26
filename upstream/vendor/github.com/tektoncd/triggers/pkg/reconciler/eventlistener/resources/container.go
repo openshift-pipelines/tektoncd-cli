@@ -33,12 +33,6 @@ func MakeContainer(el *v1beta1.EventListener, configAcc reconcilersource.ConfigA
 	if len(el.Spec.NamespaceSelector.MatchNames) != 0 {
 		isMultiNS = true
 	}
-	for _, triggerGroup := range el.Spec.TriggerGroups {
-		if len(triggerGroup.TriggerSelector.NamespaceSelector.MatchNames) != 0 {
-			isMultiNS = true
-			break
-		}
-	}
 
 	payloadValidation := true
 	if value, ok := el.GetAnnotations()[triggers.PayloadValidationAnnotation]; ok {

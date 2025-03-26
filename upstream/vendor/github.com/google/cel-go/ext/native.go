@@ -96,21 +96,17 @@ func newNativeTypeProvider(adapter types.Adapter, provider types.Provider, refTy
 	for _, refType := range refTypes {
 		switch rt := refType.(type) {
 		case reflect.Type:
-			result, err := newNativeTypes(rt)
+			t, err := newNativeType(rt)
 			if err != nil {
 				return nil, err
 			}
-			for idx := range result {
-				nativeTypes[result[idx].TypeName()] = result[idx]
-			}
+			nativeTypes[t.TypeName()] = t
 		case reflect.Value:
-			result, err := newNativeTypes(rt.Type())
+			t, err := newNativeType(rt.Type())
 			if err != nil {
 				return nil, err
 			}
-			for idx := range result {
-				nativeTypes[result[idx].TypeName()] = result[idx]
-			}
+			nativeTypes[t.TypeName()] = t
 		default:
 			return nil, fmt.Errorf("unsupported native type: %v (%T) must be reflect.Type or reflect.Value", rt, rt)
 		}
@@ -467,42 +463,6 @@ func (o *nativeObj) Type() ref.Type {
 // Value implements the ref.Val interface method.
 func (o *nativeObj) Value() any {
 	return o.val
-}
-
-func newNativeTypes(rawType reflect.Type) ([]*nativeType, error) {
-	nt, err := newNativeType(rawType)
-	if err != nil {
-		return nil, err
-	}
-	result := []*nativeType{nt}
-
-	alreadySeen := make(map[string]struct{})
-	var iterateStructMembers func(reflect.Type)
-	iterateStructMembers = func(t reflect.Type) {
-		if k := t.Kind(); k == reflect.Pointer || k == reflect.Slice || k == reflect.Array || k == reflect.Map {
-			t = t.Elem()
-		}
-		if t.Kind() != reflect.Struct {
-			return
-		}
-		if _, seen := alreadySeen[t.String()]; seen {
-			return
-		}
-		alreadySeen[t.String()] = struct{}{}
-		nt, ntErr := newNativeType(t)
-		if ntErr != nil {
-			err = ntErr
-			return
-		}
-		result = append(result, nt)
-
-		for idx := 0; idx < t.NumField(); idx++ {
-			iterateStructMembers(t.Field(idx).Type)
-		}
-	}
-	iterateStructMembers(rawType)
-
-	return result, err
 }
 
 func newNativeType(rawType reflect.Type) (*nativeType, error) {

@@ -78,7 +78,7 @@ func TestDecodeFromRaw(t *testing.T) {
 			}
 
 			err := decodeObjects(strings.Join(rawObjects, YAMLSeparator),
-				func(_ *schema.GroupVersionKind, element runtime.Object, _ []byte) error {
+				func(gvr *schema.GroupVersionKind, element runtime.Object, raw []byte) error {
 					test.Contains(t, tc.expectedElements, element)
 					return nil
 				})

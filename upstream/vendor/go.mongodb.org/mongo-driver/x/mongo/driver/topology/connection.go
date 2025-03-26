@@ -337,10 +337,7 @@ func (c *connection) cancellationListenerCallback() {
 func (c *connection) writeWireMessage(ctx context.Context, wm []byte) error {
 	var err error
 	if atomic.LoadInt64(&c.state) != connConnected {
-		return ConnectionError{
-			ConnectionID: c.id,
-			message:      "connection is closed",
-		}
+		return ConnectionError{ConnectionID: c.id, message: "connection is closed"}
 	}
 
 	var deadline time.Time
@@ -391,10 +388,7 @@ func (c *connection) write(ctx context.Context, wm []byte) (err error) {
 // readWireMessage reads a wiremessage from the connection. The dst parameter will be overwritten.
 func (c *connection) readWireMessage(ctx context.Context) ([]byte, error) {
 	if atomic.LoadInt64(&c.state) != connConnected {
-		return nil, ConnectionError{
-			ConnectionID: c.id,
-			message:      "connection is closed",
-		}
+		return nil, ConnectionError{ConnectionID: c.id, message: "connection is closed"}
 	}
 
 	var deadline time.Time
@@ -417,7 +411,7 @@ func (c *connection) readWireMessage(ctx context.Context) ([]byte, error) {
 		// We closeConnection the connection because we don't know if there are other bytes left to read.
 		c.close()
 		message := errMsg
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			message = "socket was unexpectedly closed"
 		}
 		return nil, ConnectionError{

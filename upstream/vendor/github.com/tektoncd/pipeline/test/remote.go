@@ -19,7 +19,6 @@ package test
 import (
 	"archive/tar"
 	"bytes"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -37,14 +36,16 @@ import (
 // ObjectAnnotationMapper is a func alias that maps a runtime Object to the Tekton Bundle annotations map.
 type ObjectAnnotationMapper func(object runtime.Object) map[string]string
 
-// DefaultObjectAnnotationMapper does the "right" thing by conforming to the Tekton Bundle spec.
-var DefaultObjectAnnotationMapper = func(obj runtime.Object) map[string]string {
-	return map[string]string{
-		tkremote.TitleAnnotation:      GetObjectName(obj),
-		tkremote.KindAnnotation:       strings.TrimSuffix(strings.ToLower(obj.GetObjectKind().GroupVersionKind().Kind), "s"),
-		tkremote.APIVersionAnnotation: obj.GetObjectKind().GroupVersionKind().Version,
+var (
+	// DefaultObjectAnnotationMapper does the "right" thing by conforming to the Tekton Bundle spec.
+	DefaultObjectAnnotationMapper = func(obj runtime.Object) map[string]string {
+		return map[string]string{
+			tkremote.TitleAnnotation:      GetObjectName(obj),
+			tkremote.KindAnnotation:       strings.TrimSuffix(strings.ToLower(obj.GetObjectKind().GroupVersionKind().Kind), "s"),
+			tkremote.APIVersionAnnotation: obj.GetObjectKind().GroupVersionKind().Version,
+		}
 	}
-}
+)
 
 // CreateImage will push a new OCI image artifact with the provided raw data object as a layer and return the full image
 // reference with a digest to fetch the image. Key must be specified as [lowercase kind]/[object name]. The image ref
@@ -74,7 +75,7 @@ func CreateImageWithAnnotations(ref string, mapper ObjectAnnotationMapper, objs 
 		writer := tar.NewWriter(&tarbundle)
 		if err := writer.WriteHeader(&tar.Header{
 			Name:     GetObjectName(obj),
-			Mode:     0o600,
+			Mode:     0600,
 			Size:     int64(len(data)),
 			Typeflag: tar.TypeReg,
 		}); err != nil {
@@ -103,7 +104,7 @@ func CreateImageWithAnnotations(ref string, mapper ObjectAnnotationMapper, objs 
 	}
 
 	if err := remoteimg.Write(imgRef, img); err != nil {
-		return "", errors.New("could not push example image to registry")
+		return "", fmt.Errorf("could not push example image to registry")
 	}
 
 	digest, err := img.Digest()
