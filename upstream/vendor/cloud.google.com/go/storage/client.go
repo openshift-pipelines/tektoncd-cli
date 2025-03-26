@@ -254,9 +254,6 @@ type openWriterParams struct {
 	// attrs - see `Writer.ObjectAttrs`.
 	// Required.
 	attrs *ObjectAttrs
-	// forceEmptyContentType - Disables auto-detect of Content-Type
-	// Optional.
-	forceEmptyContentType bool
 	// conds - see `Writer.o.conds`.
 	// Optional.
 	conds *Conditions

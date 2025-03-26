@@ -52,7 +52,7 @@ const (
 
 // WaitFor waits for the specified ConditionFunc every internal until the timeout.
 func WaitFor(waitFunc wait.ConditionFunc) error {
-	return wait.PollImmediate(interval, timeout, waitFunc) //nolint:staticcheck
+	return wait.PollImmediate(interval, timeout, waitFunc)
 }
 
 // revive:disable:unused-parameter

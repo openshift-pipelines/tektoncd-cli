@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
+	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/kms/types"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
@@ -25,11 +26,13 @@ import (
 // into that KMS key, but you cannot import different key material. You might
 // reimport key material to replace key material that expired or key material that
 // you deleted. You might also reimport key material to change the expiration model
-// or expiration date of the key material. Each time you import key material into
-// KMS, you can determine whether ( ExpirationModel ) and when ( ValidTo ) the key
-// material expires. To change the expiration of your key material, you must import
-// it again, either by calling ImportKeyMaterial or using the import features of
-// the KMS console. Before calling ImportKeyMaterial :
+// or expiration date of the key material. Before reimporting key material, if
+// necessary, call DeleteImportedKeyMaterial to delete the current imported key
+// material. Each time you import key material into KMS, you can determine whether
+// ( ExpirationModel ) and when ( ValidTo ) the key material expires. To change the
+// expiration of your key material, you must import it again, either by calling
+// ImportKeyMaterial or using the import features of the KMS console. Before
+// calling ImportKeyMaterial :
 //   - Create or identify a KMS key with no key material. The KMS key must have an
 //     Origin value of EXTERNAL , which indicates that the KMS key is designed for
 //     imported key material. To create an new KMS key for imported key material, call
@@ -190,25 +193,25 @@ func (c *Client) addOperationImportKeyMaterialMiddlewares(stack *middleware.Stac
 	if err = addSetLoggerMiddleware(stack, options); err != nil {
 		return err
 	}
-	if err = addClientRequestID(stack); err != nil {
+	if err = awsmiddleware.AddClientRequestIDMiddleware(stack); err != nil {
 		return err
 	}
-	if err = addComputeContentLength(stack); err != nil {
+	if err = smithyhttp.AddComputeContentLengthMiddleware(stack); err != nil {
 		return err
 	}
 	if err = addResolveEndpointMiddleware(stack, options); err != nil {
 		return err
 	}
-	if err = addComputePayloadSHA256(stack); err != nil {
+	if err = v4.AddComputePayloadSHA256Middleware(stack); err != nil {
 		return err
 	}
-	if err = addRetry(stack, options); err != nil {
+	if err = addRetryMiddlewares(stack, options); err != nil {
 		return err
 	}
-	if err = addRawResponseToMetadata(stack); err != nil {
+	if err = awsmiddleware.AddRawResponseToMetadata(stack); err != nil {
 		return err
 	}
-	if err = addRecordResponseTiming(stack); err != nil {
+	if err = awsmiddleware.AddRecordResponseTiming(stack); err != nil {
 		return err
 	}
 	if err = addClientUserAgent(stack, options); err != nil {
@@ -229,7 +232,7 @@ func (c *Client) addOperationImportKeyMaterialMiddlewares(stack *middleware.Stac
 	if err = stack.Initialize.Add(newServiceMetadataMiddleware_opImportKeyMaterial(options.Region), middleware.Before); err != nil {
 		return err
 	}
-	if err = addRecursionDetection(stack); err != nil {
+	if err = awsmiddleware.AddRecursionDetection(stack); err != nil {
 		return err
 	}
 	if err = addRequestIDRetrieverMiddleware(stack); err != nil {

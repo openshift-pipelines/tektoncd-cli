@@ -64,7 +64,7 @@ type Group struct {
 	ProjectCreationLevel    ProjectCreationLevelValue  `json:"project_creation_level"`
 	AutoDevopsEnabled       bool                       `json:"auto_devops_enabled"`
 	SubGroupCreationLevel   SubGroupCreationLevelValue `json:"subgroup_creation_level"`
-	EmailsEnabled           bool                       `json:"emails_enabled"`
+	EmailsDisabled          bool                       `json:"emails_disabled"`
 	MentionsDisabled        bool                       `json:"mentions_disabled"`
 	RunnersToken            string                     `json:"runners_token"`
 	SharedProjects          []*Project                 `json:"shared_projects"`
@@ -87,9 +87,6 @@ type Group struct {
 	CreatedAt                      *time.Time         `json:"created_at"`
 	IPRestrictionRanges            string             `json:"ip_restriction_ranges"`
 	WikiAccessLevel                AccessControlValue `json:"wiki_access_level"`
-
-	// Deprecated: Use EmailsEnabled instead
-	EmailsDisabled bool `json:"emails_disabled"`
 }
 
 // GroupAvatar represents a GitLab group avatar.
@@ -350,7 +347,7 @@ type CreateGroupOptions struct {
 	ProjectCreationLevel           *ProjectCreationLevelValue  `url:"project_creation_level,omitempty" json:"project_creation_level,omitempty"`
 	AutoDevopsEnabled              *bool                       `url:"auto_devops_enabled,omitempty" json:"auto_devops_enabled,omitempty"`
 	SubGroupCreationLevel          *SubGroupCreationLevelValue `url:"subgroup_creation_level,omitempty" json:"subgroup_creation_level,omitempty"`
-	EmailsEnabled                  *bool                       `url:"emails_enabled,omitempty" json:"emails_enabled,omitempty"`
+	EmailsDisabled                 *bool                       `url:"emails_disabled,omitempty" json:"emails_disabled,omitempty"`
 	MentionsDisabled               *bool                       `url:"mentions_disabled,omitempty" json:"mentions_disabled,omitempty"`
 	LFSEnabled                     *bool                       `url:"lfs_enabled,omitempty" json:"lfs_enabled,omitempty"`
 	DefaultBranchProtection        *int                        `url:"default_branch_protection,omitempty" json:"default_branch_protection"`
@@ -360,9 +357,6 @@ type CreateGroupOptions struct {
 	ExtraSharedRunnersMinutesLimit *int                        `url:"extra_shared_runners_minutes_limit,omitempty" json:"extra_shared_runners_minutes_limit,omitempty"`
 	IPRestrictionRanges            *string                     `url:"ip_restriction_ranges,omitempty" json:"ip_restriction_ranges,omitempty"`
 	WikiAccessLevel                *AccessControlValue         `url:"wiki_access_level,omitempty" json:"wiki_access_level,omitempty"`
-
-	// Deprecated: Use EmailsEnabled instead
-	EmailsDisabled *bool `url:"emails_disabled,omitempty" json:"emails_disabled,omitempty"`
 }
 
 // CreateGroup creates a new project group. Available only for users who can
@@ -479,7 +473,7 @@ type UpdateGroupOptions struct {
 	ProjectCreationLevel                 *ProjectCreationLevelValue  `url:"project_creation_level,omitempty" json:"project_creation_level,omitempty"`
 	AutoDevopsEnabled                    *bool                       `url:"auto_devops_enabled,omitempty" json:"auto_devops_enabled,omitempty"`
 	SubGroupCreationLevel                *SubGroupCreationLevelValue `url:"subgroup_creation_level,omitempty" json:"subgroup_creation_level,omitempty"`
-	EmailsEnabled                        *bool                       `url:"emails_enabled,omitempty" json:"emails_enabled,omitempty"`
+	EmailsDisabled                       *bool                       `url:"emails_disabled,omitempty" json:"emails_disabled,omitempty"`
 	MentionsDisabled                     *bool                       `url:"mentions_disabled,omitempty" json:"mentions_disabled,omitempty"`
 	LFSEnabled                           *bool                       `url:"lfs_enabled,omitempty" json:"lfs_enabled,omitempty"`
 	RequestAccessEnabled                 *bool                       `url:"request_access_enabled,omitempty" json:"request_access_enabled,omitempty"`
@@ -492,9 +486,6 @@ type UpdateGroupOptions struct {
 	PreventSharingGroupsOutsideHierarchy *bool                       `url:"prevent_sharing_groups_outside_hierarchy,omitempty" json:"prevent_sharing_groups_outside_hierarchy,omitempty"`
 	IPRestrictionRanges                  *string                     `url:"ip_restriction_ranges,omitempty" json:"ip_restriction_ranges,omitempty"`
 	WikiAccessLevel                      *AccessControlValue         `url:"wiki_access_level,omitempty" json:"wiki_access_level,omitempty"`
-
-	// Deprecated: Use EmailsEnabled instead
-	EmailsDisabled *bool `url:"emails_disabled,omitempty" json:"emails_disabled,omitempty"`
 }
 
 // UpdateGroup updates an existing group; only available to group owners and
@@ -569,25 +560,17 @@ func (s *GroupsService) UploadAvatar(gid interface{}, avatar io.Reader, filename
 	return g, resp, nil
 }
 
-// DeleteGroupOptions represents the available DeleteGroup() options.
-//
-// GitLab API docs: https://docs.gitlab.com/ee/api/groups.html#update-group
-type DeleteGroupOptions struct {
-	PermanentlyRemove *bool   `url:"permanently_remove,omitempty" json:"permanently_remove,omitempty"`
-	FullPath          *string `url:"full_path,omitempty" json:"full_path,omitempty"`
-}
-
 // DeleteGroup removes group with all projects inside.
 //
 // GitLab API docs: https://docs.gitlab.com/ee/api/groups.html#remove-group
-func (s *GroupsService) DeleteGroup(gid interface{}, opt *DeleteGroupOptions, options ...RequestOptionFunc) (*Response, error) {
+func (s *GroupsService) DeleteGroup(gid interface{}, options ...RequestOptionFunc) (*Response, error) {
 	group, err := parseID(gid)
 	if err != nil {
 		return nil, err
 	}
 	u := fmt.Sprintf("groups/%s", PathEscape(group))
 
-	req, err := s.client.NewRequest(http.MethodDelete, u, opt, options)
+	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
 	if err != nil {
 		return nil, err
 	}

@@ -24,6 +24,7 @@ import (
 	v1alpha1 "github.com/tektoncd/triggers/pkg/apis/triggers/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -35,9 +36,9 @@ type FakeEventListeners struct {
 	ns   string
 }
 
-var eventlistenersResource = v1alpha1.SchemeGroupVersion.WithResource("eventlisteners")
+var eventlistenersResource = schema.GroupVersionResource{Group: "triggers.tekton.dev", Version: "v1alpha1", Resource: "eventlisteners"}
 
-var eventlistenersKind = v1alpha1.SchemeGroupVersion.WithKind("EventListener")
+var eventlistenersKind = schema.GroupVersionKind{Group: "triggers.tekton.dev", Version: "v1alpha1", Kind: "EventListener"}
 
 // Get takes name of the eventListener, and returns the corresponding eventListener object, and an error if there is any.
 func (c *FakeEventListeners) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.EventListener, err error) {

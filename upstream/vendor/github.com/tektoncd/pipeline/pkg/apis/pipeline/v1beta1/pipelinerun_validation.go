@@ -19,7 +19,6 @@ package v1beta1
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/tektoncd/pipeline/pkg/apis/config"
@@ -28,15 +27,12 @@ import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/utils/strings/slices"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/webhook/resourcesemantics"
 )
 
-var (
-	_ apis.Validatable = (*PipelineRun)(nil)
-	_ resourcesemantics.VerbLimited
-)
+var _ apis.Validatable = (*PipelineRun)(nil)
+var _ resourcesemantics.VerbLimited
 
 // SupportedVerbs returns the operations that validation should be called for
 func (pr *PipelineRun) SupportedVerbs() []admissionregistrationv1.OperationType {
@@ -75,10 +71,6 @@ func (ps *PipelineRunSpec) Validate(ctx context.Context) (errs *apis.FieldError)
 
 	// Validate PipelineSpec if it's present
 	if ps.PipelineSpec != nil {
-		if slices.Contains(strings.Split(
-			config.FromContextOrDefaults(ctx).FeatureFlags.DisableInlineSpec, ","), "pipelinerun") {
-			errs = errs.Also(apis.ErrDisallowedFields("pipelineSpec"))
-		}
 		errs = errs.Also(ps.PipelineSpec.Validate(ctx).ViaField("pipelineSpec"))
 	}
 
@@ -93,7 +85,7 @@ func (ps *PipelineRunSpec) Validate(ctx context.Context) (errs *apis.FieldError)
 	if ps.Timeout != nil {
 		// timeout should be a valid duration of at least 0.
 		if ps.Timeout.Duration < 0 {
-			errs = errs.Also(apis.ErrInvalidValue(ps.Timeout.Duration.String()+" should be >= 0", "timeout"))
+			errs = errs.Also(apis.ErrInvalidValue(fmt.Sprintf("%s should be >= 0", ps.Timeout.Duration.String()), "timeout"))
 		}
 	}
 
@@ -287,8 +279,8 @@ func validateSpecStatus(status PipelineRunSpecStatus) *apis.FieldError {
 
 func validateTimeoutDuration(field string, d *metav1.Duration) (errs *apis.FieldError) {
 	if d != nil && d.Duration < 0 {
-		fieldPath := "timeouts." + field
-		return errs.Also(apis.ErrInvalidValue(d.Duration.String()+" should be >= 0", fieldPath))
+		fieldPath := fmt.Sprintf("timeouts.%s", field)
+		return errs.Also(apis.ErrInvalidValue(fmt.Sprintf("%s should be >= 0", d.Duration.String()), fieldPath))
 	}
 	return nil
 }

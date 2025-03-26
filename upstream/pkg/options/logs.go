@@ -51,7 +51,6 @@ type LogOptions struct {
 	Tail            int64
 	Timestamps      bool
 	Prefixing       bool
-	ExitWithPrError bool
 	// ActivityTimeout is the amount of time to wait for some activity
 	// (e.g. Pod ready) before giving up.
 	ActivityTimeout time.Duration
@@ -121,7 +120,7 @@ func (opts *LogOptions) FuzzyAsk(resource string, options []string) error {
 		func(i int) string {
 			return strings.Fields(options[i])[0]
 		},
-		fuzzyfinder.WithPreviewWindow(func(i, _, _ int) string {
+		fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
 			if i == -1 {
 				return ""
 			}

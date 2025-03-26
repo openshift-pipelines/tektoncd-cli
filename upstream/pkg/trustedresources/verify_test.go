@@ -61,7 +61,7 @@ func TestVerify(t *testing.T) {
 	}{{
 		name:        "Unsigned Task fails verification",
 		resource:    unsignedTask,
-		expectedErr: fmt.Errorf("ecdsa: Invalid IEEE_P1363 encoded bytes"),
+		expectedErr: fmt.Errorf("invalid signature when validating ASN.1 encoded signature"),
 	}, {
 		name:        "Tampered Task fails verification",
 		resource:    tamperedTask,
@@ -73,7 +73,7 @@ func TestVerify(t *testing.T) {
 	}, {
 		name:        "Unsigned Pipeline fails verification",
 		resource:    unsignedPipeline,
-		expectedErr: fmt.Errorf("ecdsa: Invalid IEEE_P1363 encoded bytes"),
+		expectedErr: fmt.Errorf("invalid signature when validating ASN.1 encoded signature"),
 	}, {
 		name:        "Tampered Pipeline fails verification",
 		resource:    tamperedPipeline,

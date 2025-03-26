@@ -192,11 +192,6 @@ type Query struct {
 	// filter, they should be combined with AND.
 	Filters []Filter
 
-	// Offset (also commonly referred to as `Skip`) sets the number of results to skip
-	// before returning results. When Offset <= 0, the driver implementation should
-	// return all possible results.
-	Offset int
-
 	// Limit sets the maximum number of results returned by running the query. When
 	// Limit <= 0, the driver implementation should return all possible results.
 	Limit int
@@ -219,7 +214,7 @@ type Query struct {
 // TODO(#1762): support comparison of other types.
 type Filter struct {
 	FieldPath []string    // the field path to filter
-	Op        string      // the operation, supports `=`, `>`, `>=`, `<`, `<=`, `in`, `not-in`
+	Op        string      // the operation, supports =, >, >=, <, <=
 	Value     interface{} // the value to compare using the operation
 }
 

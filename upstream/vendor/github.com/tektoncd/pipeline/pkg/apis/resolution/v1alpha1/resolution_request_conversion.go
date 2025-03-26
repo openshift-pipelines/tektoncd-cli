@@ -112,7 +112,7 @@ func (rrs *ResolutionRequestSpec) ConvertFrom(ctx context.Context, from *v1beta1
 	return nil
 }
 
-// convertFrom converts a v1alpha1.ResolutionRequestStatus to a v1beta1.ResolutionRequestStatus
+// convertTo converts a v1alpha1.ResolutionRequestStatus to a v1beta1.ResolutionRequestStatus
 func (rrs *ResolutionRequestStatus) convertFrom(ctx context.Context, from *v1beta1.ResolutionRequestStatus) {
 	rrs.Data = from.Data
 

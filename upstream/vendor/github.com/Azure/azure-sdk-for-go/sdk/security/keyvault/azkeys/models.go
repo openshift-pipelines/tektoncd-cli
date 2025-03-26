@@ -195,9 +195,6 @@ type KeyAttributes struct {
 	// READ-ONLY; Creation time in UTC.
 	Created *time.Time
 
-	// READ-ONLY; The underlying HSM Platform.
-	HSMPlatform *string
-
 	// READ-ONLY; softDelete data retention days. Value should be >=7 and <=90 when softDelete enabled, otherwise 0.
 	RecoverableDays *int32
 
@@ -363,7 +360,7 @@ type LifetimeActionTrigger struct {
 
 // LifetimeActionType - The action that will be executed.
 type LifetimeActionType struct {
-	// The type of the action. The value should be compared case-insensitively.
+	// The type of the action.
 	Type *KeyRotationPolicyAction
 }
 

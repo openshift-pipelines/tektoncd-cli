@@ -149,15 +149,6 @@ const (
 	// Point in time recovery has not yet been enabled for this source table.
 	ErrCodePointInTimeRecoveryUnavailableException = "PointInTimeRecoveryUnavailableException"
 
-	// ErrCodePolicyNotFoundException for service response error code
-	// "PolicyNotFoundException".
-	//
-	// The operation tried to access a nonexistent resource-based policy.
-	//
-	// If you specified an ExpectedRevisionId, it's possible that a policy is present
-	// for the resource but its revision ID didn't match the expected value.
-	ErrCodePolicyNotFoundException = "PolicyNotFoundException"
-
 	// ErrCodeProvisionedThroughputExceededException for service response error code
 	// "ProvisionedThroughputExceededException".
 	//
@@ -392,7 +383,6 @@ var exceptionFromCode = map[string]func(protocol.ResponseMetadata) error{
 	"ItemCollectionSizeLimitExceededException": newErrorItemCollectionSizeLimitExceededException,
 	"LimitExceededException":                   newErrorLimitExceededException,
 	"PointInTimeRecoveryUnavailableException":  newErrorPointInTimeRecoveryUnavailableException,
-	"PolicyNotFoundException":                  newErrorPolicyNotFoundException,
 	"ProvisionedThroughputExceededException":   newErrorProvisionedThroughputExceededException,
 	"ReplicaAlreadyExistsException":            newErrorReplicaAlreadyExistsException,
 	"ReplicaNotFoundException":                 newErrorReplicaNotFoundException,

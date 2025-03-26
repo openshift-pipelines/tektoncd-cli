@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 
 	"go.opencensus.io/trace"
 	"go.opentelemetry.io/otel"
@@ -51,22 +50,16 @@ const (
 )
 
 var (
-	// openTelemetryTracingEnabledMu guards access to openTelemetryTracingEnabled field
-	openTelemetryTracingEnabledMu = sync.RWMutex{}
-	// openTelemetryTracingEnabled is true if the environment variable
+	// OpenTelemetryTracingEnabled is true if the environment variable
 	// GOOGLE_API_GO_EXPERIMENTAL_TELEMETRY_PLATFORM_TRACING is set to the
 	// case-insensitive value "opentelemetry".
-	openTelemetryTracingEnabled bool = strings.EqualFold(strings.TrimSpace(
+	//
+	// Do not access directly. Use instead IsOpenTelemetryTracingEnabled or
+	// IsOpenCensusTracingEnabled. Intended for use only in unit tests. Restore
+	// original value after each test.
+	OpenTelemetryTracingEnabled bool = strings.EqualFold(strings.TrimSpace(
 		os.Getenv(TelemetryPlatformTracingVar)), TelemetryPlatformTracingOpenTelemetry)
 )
-
-// SetOpenTelemetryTracingEnabledField programmatically sets the value provided by GOOGLE_API_GO_EXPERIMENTAL_TELEMETRY_PLATFORM_TRACING for the purpose of unit testing.
-// Do not invoke it directly. Intended for use only in unit tests. Restore original value after each test.
-func SetOpenTelemetryTracingEnabledField(enabled bool) {
-	openTelemetryTracingEnabledMu.Lock()
-	defer openTelemetryTracingEnabledMu.Unlock()
-	openTelemetryTracingEnabled = enabled
-}
 
 // IsOpenCensusTracingEnabled returns true if the environment variable
 // GOOGLE_API_GO_EXPERIMENTAL_TELEMETRY_PLATFORM_TRACING is NOT set to the
@@ -79,9 +72,7 @@ func IsOpenCensusTracingEnabled() bool {
 // GOOGLE_API_GO_EXPERIMENTAL_TELEMETRY_PLATFORM_TRACING is set to the
 // case-insensitive value "opentelemetry".
 func IsOpenTelemetryTracingEnabled() bool {
-	openTelemetryTracingEnabledMu.RLock()
-	defer openTelemetryTracingEnabledMu.RUnlock()
-	return openTelemetryTracingEnabled
+	return OpenTelemetryTracingEnabled
 }
 
 // StartSpan adds a span to the trace with the given name. If IsOpenCensusTracingEnabled
