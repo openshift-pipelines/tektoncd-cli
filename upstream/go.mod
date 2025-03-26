@@ -1,6 +1,8 @@
 module github.com/tektoncd/cli
 
-go 1.20
+go 1.21
+
+toolchain go1.21.8
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
@@ -9,7 +11,7 @@ require (
 	github.com/cpuguy83/go-md2man v1.0.10
 	github.com/creack/pty v1.1.21
 	github.com/docker/cli v25.0.3+incompatible
-	github.com/docker/docker v25.0.3+incompatible
+	github.com/docker/docker v25.0.6+incompatible
 	github.com/fatih/color v1.16.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.19.0
@@ -154,8 +156,8 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/go-openapi/validate v0.22.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.1.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -318,7 +320,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240122161410-6c6643bf1457 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac // indirect
 	google.golang.org/grpc v1.61.0 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
