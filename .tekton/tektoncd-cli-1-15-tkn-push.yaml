@@ -16,7 +16,7 @@ metadata:
       ".tekton/tektoncd-cli-1-15-tkn-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: openshift-pipelines-1-15
+    appstudio.openshift.io/application: openshift-pipelines-cli-1-15
     appstudio.openshift.io/component: tektoncd-cli-1-15-tkn
     pipelines.appstudio.openshift.io/type: build
   name: tektoncd-cli-1-15-tkn-on-push
