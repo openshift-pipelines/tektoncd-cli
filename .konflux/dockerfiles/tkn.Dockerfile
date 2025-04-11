@@ -6,7 +6,7 @@ FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
 
-ARG TKN_VERSION=0.35.3
+ARG TKN_VERSION=0.37.1
 
 WORKDIR $REMOTE_SOURCE
 
@@ -24,7 +24,7 @@ FROM $PAC_BUILDER AS pacbuilder
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-1.14.6
+ARG VERSION=tkn-1.15.3
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 LABEL \
@@ -38,6 +38,6 @@ LABEL \
       io.k8s.description="Red Hat OpenShift Pipelines tkn CLI" \
       io.openshift.tags="pipelines,tekton,openshift"
 
-RUN groupadd -r -g 65532 nonroot && \
-    useradd --no-log-init -r -u 65532 -g nonroot nonroot
+RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
+
 USER 65532
