@@ -36,13 +36,25 @@ Further documentation available:
 
 ## Releases
 
+### v0.36
+
+- **Latest Release**: [v0.36.0][v0-36-0] (2024-03-21) ([docs][v0-36-0-docs])
+- **Initial Release**: [v0.36.0][v0-36-0] (2024-03-21) ([docs][v0-36-0-docs])
+- **End of Life**: 2025-03-20
+
+### v0.35 (LTS)
+
+- **Latest Release**: [v0.35.2][v0-35-2] (2024-03-25) ([docs][v0-35-2-docs])
+- **Initial Release**: [v0.35.0][v0-35-0] (2024-02-07) ([docs][v0-35-0-docs])
+- **End of Life**: 2025-02-06
+
 ### v0.34
 
 - **Latest Release**: [v0.34.0][v0-34-0] (2023-01-12) ([docs][v0-34-0-docs])
 - **Initial Release**: [v0.34.0][v0-34-0] (2024-01-12) ([docs][v0-34-0-docs])
 - **End of Life**: 2024-02-11
 
-### v0.33
+### v0.33 (LTS)
 
 - **Latest Release**: [v0.33.0][v0-33-0] (2023-11-16) ([docs][v0-33-0-docs])
 - **Initial Release**: [v0.33.0][v0-33-0] (2023-11-16) ([docs][v0-33-0-docs])
@@ -114,6 +126,9 @@ Older releases are EOL and available on [GitHub][tekton-cli-releases].
     https://github.com/tektoncd/community/blob/main/standards.md#release-notes
 [tekton-release-process]: RELEASE_PROCESS.md
 
+[v0-36-0]: https://github.com/tektoncd/cli/releases/tag/v0.36.0
+[v0-35-2]: https://github.com/tektoncd/cli/releases/tag/v0.35.2
+[v0-35-0]: https://github.com/tektoncd/cli/releases/tag/v0.35.0
 [v0-34-0]: https://github.com/tektoncd/cli/releases/tag/v0.34.0
 [v0-33-0]: https://github.com/tektoncd/cli/releases/tag/v0.33.0
 [v0-32-2]: https://github.com/tektoncd/cli/releases/tag/v0.32.2
@@ -129,6 +144,9 @@ Older releases are EOL and available on [GitHub][tekton-cli-releases].
 [v0-26-0]: https://github.com/tektoncd/cli/releases/tag/v0.26.0
 [v0-25-0]: https://github.com/tektoncd/cli/releases/tag/v0.25.0
 
+[v0-36-0-docs]: https://github.com/tektoncd/cli/tree/v0.36.0/docs
+[v0-35-2-docs]: https://github.com/tektoncd/cli/tree/v0.35.2/docs
+[v0-35-0-docs]: https://github.com/tektoncd/cli/tree/v0.35.0/docs
 [v0-34-0-docs]: https://github.com/tektoncd/cli/tree/v0.34.0/docs
 [v0-33-0-docs]: https://github.com/tektoncd/cli/tree/v0.33.0/docs
 [v0-32-2-docs]: https://github.com/tektoncd/cli/tree/v0.32.2/docs
