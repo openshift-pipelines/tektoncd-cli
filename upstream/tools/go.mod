@@ -1,6 +1,8 @@
 module github.com/tektoncd/cli/tools
 
-go 1.17
+go 1.22.0
+
+toolchain go1.22.9
 
 require github.com/golangci/golangci-lint v1.55.2
 
@@ -61,7 +63,7 @@ require (
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golangci/check v0.0.0-20180506172741-cfe4005ccda2 // indirect
-	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
+	github.com/golangci/dupl v0.0.0-20250308024227-f665c8d69b32 // indirect
 	github.com/golangci/go-misc v0.0.0-20220329215616-d24fe342adfe // indirect
 	github.com/golangci/gofmt v0.0.0-20231018234816-f50ced29576e // indirect
 	github.com/golangci/lint-1 v0.0.0-20191013205115-297bf364a8e0 // indirect
