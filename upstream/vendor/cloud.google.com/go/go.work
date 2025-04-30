@@ -1,6 +1,4 @@
-go 1.21.13
-
-toolchain go1.23.0
+go 1.20
 
 use (
 	.
@@ -14,7 +12,6 @@ use (
 	./apigateway
 	./apigeeconnect
 	./apigeeregistry
-	./apihub
 	./apikeys
 	./appengine
 	./apphub
@@ -127,7 +124,6 @@ use (
 	./policysimulator
 	./policytroubleshooter
 	./privatecatalog
-	./privilegedaccessmanager
 	./profiler
 	./pubsub
 	./pubsublite

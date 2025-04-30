@@ -133,6 +133,15 @@ func newAWSClient(ctx context.Context, keyResourceID string, opts ...func(*confi
 }
 
 func (a *awsClient) setupClient(ctx context.Context, opts ...func(*config.LoadOptions) error) (err error) {
+	if a.endpoint != "" {
+		opts = append(opts, config.WithEndpointResolverWithOptions(
+			aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					URL: "https://" + a.endpoint,
+				}, nil
+			}),
+		))
+	}
 	if os.Getenv("AWS_TLS_INSECURE_SKIP_VERIFY") == "1" {
 		opts = append(opts, config.WithHTTPClient(&http.Client{
 			Transport: &http.Transport{
@@ -144,9 +153,6 @@ func (a *awsClient) setupClient(ctx context.Context, opts ...func(*config.LoadOp
 	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
 		return fmt.Errorf("loading AWS config: %w", err)
-	}
-	if a.endpoint != "" {
-		cfg.BaseEndpoint = aws.String("https://" + a.endpoint)
 	}
 
 	a.client = kms.NewFromConfig(cfg)
@@ -221,7 +227,7 @@ func (a *awsClient) getHashFunc(ctx context.Context) (crypto.Hash, error) {
 func (a *awsClient) getCMK(ctx context.Context) (*cmk, error) {
 	var lerr error
 	loader := ttlcache.LoaderFunc[string, cmk](
-		func(c *ttlcache.Cache[string, cmk], _ string) *ttlcache.Item[string, cmk] {
+		func(c *ttlcache.Cache[string, cmk], key string) *ttlcache.Item[string, cmk] {
 			var k *cmk
 			k, lerr = a.fetchCMK(ctx)
 			if lerr == nil {

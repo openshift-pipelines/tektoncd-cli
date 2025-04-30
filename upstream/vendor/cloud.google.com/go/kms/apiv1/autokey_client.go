@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log/slog"
+	"io"
 	"math"
 	"net/http"
 	"net/url"
@@ -32,6 +32,7 @@ import (
 	lroauto "cloud.google.com/go/longrunning/autogen"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	gax "github.com/googleapis/gax-go/v2"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"google.golang.org/api/option/internaloption"
@@ -160,7 +161,7 @@ type internalAutokeyClient interface {
 	CreateKeyHandle(context.Context, *kmspb.CreateKeyHandleRequest, ...gax.CallOption) (*CreateKeyHandleOperation, error)
 	CreateKeyHandleOperation(name string) *CreateKeyHandleOperation
 	GetKeyHandle(context.Context, *kmspb.GetKeyHandleRequest, ...gax.CallOption) (*kmspb.KeyHandle, error)
-	ListKeyHandles(context.Context, *kmspb.ListKeyHandlesRequest, ...gax.CallOption) *KeyHandleIterator
+	ListKeyHandles(context.Context, *kmspb.ListKeyHandlesRequest, ...gax.CallOption) (*kmspb.ListKeyHandlesResponse, error)
 	GetLocation(context.Context, *locationpb.GetLocationRequest, ...gax.CallOption) (*locationpb.Location, error)
 	ListLocations(context.Context, *locationpb.ListLocationsRequest, ...gax.CallOption) *LocationIterator
 	GetIamPolicy(context.Context, *iampb.GetIamPolicyRequest, ...gax.CallOption) (*iampb.Policy, error)
@@ -172,8 +173,7 @@ type internalAutokeyClient interface {
 // AutokeyClient is a client for interacting with Cloud Key Management Service (KMS) API.
 // Methods, except Close, may be called concurrently. However, fields must not be modified concurrently with method calls.
 //
-// Provides interfaces for using Cloud KMS
-// Autokey (at https://cloud.google.com/kms/help/autokey) to provision new
+// Provides interfaces for using Cloud KMS Autokey to provision new
 // CryptoKeys, ready for Customer Managed
 // Encryption Key (CMEK) use, on-demand. To support certain client tooling, this
 // feature is modeled around a KeyHandle
@@ -229,9 +229,9 @@ func (c *AutokeyClient) Connection() *grpc.ClientConn {
 // CreateKeyHandle creates a new KeyHandle, triggering the
 // provisioning of a new CryptoKey for CMEK
 // use with the given resource type in the configured key project and the same
-// location. GetOperation should
-// be used to resolve the resulting long-running operation and get the
-// resulting KeyHandle and
+// location. GetOperation should be used to resolve
+// the resulting long-running operation and get the resulting
+// KeyHandle and
 // CryptoKey.
 func (c *AutokeyClient) CreateKeyHandle(ctx context.Context, req *kmspb.CreateKeyHandleRequest, opts ...gax.CallOption) (*CreateKeyHandleOperation, error) {
 	return c.internalClient.CreateKeyHandle(ctx, req, opts...)
@@ -249,7 +249,7 @@ func (c *AutokeyClient) GetKeyHandle(ctx context.Context, req *kmspb.GetKeyHandl
 }
 
 // ListKeyHandles lists KeyHandles.
-func (c *AutokeyClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) *KeyHandleIterator {
+func (c *AutokeyClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) (*kmspb.ListKeyHandlesResponse, error) {
 	return c.internalClient.ListKeyHandles(ctx, req, opts...)
 }
 
@@ -320,15 +320,12 @@ type autokeyGRPCClient struct {
 
 	// The x-goog-* metadata to be sent with each request.
 	xGoogHeaders []string
-
-	logger *slog.Logger
 }
 
 // NewAutokeyClient creates a new autokey client based on gRPC.
 // The returned client must be Closed when it is done being used to clean up its underlying connections.
 //
-// Provides interfaces for using Cloud KMS
-// Autokey (at https://cloud.google.com/kms/help/autokey) to provision new
+// Provides interfaces for using Cloud KMS Autokey to provision new
 // CryptoKeys, ready for Customer Managed
 // Encryption Key (CMEK) use, on-demand. To support certain client tooling, this
 // feature is modeled around a KeyHandle
@@ -365,7 +362,6 @@ func NewAutokeyClient(ctx context.Context, opts ...option.ClientOption) (*Autoke
 		connPool:         connPool,
 		autokeyClient:    kmspb.NewAutokeyClient(connPool),
 		CallOptions:      &client.CallOptions,
-		logger:           internaloption.GetLogger(opts),
 		operationsClient: longrunningpb.NewOperationsClient(connPool),
 		iamPolicyClient:  iampb.NewIAMPolicyClient(connPool),
 		locationsClient:  locationpb.NewLocationsClient(connPool),
@@ -431,14 +427,11 @@ type autokeyRESTClient struct {
 
 	// Points back to the CallOptions field of the containing AutokeyClient
 	CallOptions **AutokeyCallOptions
-
-	logger *slog.Logger
 }
 
 // NewAutokeyRESTClient creates a new autokey rest client.
 //
-// Provides interfaces for using Cloud KMS
-// Autokey (at https://cloud.google.com/kms/help/autokey) to provision new
+// Provides interfaces for using Cloud KMS Autokey to provision new
 // CryptoKeys, ready for Customer Managed
 // Encryption Key (CMEK) use, on-demand. To support certain client tooling, this
 // feature is modeled around a KeyHandle
@@ -467,7 +460,6 @@ func NewAutokeyRESTClient(ctx context.Context, opts ...option.ClientOption) (*Au
 		endpoint:    endpoint,
 		httpClient:  httpClient,
 		CallOptions: &callOpts,
-		logger:      internaloption.GetLogger(opts),
 	}
 	c.setGoogleClientInfo()
 
@@ -530,7 +522,7 @@ func (c *autokeyGRPCClient) CreateKeyHandle(ctx context.Context, req *kmspb.Crea
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.autokeyClient.CreateKeyHandle, req, settings.GRPC, c.logger, "CreateKeyHandle")
+		resp, err = c.autokeyClient.CreateKeyHandle(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -550,7 +542,7 @@ func (c *autokeyGRPCClient) GetKeyHandle(ctx context.Context, req *kmspb.GetKeyH
 	var resp *kmspb.KeyHandle
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.autokeyClient.GetKeyHandle, req, settings.GRPC, c.logger, "GetKeyHandle")
+		resp, err = c.autokeyClient.GetKeyHandle(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -559,50 +551,22 @@ func (c *autokeyGRPCClient) GetKeyHandle(ctx context.Context, req *kmspb.GetKeyH
 	return resp, nil
 }
 
-func (c *autokeyGRPCClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) *KeyHandleIterator {
+func (c *autokeyGRPCClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) (*kmspb.ListKeyHandlesResponse, error) {
 	hds := []string{"x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent()))}
 
 	hds = append(c.xGoogHeaders, hds...)
 	ctx = gax.InsertMetadataIntoOutgoingContext(ctx, hds...)
 	opts = append((*c.CallOptions).ListKeyHandles[0:len((*c.CallOptions).ListKeyHandles):len((*c.CallOptions).ListKeyHandles)], opts...)
-	it := &KeyHandleIterator{}
-	req = proto.Clone(req).(*kmspb.ListKeyHandlesRequest)
-	it.InternalFetch = func(pageSize int, pageToken string) ([]*kmspb.KeyHandle, string, error) {
-		resp := &kmspb.ListKeyHandlesResponse{}
-		if pageToken != "" {
-			req.PageToken = pageToken
-		}
-		if pageSize > math.MaxInt32 {
-			req.PageSize = math.MaxInt32
-		} else if pageSize != 0 {
-			req.PageSize = int32(pageSize)
-		}
-		err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
-			var err error
-			resp, err = executeRPC(ctx, c.autokeyClient.ListKeyHandles, req, settings.GRPC, c.logger, "ListKeyHandles")
-			return err
-		}, opts...)
-		if err != nil {
-			return nil, "", err
-		}
-
-		it.Response = resp
-		return resp.GetKeyHandles(), resp.GetNextPageToken(), nil
+	var resp *kmspb.ListKeyHandlesResponse
+	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
+		var err error
+		resp, err = c.autokeyClient.ListKeyHandles(ctx, req, settings.GRPC...)
+		return err
+	}, opts...)
+	if err != nil {
+		return nil, err
 	}
-	fetch := func(pageSize int, pageToken string) (string, error) {
-		items, nextPageToken, err := it.InternalFetch(pageSize, pageToken)
-		if err != nil {
-			return "", err
-		}
-		it.items = append(it.items, items...)
-		return nextPageToken, nil
-	}
-
-	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
-	it.pageInfo.MaxSize = int(req.GetPageSize())
-	it.pageInfo.Token = req.GetPageToken()
-
-	return it
+	return resp, nil
 }
 
 func (c *autokeyGRPCClient) GetLocation(ctx context.Context, req *locationpb.GetLocationRequest, opts ...gax.CallOption) (*locationpb.Location, error) {
@@ -614,7 +578,7 @@ func (c *autokeyGRPCClient) GetLocation(ctx context.Context, req *locationpb.Get
 	var resp *locationpb.Location
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.locationsClient.GetLocation, req, settings.GRPC, c.logger, "GetLocation")
+		resp, err = c.locationsClient.GetLocation(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -643,7 +607,7 @@ func (c *autokeyGRPCClient) ListLocations(ctx context.Context, req *locationpb.L
 		}
 		err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 			var err error
-			resp, err = executeRPC(ctx, c.locationsClient.ListLocations, req, settings.GRPC, c.logger, "ListLocations")
+			resp, err = c.locationsClient.ListLocations(ctx, req, settings.GRPC...)
 			return err
 		}, opts...)
 		if err != nil {
@@ -678,7 +642,7 @@ func (c *autokeyGRPCClient) GetIamPolicy(ctx context.Context, req *iampb.GetIamP
 	var resp *iampb.Policy
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.iamPolicyClient.GetIamPolicy, req, settings.GRPC, c.logger, "GetIamPolicy")
+		resp, err = c.iamPolicyClient.GetIamPolicy(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -696,7 +660,7 @@ func (c *autokeyGRPCClient) SetIamPolicy(ctx context.Context, req *iampb.SetIamP
 	var resp *iampb.Policy
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.iamPolicyClient.SetIamPolicy, req, settings.GRPC, c.logger, "SetIamPolicy")
+		resp, err = c.iamPolicyClient.SetIamPolicy(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -714,7 +678,7 @@ func (c *autokeyGRPCClient) TestIamPermissions(ctx context.Context, req *iampb.T
 	var resp *iampb.TestIamPermissionsResponse
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.iamPolicyClient.TestIamPermissions, req, settings.GRPC, c.logger, "TestIamPermissions")
+		resp, err = c.iamPolicyClient.TestIamPermissions(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -732,7 +696,7 @@ func (c *autokeyGRPCClient) GetOperation(ctx context.Context, req *longrunningpb
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.operationsClient.GetOperation, req, settings.GRPC, c.logger, "GetOperation")
+		resp, err = c.operationsClient.GetOperation(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -744,9 +708,9 @@ func (c *autokeyGRPCClient) GetOperation(ctx context.Context, req *longrunningpb
 // CreateKeyHandle creates a new KeyHandle, triggering the
 // provisioning of a new CryptoKey for CMEK
 // use with the given resource type in the configured key project and the same
-// location. GetOperation should
-// be used to resolve the resulting long-running operation and get the
-// resulting KeyHandle and
+// location. GetOperation should be used to resolve
+// the resulting long-running operation and get the resulting
+// KeyHandle and
 // CryptoKey.
 func (c *autokeyRESTClient) CreateKeyHandle(ctx context.Context, req *kmspb.CreateKeyHandleRequest, opts ...gax.CallOption) (*CreateKeyHandleOperation, error) {
 	m := protojson.MarshalOptions{AllowPartial: true, UseEnumNumbers: true}
@@ -789,10 +753,21 @@ func (c *autokeyRESTClient) CreateKeyHandle(ctx context.Context, req *kmspb.Crea
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, jsonReq, "CreateKeyHandle")
+		httpRsp, err := c.httpClient.Do(httpReq)
 		if err != nil {
 			return err
 		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
+		if err != nil {
+			return err
+		}
+
 		if err := unm.Unmarshal(buf, resp); err != nil {
 			return err
 		}
@@ -843,7 +818,17 @@ func (c *autokeyRESTClient) GetKeyHandle(ctx context.Context, req *kmspb.GetKeyH
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "GetKeyHandle")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}
@@ -861,84 +846,66 @@ func (c *autokeyRESTClient) GetKeyHandle(ctx context.Context, req *kmspb.GetKeyH
 }
 
 // ListKeyHandles lists KeyHandles.
-func (c *autokeyRESTClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) *KeyHandleIterator {
-	it := &KeyHandleIterator{}
-	req = proto.Clone(req).(*kmspb.ListKeyHandlesRequest)
+func (c *autokeyRESTClient) ListKeyHandles(ctx context.Context, req *kmspb.ListKeyHandlesRequest, opts ...gax.CallOption) (*kmspb.ListKeyHandlesResponse, error) {
+	baseUrl, err := url.Parse(c.endpoint)
+	if err != nil {
+		return nil, err
+	}
+	baseUrl.Path += fmt.Sprintf("/v1/%v/keyHandles", req.GetParent())
+
+	params := url.Values{}
+	params.Add("$alt", "json;enum-encoding=int")
+	if req.GetFilter() != "" {
+		params.Add("filter", fmt.Sprintf("%v", req.GetFilter()))
+	}
+
+	baseUrl.RawQuery = params.Encode()
+
+	// Build HTTP headers from client and context metadata.
+	hds := []string{"x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent()))}
+
+	hds = append(c.xGoogHeaders, hds...)
+	hds = append(hds, "Content-Type", "application/json")
+	headers := gax.BuildHeaders(ctx, hds...)
+	opts = append((*c.CallOptions).ListKeyHandles[0:len((*c.CallOptions).ListKeyHandles):len((*c.CallOptions).ListKeyHandles)], opts...)
 	unm := protojson.UnmarshalOptions{AllowPartial: true, DiscardUnknown: true}
-	it.InternalFetch = func(pageSize int, pageToken string) ([]*kmspb.KeyHandle, string, error) {
-		resp := &kmspb.ListKeyHandlesResponse{}
-		if pageToken != "" {
-			req.PageToken = pageToken
+	resp := &kmspb.ListKeyHandlesResponse{}
+	e := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
+		if settings.Path != "" {
+			baseUrl.Path = settings.Path
 		}
-		if pageSize > math.MaxInt32 {
-			req.PageSize = math.MaxInt32
-		} else if pageSize != 0 {
-			req.PageSize = int32(pageSize)
-		}
-		baseUrl, err := url.Parse(c.endpoint)
+		httpReq, err := http.NewRequest("GET", baseUrl.String(), nil)
 		if err != nil {
-			return nil, "", err
+			return err
 		}
-		baseUrl.Path += fmt.Sprintf("/v1/%v/keyHandles", req.GetParent())
+		httpReq = httpReq.WithContext(ctx)
+		httpReq.Header = headers
 
-		params := url.Values{}
-		params.Add("$alt", "json;enum-encoding=int")
-		if req.GetFilter() != "" {
-			params.Add("filter", fmt.Sprintf("%v", req.GetFilter()))
-		}
-		if req.GetPageSize() != 0 {
-			params.Add("pageSize", fmt.Sprintf("%v", req.GetPageSize()))
-		}
-		if req.GetPageToken() != "" {
-			params.Add("pageToken", fmt.Sprintf("%v", req.GetPageToken()))
-		}
-
-		baseUrl.RawQuery = params.Encode()
-
-		// Build HTTP headers from client and context metadata.
-		hds := append(c.xGoogHeaders, "Content-Type", "application/json")
-		headers := gax.BuildHeaders(ctx, hds...)
-		e := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
-			if settings.Path != "" {
-				baseUrl.Path = settings.Path
-			}
-			httpReq, err := http.NewRequest("GET", baseUrl.String(), nil)
-			if err != nil {
-				return err
-			}
-			httpReq.Header = headers
-
-			buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "ListKeyHandles")
-			if err != nil {
-				return err
-			}
-			if err := unm.Unmarshal(buf, resp); err != nil {
-				return err
-			}
-
-			return nil
-		}, opts...)
-		if e != nil {
-			return nil, "", e
-		}
-		it.Response = resp
-		return resp.GetKeyHandles(), resp.GetNextPageToken(), nil
-	}
-
-	fetch := func(pageSize int, pageToken string) (string, error) {
-		items, nextPageToken, err := it.InternalFetch(pageSize, pageToken)
+		httpRsp, err := c.httpClient.Do(httpReq)
 		if err != nil {
-			return "", err
+			return err
 		}
-		it.items = append(it.items, items...)
-		return nextPageToken, nil
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
+		if err != nil {
+			return err
+		}
+
+		if err := unm.Unmarshal(buf, resp); err != nil {
+			return err
+		}
+
+		return nil
+	}, opts...)
+	if e != nil {
+		return nil, e
 	}
-
-	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
-	it.pageInfo.MaxSize = int(req.GetPageSize())
-	it.pageInfo.Token = req.GetPageToken()
-
-	return it
+	return resp, nil
 }
 
 // GetLocation gets information about a location.
@@ -974,7 +941,17 @@ func (c *autokeyRESTClient) GetLocation(ctx context.Context, req *locationpb.Get
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "GetLocation")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}
@@ -1039,10 +1016,21 @@ func (c *autokeyRESTClient) ListLocations(ctx context.Context, req *locationpb.L
 			}
 			httpReq.Header = headers
 
-			buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "ListLocations")
+			httpRsp, err := c.httpClient.Do(httpReq)
 			if err != nil {
 				return err
 			}
+			defer httpRsp.Body.Close()
+
+			if err = googleapi.CheckResponse(httpRsp); err != nil {
+				return err
+			}
+
+			buf, err := io.ReadAll(httpRsp.Body)
+			if err != nil {
+				return err
+			}
+
 			if err := unm.Unmarshal(buf, resp); err != nil {
 				return err
 			}
@@ -1109,7 +1097,17 @@ func (c *autokeyRESTClient) GetIamPolicy(ctx context.Context, req *iampb.GetIamP
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "GetIamPolicy")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}
@@ -1169,7 +1167,17 @@ func (c *autokeyRESTClient) SetIamPolicy(ctx context.Context, req *iampb.SetIamP
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, jsonReq, "SetIamPolicy")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}
@@ -1231,7 +1239,17 @@ func (c *autokeyRESTClient) TestIamPermissions(ctx context.Context, req *iampb.T
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, jsonReq, "TestIamPermissions")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}
@@ -1281,7 +1299,17 @@ func (c *autokeyRESTClient) GetOperation(ctx context.Context, req *longrunningpb
 		httpReq = httpReq.WithContext(ctx)
 		httpReq.Header = headers
 
-		buf, err := executeHTTPRequest(ctx, c.httpClient, httpReq, c.logger, nil, "GetOperation")
+		httpRsp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer httpRsp.Body.Close()
+
+		if err = googleapi.CheckResponse(httpRsp); err != nil {
+			return err
+		}
+
+		buf, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return err
 		}

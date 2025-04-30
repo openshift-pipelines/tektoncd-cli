@@ -96,10 +96,7 @@ func (h *httpTracePolicy) Do(req *policy.Request) (resp *http.Response, err erro
 
 // StartSpanOptions contains the optional values for StartSpan.
 type StartSpanOptions struct {
-	// Kind indicates the kind of Span.
-	Kind tracing.SpanKind
-	// Attributes contains key-value pairs of attributes for the span.
-	Attributes []tracing.Attribute
+	// for future expansion
 }
 
 // StartSpan starts a new tracing span.
@@ -117,6 +114,7 @@ func StartSpan(ctx context.Context, name string, tracer tracing.Tracer, options 
 	// we MUST propagate the active tracer before returning so that the trace policy can access it
 	ctx = context.WithValue(ctx, shared.CtxWithTracingTracer{}, tracer)
 
+	const newSpanKind = tracing.SpanKindInternal
 	if activeSpan := ctx.Value(ctxActiveSpan{}); activeSpan != nil {
 		// per the design guidelines, if a SDK method Foo() calls SDK method Bar(),
 		// then the span for Bar() must be suppressed. however, if Bar() makes a REST
@@ -128,19 +126,10 @@ func StartSpan(ctx context.Context, name string, tracer tracing.Tracer, options 
 			return ctx, func(err error) {}
 		}
 	}
-
-	if options == nil {
-		options = &StartSpanOptions{}
-	}
-	if options.Kind == 0 {
-		options.Kind = tracing.SpanKindInternal
-	}
-
 	ctx, span := tracer.Start(ctx, name, &tracing.SpanOptions{
-		Kind:       options.Kind,
-		Attributes: options.Attributes,
+		Kind: newSpanKind,
 	})
-	ctx = context.WithValue(ctx, ctxActiveSpan{}, options.Kind)
+	ctx = context.WithValue(ctx, ctxActiveSpan{}, newSpanKind)
 	return ctx, func(err error) {
 		if err != nil {
 			errType := strings.Replace(fmt.Sprintf("%T", err), "*exported.", "*azcore.", 1)

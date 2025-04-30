@@ -1,14 +1,14 @@
 ﻿$ErrorActionPreference = 'Stop'; 
 $toolsDir    = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $packageName = 'tektoncd-cli'
-$url64       = 'https://github.com/tektoncd/cli/releases/download/v0.39.1/tkn_0.39.1_Windows_x86_64.zip'
+$url64       = 'https://github.com/tektoncd/cli/releases/download/v0.37.0/tkn_0.37.0_Windows_x86_64.zip'
 
 $packageArgs = @{
   packageName    = $packageName
   unzipLocation  = $toolsDir
   url64bit       = $url64
   softwareName   = 'tektoncd-cli*' 
-  checksum64     = '2211eb81b83ac33fb7f859b2917d9b0e3f5029d570076b476a96e1b2fd272f0e'
+  checksum64     = '29128908f8d60072c96eb8577f9fa344193f3e33b5a0e3b63c146cb454a5f38f'
   checksumType64 = 'sha256'
 }
 

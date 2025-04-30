@@ -78,7 +78,6 @@ func defaultGRPCClientOptions() []option.ClientOption {
 		internaloption.WithDefaultAudience("https://firestore.googleapis.com/"),
 		internaloption.WithDefaultScopes(DefaultAuthScopes()...),
 		internaloption.EnableJwtWithScope(),
-		internaloption.EnableNewAuthLibrary(),
 		option.WithGRPCDialOption(grpc.WithDefaultCallOptions(
 			grpc.MaxCallRecvMsgSize(math.MaxInt32))),
 	}
@@ -854,7 +853,6 @@ func defaultRESTClientOptions() []option.ClientOption {
 		internaloption.WithDefaultUniverseDomain("googleapis.com"),
 		internaloption.WithDefaultAudience("https://firestore.googleapis.com/"),
 		internaloption.WithDefaultScopes(DefaultAuthScopes()...),
-		internaloption.EnableNewAuthLibrary(),
 	}
 }
 
@@ -1349,11 +1347,11 @@ func (c *restClient) GetDocument(ctx context.Context, req *firestorepb.GetDocume
 		}
 	}
 	if req.GetReadTime() != nil {
-		field, err := protojson.Marshal(req.GetReadTime())
+		readTime, err := protojson.Marshal(req.GetReadTime())
 		if err != nil {
 			return nil, err
 		}
-		params.Add("readTime", string(field[1:len(field)-1]))
+		params.Add("readTime", string(readTime[1:len(readTime)-1]))
 	}
 	if req.GetTransaction() != nil {
 		params.Add("transaction", fmt.Sprintf("%v", req.GetTransaction()))
@@ -1446,11 +1444,11 @@ func (c *restClient) ListDocuments(ctx context.Context, req *firestorepb.ListDoc
 			params.Add("pageToken", fmt.Sprintf("%v", req.GetPageToken()))
 		}
 		if req.GetReadTime() != nil {
-			field, err := protojson.Marshal(req.GetReadTime())
+			readTime, err := protojson.Marshal(req.GetReadTime())
 			if err != nil {
 				return nil, "", err
 			}
-			params.Add("readTime", string(field[1:len(field)-1]))
+			params.Add("readTime", string(readTime[1:len(readTime)-1]))
 		}
 		if req.GetShowMissing() {
 			params.Add("showMissing", fmt.Sprintf("%v", req.GetShowMissing()))
@@ -1539,11 +1537,11 @@ func (c *restClient) UpdateDocument(ctx context.Context, req *firestorepb.Update
 		params.Add("currentDocument.exists", fmt.Sprintf("%v", req.GetCurrentDocument().GetExists()))
 	}
 	if req.GetCurrentDocument().GetUpdateTime() != nil {
-		field, err := protojson.Marshal(req.GetCurrentDocument().GetUpdateTime())
+		updateTime, err := protojson.Marshal(req.GetCurrentDocument().GetUpdateTime())
 		if err != nil {
 			return nil, err
 		}
-		params.Add("currentDocument.updateTime", string(field[1:len(field)-1]))
+		params.Add("currentDocument.updateTime", string(updateTime[1:len(updateTime)-1]))
 	}
 	if items := req.GetMask().GetFieldPaths(); len(items) > 0 {
 		for _, item := range items {
@@ -1619,11 +1617,11 @@ func (c *restClient) DeleteDocument(ctx context.Context, req *firestorepb.Delete
 		params.Add("currentDocument.exists", fmt.Sprintf("%v", req.GetCurrentDocument().GetExists()))
 	}
 	if req.GetCurrentDocument().GetUpdateTime() != nil {
-		field, err := protojson.Marshal(req.GetCurrentDocument().GetUpdateTime())
+		updateTime, err := protojson.Marshal(req.GetCurrentDocument().GetUpdateTime())
 		if err != nil {
 			return err
 		}
-		params.Add("currentDocument.updateTime", string(field[1:len(field)-1]))
+		params.Add("currentDocument.updateTime", string(updateTime[1:len(updateTime)-1]))
 	}
 
 	baseUrl.RawQuery = params.Encode()

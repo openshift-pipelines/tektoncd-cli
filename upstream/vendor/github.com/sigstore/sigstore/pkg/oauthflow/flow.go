@@ -143,16 +143,6 @@ func SubjectFromToken(tok *oidc.IDToken) (string, error) {
 	return subjectFromClaims(claims)
 }
 
-// SubjectFromUnverifiedToken extracts the subject claim from the raw bytes of
-// an OIDC identity token.
-func SubjectFromUnverifiedToken(tok []byte) (string, error) {
-	claims := claims{}
-	if err := json.Unmarshal(tok, &claims); err != nil {
-		return "", err
-	}
-	return subjectFromClaims(claims)
-}
-
 func subjectFromClaims(c claims) (string, error) {
 	if c.Email != "" {
 		if !c.Verified {

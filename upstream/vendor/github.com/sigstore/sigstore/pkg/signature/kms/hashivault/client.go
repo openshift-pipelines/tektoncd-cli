@@ -19,7 +19,6 @@ package hashivault
 import (
 	"context"
 	"crypto"
-	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -221,30 +220,17 @@ func (h *hashivaultClient) fetchPublicKey(_ context.Context) (crypto.PublicKey, 
 		return nil, fmt.Errorf("could not parse transit key keys data as map[string]interface{}")
 	}
 
-	publicKey, ok := keyMap["public_key"]
+	publicKeyPem, ok := keyMap["public_key"]
 	if !ok {
 		return nil, errors.New("failed to read transit key keys: corrupted response")
 	}
 
-	strPublicKey, ok := publicKey.(string)
+	strPublicKeyPem, ok := publicKeyPem.(string)
 	if !ok {
 		return nil, fmt.Errorf("could not parse public key pem as string")
 	}
-	// vault returns the key type in the "name" field
-	if keyType := keyMap["name"]; keyType == "ed25519" {
-		// vault returns ed25519 public keys as base64 encoding of
-		// the raw bytes of the key
-		decodedPublicKey, err := base64.StdEncoding.DecodeString(strPublicKey)
-		if err != nil {
-			return nil, fmt.Errorf("failed to base64 decode ed25519 public key: %w", err)
-		}
-		if keyLen := len(decodedPublicKey); keyLen != ed25519.PublicKeySize {
-			return nil, fmt.Errorf("decoded ed25519 public key length is %d, should be %d", keyLen, ed25519.PublicKeySize)
-		}
-		return ed25519.PublicKey(decodedPublicKey), nil
-	}
 
-	return cryptoutils.UnmarshalPEMToPublicKey([]byte(strPublicKey))
+	return cryptoutils.UnmarshalPEMToPublicKey([]byte(strPublicKeyPem))
 }
 
 func (h *hashivaultClient) public() (crypto.PublicKey, error) {

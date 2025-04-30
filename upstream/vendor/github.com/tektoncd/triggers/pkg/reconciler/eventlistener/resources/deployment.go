@@ -80,7 +80,6 @@ func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc re
 		nodeSelector, annotations map[string]string
 		affinity                  *corev1.Affinity
 		topologySpreadConstraints []corev1.TopologySpreadConstraint
-		imagePullSecrets          []corev1.LocalObjectReference
 	)
 
 	for _, v := range container.Env {
@@ -106,9 +105,6 @@ func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc re
 		}
 		if len(el.Spec.Resources.KubernetesResource.Template.Spec.NodeSelector) != 0 {
 			nodeSelector = el.Spec.Resources.KubernetesResource.Template.Spec.NodeSelector
-		}
-		if len(el.Spec.Resources.KubernetesResource.Template.Spec.ImagePullSecrets) != 0 {
-			imagePullSecrets = el.Spec.Resources.KubernetesResource.Template.Spec.ImagePullSecrets
 		}
 		if el.Spec.Resources.KubernetesResource.Template.Spec.ServiceAccountName != "" {
 			serviceAccountName = el.Spec.Resources.KubernetesResource.Template.Spec.ServiceAccountName
@@ -141,7 +137,6 @@ func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc re
 					Annotations: annotations,
 				},
 				Spec: corev1.PodSpec{
-					ImagePullSecrets:          imagePullSecrets,
 					Tolerations:               tolerations,
 					NodeSelector:              nodeSelector,
 					ServiceAccountName:        serviceAccountName,
