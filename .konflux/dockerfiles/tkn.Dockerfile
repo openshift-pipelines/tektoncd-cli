@@ -1,12 +1,12 @@
 ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23
-ARG RUNTIME=registry.redhat.io/ubi8/ubi:latest@sha256:8bd1b6306f8164de7fb0974031a0f903bd3ab3e6bcab835854d3d9a1a74ea5db
+ARG RUNTIME=registry.redhat.io/ubi8/ubi:latest@sha256:244e9858f9d8a2792a3dceb850b4fa8fdbd67babebfde42587bfa919d5d1ecef
 ARG PAC_BUILDER=registry.stage.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel8@sha256:3c15ab7947d4eff25126f74e9a3d197c9e19cf2572476117cfb1639e827f8f41
 
 FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
 
-ARG TKN_VERSION=0.37.1
+ARG TKN_VERSION=0.38.2
 
 WORKDIR $REMOTE_SOURCE
 
@@ -24,7 +24,7 @@ FROM $PAC_BUILDER AS pacbuilder
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-1.15.3
+ARG VERSION=tkn-1.16.4
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 LABEL \
