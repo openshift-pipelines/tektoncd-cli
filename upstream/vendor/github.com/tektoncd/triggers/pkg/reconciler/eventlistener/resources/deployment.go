@@ -21,6 +21,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/tektoncd/triggers/pkg/apis/config"
 	"github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -36,19 +37,37 @@ const (
 )
 
 var (
-	strongerSecurityPolicy = corev1.PodSecurityContext{
+	baseSecurityPolicy = corev1.PodSecurityContext{
 		RunAsNonRoot: ptr.Bool(true),
+		SeccompProfile: &corev1.SeccompProfile{
+			Type: corev1.SeccompProfileTypeRuntimeDefault,
+		},
 	}
 )
 
-func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc reconcilersource.ConfigAccessor, c Config) (*appsv1.Deployment, error) {
+func getStrongerSecurityPolicy(cfg *config.Config) corev1.PodSecurityContext {
+	securityContext := baseSecurityPolicy
+	if !cfg.Defaults.IsDefaultRunAsUserEmpty {
+		securityContext.RunAsUser = ptr.Int64(cfg.Defaults.DefaultRunAsUser)
+	}
 
+	if !cfg.Defaults.IsDefaultRunAsGroupEmpty {
+		securityContext.RunAsGroup = ptr.Int64(cfg.Defaults.DefaultRunAsGroup)
+	}
+
+	if !cfg.Defaults.IsDefaultFsGroupEmpty {
+		securityContext.FSGroup = ptr.Int64(cfg.Defaults.DefaultFSGroup)
+	}
+
+	return securityContext
+}
+
+func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc reconcilersource.ConfigAccessor, c Config, cfg *config.Config) (*appsv1.Deployment, error) {
 	opt, err := addDeploymentBits(el, c)
 	if err != nil {
 		return nil, err
 	}
-
-	container := MakeContainer(el, configAcc, c, opt, addCertsForSecureConnection(c))
+	container := MakeContainer(el, configAcc, c, cfg, opt, addCertsForSecureConnection(c))
 
 	filteredLabels := FilterLabels(ctx, el.Labels)
 
@@ -102,7 +121,7 @@ func MakeDeployment(ctx context.Context, el *v1beta1.EventListener, configAcc re
 
 	var securityContext corev1.PodSecurityContext
 	if *c.SetSecurityContext {
-		securityContext = strongerSecurityPolicy
+		securityContext = getStrongerSecurityPolicy(cfg)
 	}
 
 	return &appsv1.Deployment{
