@@ -25,10 +25,8 @@ jobs:
         rm -fR upstream
         git clone https://github.com/tektoncd/cli upstream
         pushd upstream
-        git checkout -B release-v0.40.0 origin/release-v0.40.0
+        git checkout -B release-v0.41.0 origin/release-v0.41.0
         popd
-
-
     - name: Commit new changes
       run: |
         git config user.name openshift-pipelines-bot
