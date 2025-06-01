@@ -213,7 +213,7 @@ require (
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/ktr0731/go-ansisgr v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/letsencrypt/boulder v0.0.0-20231026200631-000cd05d5491 // indirect
+	github.com/letsencrypt/boulder 0d7ea60b2cb6 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
