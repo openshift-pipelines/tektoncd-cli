@@ -1,8 +1,8 @@
 module github.com/tektoncd/cli
 
-go 1.21
+go 1.23.4
 
-toolchain go1.21.8
+toolchain go1.23.9
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
@@ -201,7 +201,7 @@ require (
 	github.com/jcmturner/gofork v1.7.6 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/jedisct1/go-minisign v0.0.0-20230811132847-661be99b8267 // indirect
+	github.com/jedisct1/go-minisign v0.0.0-20241212093149-d2f9f49435c7 // indirect
 	github.com/jellydator/ttlcache/v3 v3.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
