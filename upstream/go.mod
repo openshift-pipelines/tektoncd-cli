@@ -315,7 +315,7 @@ require (
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/api v0.190.0 // indirect
 	google.golang.org/genproto v0.0.0-20240730163845-b1a4ccb954bf // indirect
