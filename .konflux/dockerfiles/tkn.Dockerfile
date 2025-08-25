@@ -6,7 +6,7 @@ FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
 
-ARG TKN_VERSION=0.41.0
+ARG TKN_VERSION=0.42.0
 
 WORKDIR $REMOTE_SOURCE
 
