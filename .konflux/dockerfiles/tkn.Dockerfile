@@ -4,7 +4,7 @@ ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-co
 
 FROM $GO_BUILDER AS builder
 
-ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
+ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli 
 
 ARG TKN_VERSION=0.41.0
 
