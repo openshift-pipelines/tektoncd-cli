@@ -36,6 +36,7 @@ LABEL \
       io.k8s.display-name="Red Hat OpenShift Pipelines tkn CLI" \
       maintainer="pipelines-extcomm@redhat.com" \
       io.k8s.description="Red Hat OpenShift Pipelines tkn CLI" \
+      cpe="cpe:/a:redhat:openshift_pipelines:1.14::el8" \
       io.openshift.tags="pipelines,tekton,openshift"
 
 RUN groupadd -r -g 65532 nonroot && \
