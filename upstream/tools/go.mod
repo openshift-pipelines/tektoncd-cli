@@ -1,8 +1,8 @@
 module github.com/tektoncd/cli/tools
 
-go 1.22.1
+go 1.24.0
 
-toolchain go1.22.5
+toolchain go1.24.6
 
 require github.com/golangci/golangci-lint v1.62.2
 
@@ -176,7 +176,7 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
-	golang.org/x/exp/typeparams v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/exp/typeparams v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
