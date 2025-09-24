@@ -33,6 +33,7 @@ LABEL \
       com.redhat.component="openshift-pipelines-cli-tkn-container" \
       name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
       version=$VERSION \
+      cpe="cpe:/a:redhat:openshift_pipelines:1.18::el9" \
       summary="Red Hat OpenShift pipelines tkn CLI" \
       description="CLI client 'tkn' for managing openshift pipelines" \
       io.k8s.display-name="Red Hat OpenShift Pipelines tkn CLI" \
