@@ -3,19 +3,18 @@ package jwtbundle
 import (
 	"crypto"
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"sync"
 
-	"github.com/go-jose/go-jose/v3"
+	"github.com/go-jose/go-jose/v4"
 	"github.com/spiffe/go-spiffe/v2/internal/jwtutil"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
 	"github.com/zeebo/errs"
 )
 
-var (
-	jwtbundleErr = errs.Class("jwtbundle")
-)
+var jwtbundleErr = errs.Class("jwtbundle")
 
 // Bundle is a collection of trusted JWT authorities for a trust domain.
 type Bundle struct {
@@ -71,7 +70,7 @@ func Parse(trustDomain spiffeid.TrustDomain, bundleBytes []byte) (*Bundle, error
 	bundle := New(trustDomain)
 	for i, key := range jwks.Keys {
 		if err := bundle.AddJWTAuthority(key.KeyID, key.Key); err != nil {
-			return nil, jwtbundleErr.New("error adding authority %d of JWKS: %v", i, errs.Unwrap(err))
+			return nil, jwtbundleErr.New("error adding authority %d of JWKS: %v", i, errors.Unwrap(err))
 		}
 	}
 
