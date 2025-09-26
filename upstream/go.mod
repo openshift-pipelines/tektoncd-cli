@@ -319,9 +319,9 @@ require (
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
 	go.step.sm/crypto v0.51.2 // indirect
 	goa.design/goa/v3 v3.19.1 // indirect
-	gocloud.dev v0.40.0 // indirect
-	gocloud.dev/docstore/mongodocstore v0.40.0 // indirect
-	gocloud.dev/pubsub/kafkapubsub v0.40.0 // indirect
+	gocloud.dev v0.43.0 // indirect
+	gocloud.dev/docstore/mongodocstore v0.43.0 // indirect
+	gocloud.dev/pubsub/kafkapubsub v0.43.0 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/mod v0.21.0 // indirect
