@@ -279,7 +279,7 @@ require (
 	github.com/sigstore/sigstore/pkg/signature/kms/azure v1.8.10 // indirect
 	github.com/sigstore/sigstore/pkg/signature/kms/gcp v1.8.10 // indirect
 	github.com/sigstore/sigstore/pkg/signature/kms/hashivault v1.8.10 // indirect
-	github.com/sigstore/timestamp-authority v1.2.2 // indirect
+	github.com/sigstore/timestamp-authority v1.2.9 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
