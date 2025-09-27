@@ -1244,8 +1244,8 @@ github.com/prometheus/client_golang/prometheus/promhttp/internal
 # github.com/prometheus/client_model v0.6.2
 ## explicit; go 1.22.0
 github.com/prometheus/client_model/go
-# github.com/prometheus/common v0.63.0
-## explicit; go 1.21
+# github.com/prometheus/common v0.66.1
+## explicit; go 1.23.0
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
 # github.com/prometheus/procfs v0.15.1
@@ -1962,7 +1962,7 @@ gocloud.dev/docstore/mongodocstore
 # gocloud.dev/pubsub/kafkapubsub v0.40.0
 ## explicit; go 1.21.0
 gocloud.dev/pubsub/kafkapubsub
-# golang.org/x/crypto v0.40.0
+# golang.org/x/crypto v0.41.0
 ## explicit; go 1.23.0
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
@@ -2004,7 +2004,7 @@ golang.org/x/exp/slices
 golang.org/x/mod/semver
 golang.org/x/mod/sumdb/dirhash
 golang.org/x/mod/sumdb/note
-# golang.org/x/net v0.41.0
+# golang.org/x/net v0.43.0
 ## explicit; go 1.23.0
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -2043,7 +2043,7 @@ golang.org/x/sys/windows/registry
 # golang.org/x/term v0.34.0
 ## explicit; go 1.23.0
 golang.org/x/term
-# golang.org/x/text v0.27.0
+# golang.org/x/text v0.28.0
 ## explicit; go 1.23.0
 golang.org/x/text/cases
 golang.org/x/text/encoding
@@ -2276,8 +2276,8 @@ google.golang.org/grpc/xds/internal/xdsclient/xdslbregistry
 google.golang.org/grpc/xds/internal/xdsclient/xdslbregistry/converter
 google.golang.org/grpc/xds/internal/xdsclient/xdsresource
 google.golang.org/grpc/xds/internal/xdsclient/xdsresource/version
-# google.golang.org/protobuf v1.36.7
-## explicit; go 1.22
+# google.golang.org/protobuf v1.36.8
+## explicit; go 1.23
 google.golang.org/protobuf/encoding/protodelim
 google.golang.org/protobuf/encoding/protojson
 google.golang.org/protobuf/encoding/prototext
