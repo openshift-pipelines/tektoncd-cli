@@ -1,8 +1,8 @@
 module github.com/tektoncd/cli/tools
 
-go 1.22.1
+go 1.23
 
-toolchain go1.22.5
+toolchain go1.24.6
 
 require github.com/golangci/golangci-lint v1.62.2
 
@@ -129,7 +129,7 @@ require (
 	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/raeperd/recvcheck v0.1.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
+	github.com/rogpeppe/go-internal v1.13.2-0.20241226121412-a5dc8ff20d0a // indirect
 	github.com/ryancurrah/gomodguard v1.3.5 // indirect
 	github.com/ryanrolds/sqlclosecheck v0.5.1 // indirect
 	github.com/sanposhiho/wastedassign/v2 v2.0.7 // indirect
@@ -177,16 +177,16 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20241108190413-2d47ceb2692f // indirect
-	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
-	golang.org/x/tools v0.27.0 // indirect
+	golang.org/x/tools v0.30.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.5.1 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
-	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
+	mvdan.cc/unparam v0.0.0-20250301125049-0df0534333a4 // indirect
 )
