@@ -190,8 +190,8 @@ github.com/AzureAD/microsoft-authentication-library-for-go/apps/public
 github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp
 github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp/grpc_gcp
 github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp/multiendpoint
-# github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.27.0
-## explicit; go 1.22
+# github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.29.0
+## explicit; go 1.23.0
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp
 # github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.53.0
 ## explicit; go 1.23.0
@@ -668,7 +668,7 @@ github.com/globocom/go-buffer
 ## explicit
 github.com/go-chi/chi
 github.com/go-chi/chi/middleware
-# github.com/go-chi/chi/v5 v5.2.2
+# github.com/go-chi/chi/v5 v5.2.3
 ## explicit; go 1.20
 github.com/go-chi/chi/v5
 # github.com/go-errors/errors v1.4.2
@@ -680,8 +680,8 @@ github.com/go-jose/go-jose/v3
 github.com/go-jose/go-jose/v3/cipher
 github.com/go-jose/go-jose/v3/json
 github.com/go-jose/go-jose/v3/jwt
-# github.com/go-jose/go-jose/v4 v4.0.5
-## explicit; go 1.21
+# github.com/go-jose/go-jose/v4 v4.1.1
+## explicit; go 1.23.0
 github.com/go-jose/go-jose/v4
 github.com/go-jose/go-jose/v4/cipher
 github.com/go-jose/go-jose/v4/json
@@ -1892,7 +1892,7 @@ go.opentelemetry.io/otel/sdk
 go.opentelemetry.io/otel/sdk/instrumentation
 go.opentelemetry.io/otel/sdk/internal/x
 go.opentelemetry.io/otel/sdk/resource
-# go.opentelemetry.io/otel/sdk/metric v1.36.0
+# go.opentelemetry.io/otel/sdk/metric v1.37.0
 ## explicit; go 1.23.0
 go.opentelemetry.io/otel/sdk/metric
 go.opentelemetry.io/otel/sdk/metric/exemplar
@@ -1933,8 +1933,8 @@ go.uber.org/zap/zaptest
 # go.yaml.in/yaml/v2 v2.4.2
 ## explicit; go 1.15
 go.yaml.in/yaml/v2
-# goa.design/goa/v3 v3.21.1
-## explicit; go 1.23.0
+# goa.design/goa/v3 v3.22.3
+## explicit; go 1.24.0
 goa.design/goa/v3/http
 goa.design/goa/v3/pkg
 # gocloud.dev v0.40.0
@@ -1962,8 +1962,8 @@ gocloud.dev/docstore/mongodocstore
 # gocloud.dev/pubsub/kafkapubsub v0.40.0
 ## explicit; go 1.21.0
 gocloud.dev/pubsub/kafkapubsub
-# golang.org/x/crypto v0.40.0
-## explicit; go 1.23.0
+# golang.org/x/crypto v0.42.0
+## explicit; go 1.24.0
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cast5
@@ -1999,13 +1999,13 @@ golang.org/x/crypto/ssh/terminal
 ## explicit; go 1.23.0
 golang.org/x/exp/maps
 golang.org/x/exp/slices
-# golang.org/x/mod v0.26.0
-## explicit; go 1.23.0
+# golang.org/x/mod v0.28.0
+## explicit; go 1.24.0
 golang.org/x/mod/semver
 golang.org/x/mod/sumdb/dirhash
 golang.org/x/mod/sumdb/note
-# golang.org/x/net v0.41.0
-## explicit; go 1.23.0
+# golang.org/x/net v0.44.0
+## explicit; go 1.24.0
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/h2c
@@ -2028,23 +2028,23 @@ golang.org/x/oauth2/google/internal/stsexchange
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sync v0.16.0
-## explicit; go 1.23.0
+# golang.org/x/sync v0.17.0
+## explicit; go 1.24.0
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.35.0
-## explicit; go 1.23.0
+# golang.org/x/sys v0.36.0
+## explicit; go 1.24.0
 golang.org/x/sys/cpu
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-# golang.org/x/term v0.34.0
-## explicit; go 1.23.0
+# golang.org/x/term v0.35.0
+## explicit; go 1.24.0
 golang.org/x/term
-# golang.org/x/text v0.27.0
-## explicit; go 1.23.0
+# golang.org/x/text v0.29.0
+## explicit; go 1.24.0
 golang.org/x/text/cases
 golang.org/x/text/encoding
 golang.org/x/text/encoding/internal
@@ -2106,7 +2106,7 @@ google.golang.org/genproto/googleapis/type/expr
 google.golang.org/genproto/googleapis/type/latlng
 google.golang.org/genproto/googleapis/type/timeofday
 google.golang.org/genproto/protobuf/field_mask
-# google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
+# google.golang.org/genproto/googleapis/api v0.0.0-20250707201910-8d1bb00bc6a7
 ## explicit; go 1.23.0
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
@@ -2116,12 +2116,12 @@ google.golang.org/genproto/googleapis/api/httpbody
 google.golang.org/genproto/googleapis/api/label
 google.golang.org/genproto/googleapis/api/metric
 google.golang.org/genproto/googleapis/api/monitoredres
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822
-## explicit; go 1.23.0
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090
+## explicit; go 1.24.0
 google.golang.org/genproto/googleapis/rpc/code
 google.golang.org/genproto/googleapis/rpc/errdetails
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.74.2
+# google.golang.org/grpc v1.75.1
 ## explicit; go 1.23.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
@@ -2276,8 +2276,8 @@ google.golang.org/grpc/xds/internal/xdsclient/xdslbregistry
 google.golang.org/grpc/xds/internal/xdsclient/xdslbregistry/converter
 google.golang.org/grpc/xds/internal/xdsclient/xdsresource
 google.golang.org/grpc/xds/internal/xdsclient/xdsresource/version
-# google.golang.org/protobuf v1.36.7
-## explicit; go 1.22
+# google.golang.org/protobuf v1.36.9
+## explicit; go 1.23
 google.golang.org/protobuf/encoding/protodelim
 google.golang.org/protobuf/encoding/protojson
 google.golang.org/protobuf/encoding/prototext
