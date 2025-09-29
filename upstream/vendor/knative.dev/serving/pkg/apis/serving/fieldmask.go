@@ -66,6 +66,18 @@ func VolumeSourceMask(ctx context.Context, in *corev1.VolumeSource) *corev1.Volu
 		out.PersistentVolumeClaim = in.PersistentVolumeClaim
 	}
 
+	if cfg.Features.PodSpecVolumesHostPath != config.Disabled {
+		out.HostPath = in.HostPath
+	}
+
+	if cfg.Features.PodSpecVolumesCSI != config.Disabled {
+		out.CSI = in.CSI
+	}
+
+	if cfg.Features.PodSpecVolumesImage != config.Disabled {
+		out.Image = in.Image
+	}
+
 	// Too many disallowed fields to list
 
 	return out
@@ -263,16 +275,21 @@ func PodSpecMask(ctx context.Context, in *corev1.PodSpec) *corev1.PodSpec {
 	if cfg.Features.PodSpecDNSConfig != config.Disabled {
 		out.DNSConfig = in.DNSConfig
 	}
-
+	if cfg.Features.PodSpecHostIPC != config.Disabled {
+		out.HostIPC = in.HostIPC
+	}
+	if cfg.Features.PodSpecHostPID != config.Disabled {
+		out.HostPID = in.HostPID
+	}
+	if cfg.Features.PodSpecHostNetwork != config.Disabled {
+		out.HostNetwork = in.HostNetwork
+	}
 	// Disallowed fields
 	// This list is unnecessary, but added here for clarity
 	out.RestartPolicy = ""
 	out.TerminationGracePeriodSeconds = nil
 	out.ActiveDeadlineSeconds = nil
 	out.NodeName = ""
-	out.HostNetwork = false
-	out.HostPID = false
-	out.HostIPC = false
 	out.Hostname = ""
 	out.Subdomain = ""
 	out.Priority = nil
@@ -305,6 +322,7 @@ func ContainerMask(in *corev1.Container) *corev1.Container {
 	out.ReadinessProbe = in.ReadinessProbe
 	out.Resources = in.Resources
 	out.SecurityContext = in.SecurityContext
+	out.StartupProbe = in.StartupProbe
 	out.TerminationMessagePath = in.TerminationMessagePath
 	out.TerminationMessagePolicy = in.TerminationMessagePolicy
 	out.VolumeMounts = in.VolumeMounts
@@ -323,11 +341,12 @@ func ContainerMask(in *corev1.Container) *corev1.Container {
 // VolumeMountMask performs a _shallow_ copy of the Kubernetes VolumeMount object to a new
 // Kubernetes VolumeMount object bringing over only the fields allowed in the Knative API. This
 // does not validate the contents or the bounds of the provided fields.
-func VolumeMountMask(in *corev1.VolumeMount) *corev1.VolumeMount {
+func VolumeMountMask(ctx context.Context, in *corev1.VolumeMount) *corev1.VolumeMount {
 	if in == nil {
 		return nil
 	}
 
+	cfg := config.FromContextOrDefaults(ctx)
 	out := new(corev1.VolumeMount)
 
 	// Allowed fields
@@ -335,10 +354,15 @@ func VolumeMountMask(in *corev1.VolumeMount) *corev1.VolumeMount {
 	out.ReadOnly = in.ReadOnly
 	out.MountPath = in.MountPath
 	out.SubPath = in.SubPath
+	if cfg.Features.PodSpecVolumesMountPropagation != config.Disabled {
+		out.MountPropagation = in.MountPropagation
+	} else {
+		out.MountPropagation = nil
+	}
 
 	// Disallowed fields
 	// This list is unnecessary, but added here for clarity
-	out.MountPropagation = nil
+	out.RecursiveReadOnly = nil
 
 	return out
 }
@@ -379,7 +403,6 @@ func HandlerMask(in *corev1.ProbeHandler) *corev1.ProbeHandler {
 	out.GRPC = in.GRPC
 
 	return out
-
 }
 
 // ExecActionMask performs a _shallow_ copy of the Kubernetes ExecAction object to a new
@@ -463,7 +486,7 @@ func ContainerPortMask(in *corev1.ContainerPort) *corev1.ContainerPort {
 	out.Name = in.Name
 	out.Protocol = in.Protocol
 
-	//Disallowed fields
+	// Disallowed fields
 	// This list is unnecessary, but added here for clarity
 	out.HostIP = ""
 	out.HostPort = 0
@@ -542,7 +565,6 @@ func ConfigMapKeySelectorMask(in *corev1.ConfigMapKeySelector) *corev1.ConfigMap
 	out.LocalObjectReference = in.LocalObjectReference
 
 	return out
-
 }
 
 // SecretKeySelectorMask performs a _shallow_ copy of the Kubernetes SecretKeySelector object to a new
@@ -561,7 +583,6 @@ func SecretKeySelectorMask(in *corev1.SecretKeySelector) *corev1.SecretKeySelect
 	out.LocalObjectReference = in.LocalObjectReference
 
 	return out
-
 }
 
 // ConfigMapEnvSourceMask performs a _shallow_ copy of the Kubernetes ConfigMapEnvSource object to a new
@@ -579,7 +600,6 @@ func ConfigMapEnvSourceMask(in *corev1.ConfigMapEnvSource) *corev1.ConfigMapEnvS
 	out.LocalObjectReference = in.LocalObjectReference
 
 	return out
-
 }
 
 // SecretEnvSourceMask performs a _shallow_ copy of the Kubernetes SecretEnvSource object to a new
@@ -597,7 +617,6 @@ func SecretEnvSourceMask(in *corev1.SecretEnvSource) *corev1.SecretEnvSource {
 	out.LocalObjectReference = in.LocalObjectReference
 
 	return out
-
 }
 
 // EnvFromSourceMask performs a _shallow_ copy of the Kubernetes EnvFromSource object to a new
@@ -633,7 +652,6 @@ func ResourceRequirementsMask(in *corev1.ResourceRequirements) *corev1.ResourceR
 	out.Requests = in.Requests
 
 	return out
-
 }
 
 // PodSecurityContextMask performs a _shallow_ copy of the Kubernetes PodSecurityContext object into a new
@@ -704,10 +722,12 @@ func SecurityContextMask(ctx context.Context, in *corev1.SecurityContext) *corev
 	// SeccompProfile defaults to "unconstrained", but the safe values are
 	// "RuntimeDefault" or "Localhost" (with localhost path set)
 	out.SeccompProfile = in.SeccompProfile
-
+	// Only allow setting Privileged to false
+	if in.Privileged != nil && !*in.Privileged {
+		out.Privileged = in.Privileged
+	}
 	// Disallowed
 	// This list is unnecessary, but added here for clarity
-	out.Privileged = nil
 	out.SELinuxOptions = nil
 	out.ProcMount = nil
 
@@ -761,6 +781,22 @@ func NamespacedObjectReferenceMask(in *corev1.ObjectReference) *corev1.ObjectRef
 	out.FieldPath = ""
 	out.ResourceVersion = ""
 	out.UID = ""
+
+	return out
+}
+
+// ImageVolumeSourceMask performs a _shallow_ copy of Kubernetes ImageVolumeSource
+// bringing over only the fields allowed in the Knative API.
+func ImageVolumeSourceMask(in *corev1.ImageVolumeSource) *corev1.ImageVolumeSource {
+	if in == nil {
+		return nil
+	}
+
+	out := new(corev1.ImageVolumeSource)
+
+	// Allowed fields
+	out.Reference = in.Reference
+	out.PullPolicy = in.PullPolicy
 
 	return out
 }
