@@ -167,7 +167,7 @@ github.com/AzureAD/microsoft-authentication-library-for-go/apps/internal/options
 github.com/AzureAD/microsoft-authentication-library-for-go/apps/internal/shared
 github.com/AzureAD/microsoft-authentication-library-for-go/apps/internal/version
 github.com/AzureAD/microsoft-authentication-library-for-go/apps/public
-# github.com/IBM/sarama v1.43.0
+# github.com/IBM/sarama v1.43.1
 ## explicit; go 1.19
 github.com/IBM/sarama
 # github.com/Microsoft/go-winio v0.6.2
@@ -1110,8 +1110,8 @@ github.com/opencontainers/image-spec/specs-go/v1
 github.com/opentracing/opentracing-go
 github.com/opentracing/opentracing-go/ext
 github.com/opentracing/opentracing-go/log
-# github.com/openzipkin/zipkin-go v0.4.2
-## explicit; go 1.18
+# github.com/openzipkin/zipkin-go v0.4.3
+## explicit; go 1.20
 github.com/openzipkin/zipkin-go/model
 # github.com/pelletier/go-toml/v2 v2.2.2
 ## explicit; go 1.16
