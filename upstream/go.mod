@@ -13,7 +13,7 @@ require (
 	github.com/docker/cli v25.0.3+incompatible
 	github.com/docker/docker v25.0.6+incompatible
 	github.com/fatih/color v1.16.0
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.19.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hinshun/vt10x v0.0.0-20220228203356-1ab2cad5fd82
@@ -142,7 +142,7 @@ require (
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.1 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
-	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
