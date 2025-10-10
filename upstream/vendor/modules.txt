@@ -45,7 +45,7 @@ cloud.google.com/go/iam/apiv1/iampb
 cloud.google.com/go/kms/apiv1
 cloud.google.com/go/kms/apiv1/kmspb
 cloud.google.com/go/kms/internal
-# cloud.google.com/go/longrunning v0.6.6
+# cloud.google.com/go/longrunning v0.6.7
 ## explicit; go 1.23.0
 cloud.google.com/go/longrunning
 cloud.google.com/go/longrunning/autogen
