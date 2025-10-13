@@ -137,7 +137,8 @@ func newChangeStream(ctx context.Context, config changeStreamConfig, pipeline in
 		ReadPreference(config.readPreference).ReadConcern(config.readConcern).
 		Deployment(cs.client.deployment).ClusterClock(cs.client.clock).
 		CommandMonitor(cs.client.monitor).Session(cs.sess).ServerSelector(cs.selector).Retry(driver.RetryNone).
-		ServerAPI(cs.client.serverAPI).Crypt(config.crypt).Timeout(cs.client.timeout)
+		ServerAPI(cs.client.serverAPI).Crypt(config.crypt).Timeout(cs.client.timeout).
+		Authenticator(cs.client.authenticator)
 
 	if cs.options.Collation != nil {
 		cs.aggregate.Collation(bsoncore.Document(cs.options.Collation.ToDocument()))
@@ -529,6 +530,12 @@ func (cs *ChangeStream) ID() int64 {
 		return 0
 	}
 	return cs.cursor.ID()
+}
+
+// RemainingBatchLength returns the number of documents left in the current batch. If this returns zero, the subsequent
+// call to Next or TryNext will do a network request to fetch the next batch.
+func (cs *ChangeStream) RemainingBatchLength() int {
+	return len(cs.batch)
 }
 
 // SetBatchSize sets the number of documents to fetch from the database with
