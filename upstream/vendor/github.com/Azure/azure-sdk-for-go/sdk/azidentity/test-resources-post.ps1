@@ -5,7 +5,27 @@
 
 param (
   [hashtable] $AdditionalParameters = @{},
-  [hashtable] $DeploymentOutputs
+  [hashtable] $DeploymentOutputs,
+
+  [Parameter(Mandatory = $true)]
+  [ValidateNotNullOrEmpty()]
+  [string] $SubscriptionId,
+
+  [Parameter(ParameterSetName = 'Provisioner', Mandatory = $true)]
+  [ValidateNotNullOrEmpty()]
+  [string] $TenantId,
+
+  [Parameter()]
+  [ValidatePattern('^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$')]
+  [string] $TestApplicationId,
+
+  [Parameter(Mandatory = $true)]
+  [ValidateNotNullOrEmpty()]
+  [string] $Environment,
+
+  # Captures any arguments from eng/New-TestResources.ps1 not declared here (no parameter errors).
+  [Parameter(ValueFromRemainingArguments = $true)]
+  $RemainingArguments
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,14 +36,15 @@ if ($CI) {
     Write-Host "Skipping post-provisioning script because resources weren't deployed"
     return
   }
-  az login --service-principal -u $DeploymentOutputs['AZIDENTITY_CLIENT_ID'] -p $DeploymentOutputs['AZIDENTITY_CLIENT_SECRET'] --tenant $DeploymentOutputs['AZIDENTITY_TENANT_ID']
-  az account set --subscription $DeploymentOutputs['AZIDENTITY_SUBSCRIPTION_ID']
+  az cloud set -n $Environment
+  az login --federated-token $env:ARM_OIDC_TOKEN --service-principal -t $TenantId -u $TestApplicationId
+  az account set --subscription $SubscriptionId
 }
 
 Write-Host "Building container"
 $image = "$($DeploymentOutputs['AZIDENTITY_ACR_LOGIN_SERVER'])/azidentity-managed-id-test"
 Set-Content -Path "$PSScriptRoot/Dockerfile" -Value @"
-FROM mcr.microsoft.com/oss/go/microsoft/golang:latest as builder
+FROM mcr.microsoft.com/oss/go/microsoft/golang:latest AS builder
 ENV GOARCH=amd64 GOWORK=off
 COPY . /azidentity
 WORKDIR /azidentity/testdata/managed-id-test
@@ -50,13 +71,20 @@ $aciName = "azidentity-test"
 az container create -g $rg -n $aciName --image $image `
   --acr-identity $($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY']) `
   --assign-identity [system] $($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY']) `
+  --cpu 1 `
+  --ip-address Public `
+  --memory 1.0 `
+  --os-type Linux `
   --role "Storage Blob Data Reader" `
   --scope $($DeploymentOutputs['AZIDENTITY_STORAGE_ID']) `
   -e AZIDENTITY_STORAGE_NAME=$($DeploymentOutputs['AZIDENTITY_STORAGE_NAME']) `
-     AZIDENTITY_STORAGE_NAME_USER_ASSIGNED=$($DeploymentOutputs['AZIDENTITY_STORAGE_NAME_USER_ASSIGNED']) `
-     AZIDENTITY_USER_ASSIGNED_IDENTITY=$($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY']) `
-     FUNCTIONS_CUSTOMHANDLER_PORT=80
-Write-Host "##vso[task.setvariable variable=AZIDENTITY_ACI_NAME;]$aciName"
+  AZIDENTITY_STORAGE_NAME_USER_ASSIGNED=$($DeploymentOutputs['AZIDENTITY_STORAGE_NAME_USER_ASSIGNED']) `
+  AZIDENTITY_USER_ASSIGNED_IDENTITY=$($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY']) `
+  AZIDENTITY_USER_ASSIGNED_IDENTITY_CLIENT_ID=$($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY_CLIENT_ID']) `
+  AZIDENTITY_USER_ASSIGNED_IDENTITY_OBJECT_ID=$($DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY_OBJECT_ID']) `
+  FUNCTIONS_CUSTOMHANDLER_PORT=80
+$aciIP = az container show -g $rg -n $aciName --query ipAddress.ip --output tsv
+Write-Host "##vso[task.setvariable variable=AZIDENTITY_ACI_IP;]$aciIP"
 
 # Azure Functions deployment: copy the Windows binary from the Docker image, deploy it in a zip
 Write-Host "Deploying to Azure Functions"
@@ -72,7 +100,7 @@ $idName = $DeploymentOutputs['AZIDENTITY_USER_ASSIGNED_IDENTITY_NAME']
 $issuer = az aks show -g $rg -n $aksName --query "oidcIssuerProfile.issuerUrl" -otsv
 $podName = "azidentity-test"
 $serviceAccountName = "workload-identity-sa"
-az identity federated-credential create -g $rg --identity-name $idName --issuer $issuer --name $idName --subject system:serviceaccount:default:$serviceAccountName
+az identity federated-credential create -g $rg --identity-name $idName --issuer $issuer --name $idName --subject system:serviceaccount:default:$serviceAccountName --audiences api://AzureADTokenExchange
 Write-Host "Deploying to AKS"
 az aks get-credentials -g $rg -n $aksName
 az aks update --attach-acr $DeploymentOutputs['AZIDENTITY_ACR_NAME'] -g $rg -n $aksName
