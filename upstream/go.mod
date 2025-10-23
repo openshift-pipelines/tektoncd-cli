@@ -39,7 +39,7 @@ require (
 	k8s.io/apimachinery v0.33.4
 	k8s.io/cli-runtime v0.29.15
 	k8s.io/client-go v0.33.4
-	knative.dev/pkg v0.0.0-20250415155312-ed3e2158b883
+	knative.dev/pkg b988e0b4526c
 	sigs.k8s.io/yaml v1.6.0
 )
 
