@@ -348,7 +348,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	knative.dev/eventing v0.30.3 // indirect
-	knative.dev/networking v0.0.0-20231017124814-2a7676e912b7 // indirect
+	knative.dev/networking 6a680e88d36c // indirect
 	knative.dev/serving v0.39.4 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
