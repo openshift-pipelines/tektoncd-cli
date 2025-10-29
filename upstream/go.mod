@@ -358,7 +358,7 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758 // indirect
 	knative.dev/eventing v0.30.3 // indirect
 	knative.dev/networking v0.0.0-20231017124814-2a7676e912b7 // indirect
-	knative.dev/serving v0.39.4 // indirect
+	knative.dev/serving v0.47.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.14.3-0.20230601165947-6ce0bf390ce3 // indirect
