@@ -551,7 +551,7 @@ github.com/eapache/queue
 # github.com/edwarnicke/gitoid v0.0.0-20220710194850-1be5bfda1f9d
 ## explicit; go 1.18
 github.com/edwarnicke/gitoid
-# github.com/emicklei/go-restful/v3 v3.12.1
+# github.com/emicklei/go-restful/v3 v3.12.2
 ## explicit; go 1.13
 github.com/emicklei/go-restful/v3
 github.com/emicklei/go-restful/v3/log
@@ -615,8 +615,8 @@ github.com/felixge/httpsnoop
 ## explicit; go 1.17
 github.com/fsnotify/fsnotify
 github.com/fsnotify/fsnotify/internal
-# github.com/fxamacker/cbor/v2 v2.7.0
-## explicit; go 1.17
+# github.com/fxamacker/cbor/v2 v2.8.0
+## explicit; go 1.20
 github.com/fxamacker/cbor/v2
 # github.com/gdamore/encoding v1.0.1
 ## explicit; go 1.9
@@ -712,7 +712,7 @@ github.com/go-openapi/analysis/internal/flatten/sortref
 # github.com/go-openapi/errors v0.22.1
 ## explicit; go 1.20
 github.com/go-openapi/errors
-# github.com/go-openapi/jsonpointer v0.21.0
+# github.com/go-openapi/jsonpointer v0.21.1
 ## explicit; go 1.20
 github.com/go-openapi/jsonpointer
 # github.com/go-openapi/jsonreference v0.21.0
@@ -863,8 +863,8 @@ github.com/google/go-containerregistry/pkg/v1/types
 # github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20240108195214-a0658aa1d0cc
 ## explicit; go 1.18
 github.com/google/go-containerregistry/pkg/authn/k8schain
-# github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20240108195214-a0658aa1d0cc
-## explicit; go 1.18
+# github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20251028202801-aab7c77e9d78
+## explicit; go 1.24.0
 github.com/google/go-containerregistry/pkg/authn/kubernetes
 # github.com/google/go-github/v73 v73.0.0
 ## explicit; go 1.23.0
@@ -2858,7 +2858,7 @@ k8s.io/kube-openapi/pkg/schemaconv
 k8s.io/kube-openapi/pkg/spec3
 k8s.io/kube-openapi/pkg/util/proto
 k8s.io/kube-openapi/pkg/validation/spec
-# k8s.io/utils v0.0.0-20241210054802-24370beab758
+# k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
 ## explicit; go 1.18
 k8s.io/utils/buffer
 k8s.io/utils/clock
@@ -3054,7 +3054,7 @@ sigs.k8s.io/randfill/bytesource
 # sigs.k8s.io/release-utils v0.11.1
 ## explicit; go 1.23
 sigs.k8s.io/release-utils/version
-# sigs.k8s.io/structured-merge-diff/v4 v4.6.0
+# sigs.k8s.io/structured-merge-diff/v4 v4.7.0
 ## explicit; go 1.13
 sigs.k8s.io/structured-merge-diff/v4/fieldpath
 sigs.k8s.io/structured-merge-diff/v4/merge
