@@ -4,6 +4,7 @@
     "github>konflux-ci/mintmaker//config/renovate/renovate.json"
   ],
   "branchPrefix": "osp-mintmaker/",
+  "ignorePaths": ["upstream/**"]
   "enabledManagers": [
     "tekton",
     "dockerfile",
