@@ -18,7 +18,6 @@ go_library(
         "math.go",
         "native.go",
         "protos.go",
-        "regex.go",
         "sets.go",
         "strings.go",
     ],
@@ -27,7 +26,6 @@ go_library(
     deps = [
         "//cel:go_default_library",
         "//checker:go_default_library",
-        "//common:go_default_library",
         "//common/ast:go_default_library",
         "//common/decls:go_default_library",
         "//common/env:go_default_library",
@@ -61,7 +59,6 @@ go_test(
         "math_test.go",
         "native_test.go",
         "protos_test.go",
-        "regex_test.go",
         "sets_test.go",
         "strings_test.go",
     ],
@@ -71,7 +68,6 @@ go_test(
     deps = [
         "//cel:go_default_library",
         "//checker:go_default_library",
-        "//common:go_default_library",
         "//common/env:go_default_library",
         "//common/types:go_default_library",
         "//common/types/ref:go_default_library",

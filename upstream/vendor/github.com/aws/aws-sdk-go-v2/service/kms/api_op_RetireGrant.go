@@ -18,11 +18,12 @@ import (
 // This operation can be called by the retiring principal for a grant, by the
 // grantee principal if the grant allows the RetireGrant operation, and by the
 // Amazon Web Services account in which the grant is created. It can also be called
-// by principals to whom permission for retiring a grant is delegated.
+// by principals to whom permission for retiring a grant is delegated. For details,
+// see [Retiring and revoking grants]in the Key Management Service Developer Guide.
 //
 // For detailed information about grants, including grant terminology, see [Grants in KMS] in the
-// Key Management Service Developer Guide . For examples of creating grants in
-// several programming languages, see [Use CreateGrant with an Amazon Web Services SDK or CLI].
+// Key Management Service Developer Guide . For examples of working with grants in
+// several programming languages, see [Programming grants].
 //
 // Cross-account use: Yes. You can retire a grant on a KMS key in a different
 // Amazon Web Services account.
@@ -43,11 +44,11 @@ import (
 // Eventual consistency: The KMS API follows an eventual consistency model. For
 // more information, see [KMS eventual consistency].
 //
+// [Programming grants]: https://docs.aws.amazon.com/kms/latest/developerguide/programming-grants.html
 // [grant token]: https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#grant_token
-// [Retiring and revoking grants]: https://docs.aws.amazon.com/kms/latest/developerguide/grant-delete.html
+// [Retiring and revoking grants]: https://docs.aws.amazon.com/kms/latest/developerguide/grant-manage.html#grant-delete
 // [Grants in KMS]: https://docs.aws.amazon.com/kms/latest/developerguide/grants.html
-// [Use CreateGrant with an Amazon Web Services SDK or CLI]: https://docs.aws.amazon.com/kms/latest/developerguide/example_kms_CreateGrant_section.html
-// [KMS eventual consistency]: https://docs.aws.amazon.com/kms/latest/developerguide/accessing-kms.html#programming-eventual-consistency
+// [KMS eventual consistency]: https://docs.aws.amazon.com/kms/latest/developerguide/programming-eventual-consistency.html
 func (c *Client) RetireGrant(ctx context.Context, params *RetireGrantInput, optFns ...func(*Options)) (*RetireGrantOutput, error) {
 	if params == nil {
 		params = &RetireGrantInput{}
@@ -67,10 +68,10 @@ type RetireGrantInput struct {
 
 	// Checks if your request will succeed. DryRun is an optional parameter.
 	//
-	// To learn more about how to use this parameter, see [Testing your permissions] in the Key Management
+	// To learn more about how to use this parameter, see [Testing your KMS API calls] in the Key Management
 	// Service Developer Guide.
 	//
-	// [Testing your permissions]: https://docs.aws.amazon.com/kms/latest/developerguide/testing-permissions.html
+	// [Testing your KMS API calls]: https://docs.aws.amazon.com/kms/latest/developerguide/programming-dryrun.html
 	DryRun *bool
 
 	// Identifies the grant to retire. To get the grant ID, use CreateGrant, ListGrants, or ListRetirableGrants.

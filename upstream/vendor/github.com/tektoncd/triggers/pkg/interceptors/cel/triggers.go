@@ -162,7 +162,7 @@ func Triggers(ctx context.Context, ns string, sg interceptors.SecretGetter) cel.
 }
 
 type triggersLib struct {
-	ctx          context.Context //nolint:containedctx
+	ctx          context.Context
 	defaultNS    string
 	secretGetter interceptors.SecretGetter
 }

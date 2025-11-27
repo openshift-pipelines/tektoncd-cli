@@ -19,11 +19,13 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/in-toto/in-toto-golang/in_toto"
 	slsa02 "github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/v0.2"
 	slsa1 "github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/v1"
-	"github.com/sigstore/cosign/v2/pkg/cosign/attestation"
+
+	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/spf13/cobra"
+
+	"github.com/sigstore/cosign/v2/pkg/cosign/attestation"
 )
 
 const (

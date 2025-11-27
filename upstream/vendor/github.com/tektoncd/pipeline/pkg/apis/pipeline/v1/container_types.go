@@ -140,6 +140,7 @@ type Step struct {
 	Ref *Ref `json:"ref,omitempty"`
 	// Params declares parameters passed to this step action.
 	// +optional
+	// +listType=atomic
 	Params Params `json:"params,omitempty"`
 	// Results declares StepResults produced by the Step.
 	//
