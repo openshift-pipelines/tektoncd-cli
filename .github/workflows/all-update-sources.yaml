@@ -33,6 +33,7 @@ jobs:
     needs: collect-branches
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix: ${{ fromJSON(needs.collect-branches.outputs.matrix) }}
     steps:
       - name: Trigger update-sources workflow for ${{ matrix.branch }}
