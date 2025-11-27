@@ -66,6 +66,7 @@ func setup(ctx context.Context, t *testing.T, fn ...func(context.Context, *testi
 	t.Helper()
 	skipIfExcluded(t)
 
+	t.Helper()
 	namespace := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("arendelle")
 
 	initializeLogsAndMetrics(t)

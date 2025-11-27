@@ -20,23 +20,21 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/url"
-	"regexp"
-	"strings"
+
+	"github.com/sigstore/sigstore/pkg/signature"
 
 	"github.com/sigstore/sigstore-go/pkg/root"
 	"github.com/sigstore/sigstore-go/pkg/tlog"
-	"github.com/sigstore/sigstore/pkg/signature"
 )
 
 const maxAllowedTlogEntries = 32
 
-// VerifyTlogEntry verifies that the given entity has been logged
+// VerifyArtifactTransparencyLog verifies that the given entity has been logged
 // in the transparency log and that the log entry is valid.
 //
 // The threshold parameter is the number of unique transparency log entries
 // that must be verified.
-func VerifyTlogEntry(entity SignedEntity, trustedMaterial root.TrustedMaterial, logThreshold int, trustIntegratedTime bool) ([]root.Timestamp, error) { //nolint:revive
+func VerifyArtifactTransparencyLog(entity SignedEntity, trustedMaterial root.TrustedMaterial, logThreshold int, trustIntegratedTime bool) ([]root.Timestamp, error) { //nolint:revive
 	entries, err := entity.TlogEntries()
 	if err != nil {
 		return nil, err
@@ -105,21 +103,7 @@ func VerifyTlogEntry(entity SignedEntity, trustedMaterial root.TrustedMaterial, 
 				return nil, err
 			}
 
-			if hasRekorV1STH(entry) {
-				err = tlog.VerifyInclusion(entry, *verifier)
-			} else {
-				if tlogVerifier.BaseURL == "" {
-					return nil, fmt.Errorf("cannot verify Rekor v2 entry without baseUrl in transparency log's trusted root")
-				}
-				u, err := url.Parse(tlogVerifier.BaseURL)
-				if err != nil {
-					return nil, err
-				}
-				err = tlog.VerifyCheckpointAndInclusion(entry, *verifier, u.Hostname())
-				if err != nil {
-					return nil, err
-				}
-			}
+			err = tlog.VerifyInclusion(entry, *verifier)
 			if err != nil {
 				return nil, err
 			}
@@ -139,10 +123,8 @@ func VerifyTlogEntry(entity SignedEntity, trustedMaterial root.TrustedMaterial, 
 		// TODO: if you have access to artifact, check that it matches body subject
 
 		// Check tlog entry time against bundle certificates
-		if !entry.IntegratedTime().IsZero() {
-			if !verificationContent.ValidAtTime(entry.IntegratedTime(), trustedMaterial) {
-				return nil, errors.New("integrated time outside certificate validity")
-			}
+		if !verificationContent.ValidAtTime(entry.IntegratedTime(), trustedMaterial) {
+			return nil, errors.New("integrated time outside certificate validity")
 		}
 
 		// successful log entry verification
@@ -163,25 +145,4 @@ func getVerifier(publicKey crypto.PublicKey, hashFunc crypto.Hash) (*signature.V
 	}
 
 	return &verifier, nil
-}
-
-// TODO: remove this deprecated function before 2.0
-
-// Deprecated: use VerifyTlogEntry instead
-func VerifyArtifactTransparencyLog(entity SignedEntity, trustedMaterial root.TrustedMaterial, logThreshold int, trustIntegratedTime bool) ([]root.Timestamp, error) { //nolint:revive
-	return VerifyTlogEntry(entity, trustedMaterial, logThreshold, trustIntegratedTime)
-}
-
-var treeIDSuffixRegex = regexp.MustCompile(".* - [0-9]+$")
-
-// hasRekorV1STH checks if the checkpoint has a Rekor v1-style Signed Tree Head
-// which contains a numeric Tree ID as part of its checkpoint origin.
-func hasRekorV1STH(entry *tlog.Entry) bool {
-	tle := entry.TransparencyLogEntry()
-	checkpointBody := tle.GetInclusionProof().GetCheckpoint().GetEnvelope()
-	checkpointLines := strings.Split(checkpointBody, "\n")
-	if len(checkpointLines) < 4 {
-		return false
-	}
-	return treeIDSuffixRegex.MatchString(checkpointLines[0])
 }

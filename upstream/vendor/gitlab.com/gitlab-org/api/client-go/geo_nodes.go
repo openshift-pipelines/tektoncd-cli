@@ -22,29 +22,19 @@ import (
 )
 
 type (
-	// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 	GeoNodesServiceInterface interface {
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		CreateGeoNode(*CreateGeoNodesOptions, ...RequestOptionFunc) (*GeoNode, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		ListGeoNodes(*ListGeoNodesOptions, ...RequestOptionFunc) ([]*GeoNode, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		GetGeoNode(int, ...RequestOptionFunc) (*GeoNode, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		EditGeoNode(int, *UpdateGeoNodesOptions, ...RequestOptionFunc) (*GeoNode, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		DeleteGeoNode(int, ...RequestOptionFunc) (*Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		RepairGeoNode(int, ...RequestOptionFunc) (*GeoNode, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		RetrieveStatusOfAllGeoNodes(...RequestOptionFunc) ([]*GeoNodeStatus, *Response, error)
-		// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 		RetrieveStatusOfGeoNode(int, ...RequestOptionFunc) (*GeoNodeStatus, *Response, error)
 	}
 
 	// GeoNodesService handles communication with Geo Nodes related methods
 	// of GitLab API.
-	// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 	//
 	// GitLab API docs: https://docs.gitlab.com/api/geo_nodes/
 	GeoNodesService struct {
@@ -52,11 +42,9 @@ type (
 	}
 )
 
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 var _ GeoNodesServiceInterface = (*GeoNodesService)(nil)
 
 // GeoNode represents a GitLab Geo Node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs: https://docs.gitlab.com/api/geo_nodes/
 type GeoNode struct {
@@ -83,7 +71,6 @@ type GeoNode struct {
 }
 
 // GeoNodeLinks represents links for GitLab GeoNode.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs: https://docs.gitlab.com/api/geo_nodes/
 type GeoNodeLinks struct {
@@ -93,7 +80,6 @@ type GeoNodeLinks struct {
 }
 
 // CreateGeoNodesOptions represents the available CreateGeoNode() options.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#create-a-new-geo-node
@@ -115,7 +101,6 @@ type CreateGeoNodesOptions struct {
 }
 
 // CreateGeoNode creates a new Geo Node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#create-a-new-geo-node
@@ -135,14 +120,12 @@ func (s *GeoNodesService) CreateGeoNode(opt *CreateGeoNodesOptions, options ...R
 }
 
 // ListGeoNodesOptions represents the available ListGeoNodes() options.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-configuration-about-all-geo-nodes
 type ListGeoNodesOptions ListOptions
 
 // ListGeoNodes gets a list of geo nodes.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-configuration-about-all-geo-nodes
@@ -162,7 +145,6 @@ func (s *GeoNodesService) ListGeoNodes(opt *ListGeoNodesOptions, options ...Requ
 }
 
 // GetGeoNode gets a specific geo node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-configuration-about-a-specific-geo-node
@@ -184,7 +166,6 @@ func (s *GeoNodesService) GetGeoNode(id int, options ...RequestOptionFunc) (*Geo
 }
 
 // UpdateGeoNodesOptions represents the available EditGeoNode() options.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#edit-a-geo-node
@@ -206,7 +187,6 @@ type UpdateGeoNodesOptions struct {
 }
 
 // EditGeoNode updates settings of an existing Geo node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#edit-a-geo-node
@@ -228,7 +208,6 @@ func (s *GeoNodesService) EditGeoNode(id int, opt *UpdateGeoNodesOptions, option
 }
 
 // DeleteGeoNode removes the Geo node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#delete-a-geo-node
@@ -244,7 +223,6 @@ func (s *GeoNodesService) DeleteGeoNode(id int, options ...RequestOptionFunc) (*
 }
 
 // RepairGeoNode to repair the OAuth authentication of a Geo node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#repair-a-geo-node
@@ -266,7 +244,6 @@ func (s *GeoNodesService) RepairGeoNode(id int, options ...RequestOptionFunc) (*
 }
 
 // GeoNodeStatus represents the status of Geo Node.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-status-about-all-geo-nodes
@@ -431,7 +408,6 @@ type GeoNodeStatus struct {
 }
 
 // RetrieveStatusOfAllGeoNodes get the list of status of all Geo Nodes.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-status-about-all-geo-nodes
@@ -451,7 +427,6 @@ func (s *GeoNodesService) RetrieveStatusOfAllGeoNodes(options ...RequestOptionFu
 }
 
 // RetrieveStatusOfGeoNode get the of status of a specific Geo Nodes.
-// Deprecated: will be removed in v5 of the API, use Geo Sites API instead
 //
 // GitLab API docs:
 // https://docs.gitlab.com/api/geo_nodes/#retrieve-status-about-a-specific-geo-node

@@ -35,7 +35,6 @@ use (
 	./certificatemanager
 	./channel
 	./chat
-	./chronicle
 	./cloudbuild
 	./cloudcontrolspartner
 	./clouddms
@@ -62,7 +61,6 @@ use (
 	./datastream
 	./deploy
 	./developerconnect
-	./devicestreaming
 	./dialogflow
 	./discoveryengine
 	./dlp
@@ -104,7 +102,6 @@ use (
 	./lifesciences
 	./logging
 	./longrunning
-	./lustre
 	./managedidentities
 	./managedkafka
 	./maps
@@ -160,12 +157,10 @@ use (
 	./shell
 	./shopping
 	./spanner
-	./spanner/benchmarks
 	./spanner/test/opentelemetry/test
 	./speech
 	./storage
 	./storage/internal/benchmarks
-	./storagebatchoperations
 	./storageinsights
 	./storagetransfer
 	./streetview
