@@ -1,4 +1,4 @@
-# Generated for Konflux Application openshift-pipelines-cli-next by openshift-pipelines/hack. DO NOT EDIT
+# Generated for Konflux Application openshift-pipelines-cli by openshift-pipelines/hack. DO NOT EDIT
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
@@ -10,16 +10,16 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "next" &&
+      == "release-v1.22.x" &&
       ("upstream/***".pathChanged() || ".konflux/patches/***".pathChanged() || ".konflux/rpms/***".pathChanged() ||
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
-      ".tekton/tektoncd-cli-next-tkn-push.yaml".pathChanged())
+      ".tekton/tektoncd-cli-1-22-tkn-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: openshift-pipelines-cli-next
-    appstudio.openshift.io/component: tektoncd-cli-next-tkn
+    appstudio.openshift.io/application: openshift-pipelines-cli-1-22
+    appstudio.openshift.io/component: tektoncd-cli-tkn-1-22
     pipelines.appstudio.openshift.io/type: build
-  name: tektoncd-cli-next-tkn-on-push
+  name: tektoncd-cli-1-22-tkn-on-push
   namespace: tekton-ecosystem-tenant
 spec:
   params:
@@ -27,10 +27,8 @@ spec:
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
-  - name: upstream-git-url
-    value: 'https://github.com/tektoncd/cli'
   - name: output-image
-    value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/next/cli-tkn-rhel9:{{revision}}
+    value: quay.io/redhat-user-workloads/tekton-ecosystem-tenant/cli-tkn-rhel9:{{revision}}
   - name: dockerfile
     value: .konflux/dockerfiles/tkn.Dockerfile
   - name: prefetch-input
@@ -39,7 +37,7 @@ spec:
   pipelineRef:
     name: docker-build-ta
   taskRunTemplate:
-    serviceAccountName: build-pipeline-tektoncd-cli-next-tkn
+    serviceAccountName: build-pipeline-tektoncd-cli-tkn-1-22
   workspaces:
   - name: git-auth
     secret:
