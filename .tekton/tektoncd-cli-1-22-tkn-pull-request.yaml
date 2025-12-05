@@ -17,7 +17,7 @@ metadata:
       ".tekton/tektoncd-cli-1-22-tkn-pull-request.yaml".pathChanged())
   labels:
     appstudio.openshift.io/application: openshift-pipelines-cli-1-22
-    appstudio.openshift.io/component: tektoncd-cli-tkn-1-22
+    appstudio.openshift.io/component: tektoncd-cli-1-22-tkn
     pipelines.appstudio.openshift.io/type: build
   name: tektoncd-cli-1-22-tkn-on-pull-request
   namespace: tekton-ecosystem-tenant
@@ -25,6 +25,8 @@ spec:
   params:
   - name: git-url
     value: '{{source_url}}'
+  - name: upstream-git-url
+    value: 'https://github.com/tektoncd/cli'
   - name: revision
     value: '{{revision}}'
   - name: output-image
@@ -35,7 +37,6 @@ spec:
     value: .konflux/dockerfiles/tkn.Dockerfile
   - name: additional-tags
     value:
-      - "on-pr-1.22"
       - "on-pr-1.22.0"
   - name: build-platforms
     value:
@@ -46,7 +47,7 @@ spec:
   pipelineRef:
     name: docker-build-ta
   taskRunTemplate:
-    serviceAccountName: build-pipeline-tektoncd-cli-tkn-1-22
+    serviceAccountName: build-pipeline-tektoncd-cli-1-22-tkn
   workspaces:
   - name: git-auth
     secret:
