@@ -1,5 +1,4 @@
 //go:build e2e
-// +build e2e
 
 // Copyright © 2020 The Tekton Authors.
 //
@@ -78,7 +77,7 @@ func TestPipelineInteractiveStartE2E(t *testing.T) {
 	})
 
 	t.Run("Validate pipeline logs, with  follow mode (-f) and --last ", func(t *testing.T) {
-		res := tkn.Run(t, "pipeline", "logs", "--last", "-f")
+		res := tkn.Run(t, "pipeline", "logs", "--last", "-f", "--prefix=false")
 		expected := "\n\ntest-e2e\n\n"
 		helper.AssertOutput(t, expected, res.Stdout())
 	})
