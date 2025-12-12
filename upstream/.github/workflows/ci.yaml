@@ -1,0 +1,109 @@
+name: ci
+
+on: [pull_request] # yamllint disable-line rule:truthy
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull-request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+  checks: write # Used to annotate code in the PR
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: "go.mod"
+      - name: build
+        run: |
+          go build -v ./...
+  linting:
+    needs: [build]
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: "go.mod"
+      - name: gofmt
+        run: |
+          gofmt_out=$(gofmt -d $(find * -name '*.go' ! -path 'vendor/*' ! -path 'third_party/*'))
+          if [[ -n "$gofmt_out" ]]; then
+              failed=1
+          fi
+          echo "$gofmt_out"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
+        with:
+          version: v2.1.6
+          only-new-issues: true
+          args: --timeout=10m
+      - name: yamllint
+        run: |
+          apt update && apt install -y yamllint
+          yamllint -c .yamllint $(find . -path ./vendor -prune -o -type f -regex ".*y[a]ml" -print | tr '\n' ' ')
+      - name: check-license
+        run: |
+          go install github.com/google/go-licenses@v1.0.0
+          go-licenses check ./...
+  tests:
+    needs: [build]
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: "go.mod"
+      - name: build
+        run: |
+          make test-unit-verbose-and-race
+  generated:
+    needs: [build]
+    name: Check generated code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: "go.mod"
+      - name: generated
+        run: |
+          go install github.com/google/go-licenses@v1.0.0 # Not sure why it is needed here
+          ./hack/verify-codegen.sh
+  multi-arch-build:
+    needs: [build]
+    name: Multi-arch build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: "go.mod"
+      - name: Free disk space
+        run: |
+          echo "--- Disk space before cleanup ---"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -a -f
+          echo "--- Disk space after cleanup ---"
+          df -h
+      - name: make cross
+        run: |
+          make cross
+  e2e-tests:
+    needs: [build]
+    uses: ./.github/workflows/e2e-matrix.yml
