@@ -15,6 +15,7 @@
 package verify
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 
@@ -23,69 +24,62 @@ import (
 
 const maxAllowedTimestamps = 32
 
-// VerifySignedTimestamp verifies that the given entity has been timestamped
+// VerifyTimestampAuthority verifies that the given entity has been timestamped
 // by a trusted timestamp authority and that the timestamp is valid.
-func VerifySignedTimestamp(entity SignedEntity, trustedMaterial root.TrustedMaterial) ([]*root.Timestamp, []error, error) { //nolint:revive
+func VerifyTimestampAuthority(entity SignedEntity, trustedMaterial root.TrustedMaterial) ([]*root.Timestamp, error) { //nolint:revive
 	signedTimestamps, err := entity.Timestamps()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// limit the number of timestamps to prevent DoS
 	if len(signedTimestamps) > maxAllowedTimestamps {
-		return nil, nil, fmt.Errorf("too many signed timestamps: %d > %d", len(signedTimestamps), maxAllowedTimestamps)
+		return nil, fmt.Errorf("too many signed timestamps: %d > %d", len(signedTimestamps), maxAllowedTimestamps)
 	}
+
+	// disallow duplicate timestamps, as a malicious actor could use duplicates to bypass the threshold
+	for i := 0; i < len(signedTimestamps); i++ {
+		for j := i + 1; j < len(signedTimestamps); j++ {
+			if bytes.Equal(signedTimestamps[i], signedTimestamps[j]) {
+				return nil, errors.New("duplicate timestamps found")
+			}
+		}
+	}
+
 	sigContent, err := entity.SignatureContent()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	signatureBytes := sigContent.Signature()
 
 	verifiedTimestamps := []*root.Timestamp{}
-	var verificationErrors []error
 	for _, timestamp := range signedTimestamps {
 		verifiedSignedTimestamp, err := verifySignedTimestamp(timestamp, signatureBytes, trustedMaterial)
+
+		// Timestamps from unknown source are okay, but don't count as verified
 		if err != nil {
-			verificationErrors = append(verificationErrors, err)
-			continue
-		}
-		if isDuplicateTSA(verifiedTimestamps, verifiedSignedTimestamp) {
-			verificationErrors = append(verificationErrors, fmt.Errorf("duplicate timestamps from the same authority, ignoring %s", verifiedSignedTimestamp.URI))
 			continue
 		}
 
 		verifiedTimestamps = append(verifiedTimestamps, verifiedSignedTimestamp)
 	}
 
-	return verifiedTimestamps, verificationErrors, nil
+	return verifiedTimestamps, nil
 }
 
-// isDuplicateTSA checks if the given verified signed timestamp is a duplicate
-// of any of the verified timestamps.
-// This is used to prevent replay attacks and ensure a single compromised TSA
-// cannot meet the threshold.
-func isDuplicateTSA(verifiedTimestamps []*root.Timestamp, verifiedSignedTimestamp *root.Timestamp) bool {
-	for _, ts := range verifiedTimestamps {
-		if ts.URI == verifiedSignedTimestamp.URI {
-			return true
-		}
-	}
-	return false
-}
-
-// VerifySignedTimestamp verifies that the given entity has been timestamped
+// VerifyTimestampAuthority verifies that the given entity has been timestamped
 // by a trusted timestamp authority and that the timestamp is valid.
 //
 // The threshold parameter is the number of unique timestamps that must be
 // verified.
-func VerifySignedTimestampWithThreshold(entity SignedEntity, trustedMaterial root.TrustedMaterial, threshold int) ([]*root.Timestamp, error) { //nolint:revive
-	verifiedTimestamps, verificationErrors, err := VerifySignedTimestamp(entity, trustedMaterial)
+func VerifyTimestampAuthorityWithThreshold(entity SignedEntity, trustedMaterial root.TrustedMaterial, threshold int) ([]*root.Timestamp, error) { //nolint:revive
+	verifiedTimestamps, err := VerifyTimestampAuthority(entity, trustedMaterial)
 	if err != nil {
 		return nil, err
 	}
 	if len(verifiedTimestamps) < threshold {
-		return nil, fmt.Errorf("threshold not met for verified signed timestamps: %d < %d; error: %w", len(verifiedTimestamps), threshold, errors.Join(verificationErrors...))
+		return nil, fmt.Errorf("threshold not met for verified signed timestamps: %d < %d", len(verifiedTimestamps), threshold)
 	}
 	return verifiedTimestamps, nil
 }
@@ -93,28 +87,13 @@ func VerifySignedTimestampWithThreshold(entity SignedEntity, trustedMaterial roo
 func verifySignedTimestamp(signedTimestamp []byte, signatureBytes []byte, trustedMaterial root.TrustedMaterial) (*root.Timestamp, error) {
 	timestampAuthorities := trustedMaterial.TimestampingAuthorities()
 
-	var errs []error
-
 	// Iterate through TSA certificate authorities to find one that verifies
 	for _, tsa := range timestampAuthorities {
 		ts, err := tsa.Verify(signedTimestamp, signatureBytes)
 		if err == nil {
 			return ts, nil
 		}
-		errs = append(errs, err)
 	}
 
-	return nil, fmt.Errorf("unable to verify signed timestamps: %w", errors.Join(errs...))
-}
-
-// TODO: remove below deprecated functions before 2.0
-
-// Deprecated: use VerifySignedTimestamp instead.
-func VerifyTimestampAuthority(entity SignedEntity, trustedMaterial root.TrustedMaterial) ([]*root.Timestamp, []error, error) { //nolint:revive
-	return VerifySignedTimestamp(entity, trustedMaterial)
-}
-
-// Deprecated: use VerifySignedTimestampWithThreshold instead.
-func VerifyTimestampAuthorityWithThreshold(entity SignedEntity, trustedMaterial root.TrustedMaterial, threshold int) ([]*root.Timestamp, error) { //nolint:revive
-	return VerifySignedTimestampWithThreshold(entity, trustedMaterial, threshold)
+	return nil, errors.New("unable to verify signed timestamps")
 }

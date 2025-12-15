@@ -243,9 +243,9 @@ func (b *Broker) Open(conf *Config) error {
 			if b.connErr != nil {
 				err = b.conn.Close()
 				if err == nil {
-					DebugLogger.Printf("Closed connection to broker %s due to SASL v0 auth error: %s\n", b.addr, b.connErr)
+					DebugLogger.Printf("Closed connection to broker %s\n", b.addr)
 				} else {
-					Logger.Printf("Error while closing connection to broker %s (due to SASL v0 auth error: %s): %s\n", b.addr, b.connErr, err)
+					Logger.Printf("Error while closing connection to broker %s: %s\n", b.addr, err)
 				}
 				b.conn = nil
 				atomic.StoreInt32(&b.opened, 0)
@@ -264,9 +264,9 @@ func (b *Broker) Open(conf *Config) error {
 				<-b.done
 				err = b.conn.Close()
 				if err == nil {
-					DebugLogger.Printf("Closed connection to broker %s due to SASL v1 auth error: %s\n", b.addr, b.connErr)
+					DebugLogger.Printf("Closed connection to broker %s\n", b.addr)
 				} else {
-					Logger.Printf("Error while closing connection to broker %s (due to SASL v1 auth error: %s): %s\n", b.addr, b.connErr, err)
+					Logger.Printf("Error while closing connection to broker %s: %s\n", b.addr, err)
 				}
 				b.conn = nil
 				atomic.StoreInt32(&b.opened, 0)
@@ -680,18 +680,6 @@ func (b *Broker) AlterPartitionReassignments(request *AlterPartitionReassignment
 // returns list partition reassignments response
 func (b *Broker) ListPartitionReassignments(request *ListPartitionReassignmentsRequest) (*ListPartitionReassignmentsResponse, error) {
 	response := new(ListPartitionReassignmentsResponse)
-
-	err := b.sendAndReceive(request, response)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
-// ElectLeaders sends aa elect leaders request and returns list partitions elect result
-func (b *Broker) ElectLeaders(request *ElectLeadersRequest) (*ElectLeadersResponse, error) {
-	response := new(ElectLeadersResponse)
 
 	err := b.sendAndReceive(request, response)
 	if err != nil {
@@ -1254,12 +1242,12 @@ func (b *Broker) authenticateViaSASLv1() error {
 
 		handshakeErr := b.sendInternal(handshakeRequest, prom)
 		if handshakeErr != nil {
-			Logger.Printf("Error while performing SASL handshake %s: %s\n", b.addr, handshakeErr)
+			Logger.Printf("Error while performing SASL handshake %s\n", b.addr)
 			return handshakeErr
 		}
 		handshakeErr = handleResponsePromise(handshakeRequest, handshakeResponse, prom, metricRegistry)
 		if handshakeErr != nil {
-			Logger.Printf("Error while handling SASL handshake response %s: %s\n", b.addr, handshakeErr)
+			Logger.Printf("Error while performing SASL handshake %s\n", b.addr)
 			return handshakeErr
 		}
 
@@ -1279,7 +1267,7 @@ func (b *Broker) authenticateViaSASLv1() error {
 		}
 		authErr = handleResponsePromise(authenticateRequest, authenticateResponse, prom, metricRegistry)
 		if authErr != nil {
-			Logger.Printf("Error while performing SASL Auth %s: %s\n", b.addr, authErr)
+			Logger.Printf("Error while performing SASL Auth %s\n", b.addr)
 			return nil, authErr
 		}
 
@@ -1397,7 +1385,7 @@ func (b *Broker) sendAndReceiveSASLPlainAuthV0() error {
 	if b.conf.Net.SASL.Handshake {
 		handshakeErr := b.sendAndReceiveSASLHandshake(SASLTypePlaintext, b.conf.Net.SASL.Version)
 		if handshakeErr != nil {
-			Logger.Printf("Error while performing SASL handshake %s: %s\n", b.addr, handshakeErr)
+			Logger.Printf("Error while performing SASL handshake %s\n", b.addr)
 			return handshakeErr
 		}
 	}
@@ -1438,6 +1426,9 @@ func (b *Broker) sendAndReceiveSASLPlainAuthV0() error {
 func (b *Broker) sendAndReceiveSASLPlainAuthV1(authSendReceiver func(authBytes []byte) (*SaslAuthenticateResponse, error)) error {
 	authBytes := []byte(b.conf.Net.SASL.AuthIdentity + "\x00" + b.conf.Net.SASL.User + "\x00" + b.conf.Net.SASL.Password)
 	_, err := authSendReceiver(authBytes)
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -1570,11 +1561,7 @@ func (b *Broker) createSaslAuthenticateRequest(msg []byte) *SaslAuthenticateRequ
 func buildClientFirstMessage(token *AccessToken) ([]byte, error) {
 	var ext string
 
-	if token == nil {
-		return []byte{}, fmt.Errorf("failed to build client first message: token is nil")
-	}
-
-	if len(token.Extensions) > 0 {
+	if token.Extensions != nil && len(token.Extensions) > 0 {
 		if _, ok := token.Extensions[SASLExtKeyAuth]; ok {
 			return []byte{}, fmt.Errorf("the extension `%s` is invalid", SASLExtKeyAuth)
 		}

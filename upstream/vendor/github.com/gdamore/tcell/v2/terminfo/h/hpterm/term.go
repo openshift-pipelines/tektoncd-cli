@@ -6,7 +6,7 @@ import "github.com/gdamore/tcell/v2/terminfo"
 
 func init() {
 
-	// HP X11 terminal emulator (old)
+	// hp X11 terminal emulator
 	terminfo.AddTerminfo(&terminfo.Terminfo{
 		Name:         "hpterm",
 		Aliases:      []string{"X-hpterm"},

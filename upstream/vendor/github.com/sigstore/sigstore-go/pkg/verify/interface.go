@@ -51,10 +51,6 @@ type VerificationProvider interface {
 	VerificationContent() (VerificationContent, error)
 }
 
-type VersionProvider interface {
-	Version() (string, error)
-}
-
 type SignedEntity interface {
 	HasInclusionPromise
 	HasInclusionProof
@@ -62,7 +58,6 @@ type SignedEntity interface {
 	SignedTimestampProvider
 	TlogEntryProvider
 	VerificationProvider
-	VersionProvider
 }
 
 type VerificationContent interface {
@@ -123,8 +118,4 @@ func (b *BaseSignedEntity) Timestamps() ([][]byte, error) {
 
 func (b *BaseSignedEntity) TlogEntries() ([]*tlog.Entry, error) {
 	return nil, errNotImplemented
-}
-
-func (b *BaseSignedEntity) Version() (string, error) {
-	return "", errNotImplemented
 }

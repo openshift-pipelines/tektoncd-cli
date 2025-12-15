@@ -136,13 +136,13 @@ func (i *IssuerMatcher) MarshalJSON() ([]byte, error) {
 
 func (i IssuerMatcher) Verify(actualCert certificate.Summary) error {
 	if i.Issuer != "" &&
-		actualCert.Issuer != i.Issuer {
-		return &ErrValueMismatch{"issuer", string(i.Issuer), string(actualCert.Issuer)}
+		actualCert.Extensions.Issuer != i.Issuer {
+		return &ErrValueMismatch{"issuer", string(i.Issuer), string(actualCert.Extensions.Issuer)}
 	}
 
 	if i.Regexp.String() != "" &&
-		!i.Regexp.MatchString(actualCert.Issuer) {
-		return &ErrValueRegexMismatch{"issuer", string(i.Regexp.String()), string(actualCert.Issuer)}
+		!i.Regexp.MatchString(actualCert.Extensions.Issuer) {
+		return &ErrValueRegexMismatch{"issuer", string(i.Regexp.String()), string(actualCert.Extensions.Issuer)}
 	}
 	return nil
 }

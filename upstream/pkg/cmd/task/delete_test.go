@@ -106,6 +106,32 @@ func TestTaskDelete_v1beta1(t *testing.T) {
 				},
 			},
 		},
+		// ClusterTask is provided in the TaskRef of TaskRun, to verify
+		// TaskRun created by ClusterTask is not getting deleted while deleting
+		// Task with `--trs` flag and name of Task and ClusterTask is same.
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "ns",
+				Name:      "task-run-3",
+				Labels:    map[string]string{"tekton.dev/task": "task"},
+			},
+			Spec: v1beta1.TaskRunSpec{
+				TaskRef: &v1beta1.TaskRef{
+					Name: "task",
+					Kind: v1beta1.ClusterTaskKind,
+				},
+			},
+			Status: v1beta1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionTrue,
+							Reason: v1beta1.TaskRunReasonSuccessful.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	seeds := make([]clients, 0)
@@ -130,6 +156,7 @@ func TestTaskDelete_v1beta1(t *testing.T) {
 			cb.UnstructuredV1beta1T(tdata[1], version),
 			cb.UnstructuredV1beta1TR(trdata[0], version),
 			cb.UnstructuredV1beta1TR(trdata[1], version),
+			cb.UnstructuredV1beta1TR(trdata[2], version),
 		)
 		if err != nil {
 			t.Errorf("unable to create dynamic client: %v", err)
@@ -392,6 +419,9 @@ func TestTaskDelete(t *testing.T) {
 				},
 			},
 		},
+		// ClusterTask is provided in the TaskRef of TaskRun, to verify
+		// TaskRun created by ClusterTask is not getting deleted while deleting
+		// Task with `--trs` flag and name of Task and ClusterTask is same.
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "ns",

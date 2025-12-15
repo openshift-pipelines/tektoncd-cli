@@ -22,10 +22,8 @@ source $(dirname $0)/e2e-common.sh
 
 # Setting defaults
 failed=0
-
 SKIP_INITIALIZE=${SKIP_INITIALIZE:="false"}
-export SKIP_SECURITY_CTX=${SKIP_SECURITY_CTX:="false"}
-export SKIP_KNATIVE_EG=${SKIP_KNATIVE_EG:="false"}
+
 
 if [ "${SKIP_INITIALIZE}" != "true" ]; then
   initialize $@
@@ -36,19 +34,18 @@ install_pipeline_crd
 install_triggers_crd
 
 header "Running yaml tests"
-$(dirname $0)/e2e-tests-yaml.sh || { failed=1 && echo "failed yaml tests"; }
+$(dirname $0)/e2e-tests-yaml.sh || failed=1
 
 header "Running ingress tests"
-$(dirname $0)/e2e-tests-ingress.sh || { failed=1 && echo "failed ingress tests"; }
+$(dirname $0)/e2e-tests-ingress.sh || failed=1
 
 # Run the integration tests
 header "Running Go e2e tests"
-go_test_e2e -timeout=20m ./test || { failed=1 && echo "failed integration tests"; }
-go_test_e2e -timeout=20m ./cmd/... || { failed=1 && echo "failed integration tests"; }
-
+go_test_e2e -timeout=20m ./test || failed=1
+go_test_e2e -timeout=20m ./cmd/... || failed=1
 
 header "Running examples tests"
-$(dirname $0)/e2e-tests-examples.sh || { failed=1 && echo "failed example tests"; }
+$(dirname $0)/e2e-tests-examples.sh || failed=1
 
 (( failed )) && fail_test
 success

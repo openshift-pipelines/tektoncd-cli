@@ -16,8 +16,6 @@
 package options
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
@@ -68,7 +66,6 @@ func (o *BundleCreateOptions) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVar(&o.RekorURL, "rekor-url", "https://rekor.sigstore.dev",
 		"address of rekor STL server")
-	_ = cmd.RegisterFlagCompletionFunc("rekor-url", cobra.NoFileCompletions)
 
 	cmd.Flags().StringVar(&o.RFC3161TimestampPath, "rfc3161-timestamp", "",
 		"path to RFC3161 timestamp FILE")
@@ -81,11 +78,9 @@ func (o *BundleCreateOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&o.Sk, "sk", false,
 		"whether to use a hardware security key")
 
-	slots := []string{"authentication", "signature", "card-authentication", "key-management"}
-	cmd.Flags().StringVar(&o.Slot, "slot", "signature",
-		"security key slot to use for generated key ("+
-			strings.Join(slots, "|")+")")
-	_ = cmd.RegisterFlagCompletionFunc("slot", cobra.FixedCompletions(slots, cobra.ShellCompDirectiveNoFileComp))
+	cmd.Flags().StringVar(&o.Slot, "slot", "",
+		"security key slot to use for generated key (default: signature) "+
+			"(authentication|signature|card-authentication|key-management)")
 
 	cmd.MarkFlagsMutuallyExclusive("bundle", "certificate")
 	cmd.MarkFlagsMutuallyExclusive("bundle", "signature")

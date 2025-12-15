@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package monitoring
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"math"
 	"net/url"
 	"time"
@@ -275,8 +274,6 @@ type serviceMonitoringGRPCClient struct {
 
 	// The x-goog-* metadata to be sent with each request.
 	xGoogHeaders []string
-
-	logger *slog.Logger
 }
 
 // NewServiceMonitoringClient creates a new service monitoring service client based on gRPC.
@@ -306,7 +303,6 @@ func NewServiceMonitoringClient(ctx context.Context, opts ...option.ClientOption
 		connPool:                connPool,
 		serviceMonitoringClient: monitoringpb.NewServiceMonitoringServiceClient(connPool),
 		CallOptions:             &client.CallOptions,
-		logger:                  internaloption.GetLogger(opts),
 	}
 	c.setGoogleClientInfo()
 
@@ -349,7 +345,7 @@ func (c *serviceMonitoringGRPCClient) CreateService(ctx context.Context, req *mo
 	var resp *monitoringpb.Service
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.CreateService, req, settings.GRPC, c.logger, "CreateService")
+		resp, err = c.serviceMonitoringClient.CreateService(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -367,7 +363,7 @@ func (c *serviceMonitoringGRPCClient) GetService(ctx context.Context, req *monit
 	var resp *monitoringpb.Service
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.GetService, req, settings.GRPC, c.logger, "GetService")
+		resp, err = c.serviceMonitoringClient.GetService(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -396,7 +392,7 @@ func (c *serviceMonitoringGRPCClient) ListServices(ctx context.Context, req *mon
 		}
 		err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 			var err error
-			resp, err = executeRPC(ctx, c.serviceMonitoringClient.ListServices, req, settings.GRPC, c.logger, "ListServices")
+			resp, err = c.serviceMonitoringClient.ListServices(ctx, req, settings.GRPC...)
 			return err
 		}, opts...)
 		if err != nil {
@@ -431,7 +427,7 @@ func (c *serviceMonitoringGRPCClient) UpdateService(ctx context.Context, req *mo
 	var resp *monitoringpb.Service
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.UpdateService, req, settings.GRPC, c.logger, "UpdateService")
+		resp, err = c.serviceMonitoringClient.UpdateService(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -448,7 +444,7 @@ func (c *serviceMonitoringGRPCClient) DeleteService(ctx context.Context, req *mo
 	opts = append((*c.CallOptions).DeleteService[0:len((*c.CallOptions).DeleteService):len((*c.CallOptions).DeleteService)], opts...)
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		_, err = executeRPC(ctx, c.serviceMonitoringClient.DeleteService, req, settings.GRPC, c.logger, "DeleteService")
+		_, err = c.serviceMonitoringClient.DeleteService(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	return err
@@ -463,7 +459,7 @@ func (c *serviceMonitoringGRPCClient) CreateServiceLevelObjective(ctx context.Co
 	var resp *monitoringpb.ServiceLevelObjective
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.CreateServiceLevelObjective, req, settings.GRPC, c.logger, "CreateServiceLevelObjective")
+		resp, err = c.serviceMonitoringClient.CreateServiceLevelObjective(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -481,7 +477,7 @@ func (c *serviceMonitoringGRPCClient) GetServiceLevelObjective(ctx context.Conte
 	var resp *monitoringpb.ServiceLevelObjective
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.GetServiceLevelObjective, req, settings.GRPC, c.logger, "GetServiceLevelObjective")
+		resp, err = c.serviceMonitoringClient.GetServiceLevelObjective(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -510,7 +506,7 @@ func (c *serviceMonitoringGRPCClient) ListServiceLevelObjectives(ctx context.Con
 		}
 		err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 			var err error
-			resp, err = executeRPC(ctx, c.serviceMonitoringClient.ListServiceLevelObjectives, req, settings.GRPC, c.logger, "ListServiceLevelObjectives")
+			resp, err = c.serviceMonitoringClient.ListServiceLevelObjectives(ctx, req, settings.GRPC...)
 			return err
 		}, opts...)
 		if err != nil {
@@ -545,7 +541,7 @@ func (c *serviceMonitoringGRPCClient) UpdateServiceLevelObjective(ctx context.Co
 	var resp *monitoringpb.ServiceLevelObjective
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = executeRPC(ctx, c.serviceMonitoringClient.UpdateServiceLevelObjective, req, settings.GRPC, c.logger, "UpdateServiceLevelObjective")
+		resp, err = c.serviceMonitoringClient.UpdateServiceLevelObjective(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
@@ -562,7 +558,7 @@ func (c *serviceMonitoringGRPCClient) DeleteServiceLevelObjective(ctx context.Co
 	opts = append((*c.CallOptions).DeleteServiceLevelObjective[0:len((*c.CallOptions).DeleteServiceLevelObjective):len((*c.CallOptions).DeleteServiceLevelObjective)], opts...)
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		_, err = executeRPC(ctx, c.serviceMonitoringClient.DeleteServiceLevelObjective, req, settings.GRPC, c.logger, "DeleteServiceLevelObjective")
+		_, err = c.serviceMonitoringClient.DeleteServiceLevelObjective(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	return err

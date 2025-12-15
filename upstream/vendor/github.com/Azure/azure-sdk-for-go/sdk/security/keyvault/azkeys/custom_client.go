@@ -1,3 +1,6 @@
+//go:build go1.18
+// +build go1.18
+
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
@@ -47,7 +50,7 @@ func NewClient(vaultURL string, credential azcore.TokenCredential, options *Clie
 	if err != nil {
 		return nil, err
 	}
-	return &Client{vaultBaseUrl: vaultURL, internal: azcoreClient}, nil
+	return &Client{endpoint: vaultURL, internal: azcoreClient}, nil
 }
 
 // ID is a key's unique ID, containing its version, if any, and name.

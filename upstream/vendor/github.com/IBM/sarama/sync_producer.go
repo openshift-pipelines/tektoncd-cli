@@ -2,12 +2,6 @@ package sarama
 
 import "sync"
 
-var expectationsPool = sync.Pool{
-	New: func() interface{} {
-		return make(chan *ProducerError, 1)
-	},
-}
-
 // SyncProducer publishes Kafka messages, blocking until they have been acknowledged. It routes messages to the correct
 // broker, refreshing metadata as appropriate, and parses responses for errors. You must call Close() on a producer
 // to avoid leaks, it may not be garbage-collected automatically when it passes out of scope.
@@ -116,13 +110,11 @@ func verifyProducerConfig(config *Config) error {
 }
 
 func (sp *syncProducer) SendMessage(msg *ProducerMessage) (partition int32, offset int64, err error) {
-	expectation := expectationsPool.Get().(chan *ProducerError)
+	expectation := make(chan *ProducerError, 1)
 	msg.expectation = expectation
 	sp.producer.Input() <- msg
-	pErr := <-expectation
-	msg.expectation = nil
-	expectationsPool.Put(expectation)
-	if pErr != nil {
+
+	if pErr := <-expectation; pErr != nil {
 		return -1, -1, pErr.Err
 	}
 
@@ -130,24 +122,20 @@ func (sp *syncProducer) SendMessage(msg *ProducerMessage) (partition int32, offs
 }
 
 func (sp *syncProducer) SendMessages(msgs []*ProducerMessage) error {
-	indices := make(chan int, len(msgs))
+	expectations := make(chan chan *ProducerError, len(msgs))
 	go func() {
-		for i, msg := range msgs {
-			expectation := expectationsPool.Get().(chan *ProducerError)
+		for _, msg := range msgs {
+			expectation := make(chan *ProducerError, 1)
 			msg.expectation = expectation
 			sp.producer.Input() <- msg
-			indices <- i
+			expectations <- expectation
 		}
-		close(indices)
+		close(expectations)
 	}()
 
 	var errors ProducerErrors
-	for i := range indices {
-		expectation := msgs[i].expectation
-		pErr := <-expectation
-		msgs[i].expectation = nil
-		expectationsPool.Put(expectation)
-		if pErr != nil {
+	for expectation := range expectations {
+		if pErr := <-expectation; pErr != nil {
 			errors = append(errors, pErr)
 		}
 	}

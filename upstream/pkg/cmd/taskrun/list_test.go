@@ -167,6 +167,29 @@ func TestListTaskRuns_v1beta1(t *testing.T) {
 				},
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "foo",
+				Name:      "tr4-1",
+				Labels:    map[string]string{"tekton.dev/task": "bar", "pot": "honey"},
+			},
+			Spec: v1beta1.TaskRunSpec{
+				TaskRef: &v1beta1.TaskRef{
+					Name: "bar",
+					Kind: v1beta1.ClusterTaskKind,
+				},
+			},
+			Status: v1beta1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionFalse,
+							Reason: v1beta1.TaskRunReasonFailed.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	trsMultipleNs := []*v1beta1.TaskRun{
@@ -216,6 +239,29 @@ func TestListTaskRuns_v1beta1(t *testing.T) {
 				},
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "lacher",
+				Name:      "tr5-1",
+				Labels:    map[string]string{"tekton.dev/task": "random"},
+			},
+			Spec: v1beta1.TaskRunSpec{
+				TaskRef: &v1beta1.TaskRef{
+					Name: "random",
+					Kind: v1beta1.ClusterTaskKind,
+				},
+			},
+			Status: v1beta1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionTrue,
+							Reason: v1beta1.TaskRunReasonSuccessful.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	ns := []*corev1.Namespace{
@@ -237,8 +283,10 @@ func TestListTaskRuns_v1beta1(t *testing.T) {
 		cb.UnstructuredV1beta1TR(trs[2], versionv1beta1),
 		cb.UnstructuredV1beta1TR(trs[3], versionv1beta1),
 		cb.UnstructuredV1beta1TR(trs[4], versionv1beta1),
+		cb.UnstructuredV1beta1TR(trs[5], versionv1beta1),
 		cb.UnstructuredV1beta1TR(trsMultipleNs[0], versionv1beta1),
 		cb.UnstructuredV1beta1TR(trsMultipleNs[1], versionv1beta1),
+		cb.UnstructuredV1beta1TR(trsMultipleNs[2], versionv1beta1),
 	)
 	if err != nil {
 		t.Errorf("unable to create dynamic client: %v", err)
@@ -247,6 +295,7 @@ func TestListTaskRuns_v1beta1(t *testing.T) {
 	dc2, err := tdc2.Client(
 		cb.UnstructuredV1beta1TR(trsMultipleNs[0], versionv1beta1),
 		cb.UnstructuredV1beta1TR(trsMultipleNs[1], versionv1beta1),
+		cb.UnstructuredV1beta1TR(trsMultipleNs[2], versionv1beta1),
 	)
 	if err != nil {
 		t.Errorf("unable to create dynamic client: %v", err)
@@ -560,6 +609,29 @@ func TestListTaskRuns(t *testing.T) {
 				},
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "foo",
+				Name:      "tr4-1",
+				Labels:    map[string]string{"tekton.dev/task": "bar", "pot": "honey"},
+			},
+			Spec: v1.TaskRunSpec{
+				TaskRef: &v1.TaskRef{
+					Name: "bar",
+					Kind: "ClusterTask",
+				},
+			},
+			Status: v1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionFalse,
+							Reason: v1.TaskRunReasonFailed.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	trsMultipleNs := []*v1.TaskRun{
@@ -609,6 +681,29 @@ func TestListTaskRuns(t *testing.T) {
 				},
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "lacher",
+				Name:      "tr5-1",
+				Labels:    map[string]string{"tekton.dev/task": "random"},
+			},
+			Spec: v1.TaskRunSpec{
+				TaskRef: &v1.TaskRef{
+					Name: "random",
+					Kind: "ClusterTask",
+				},
+			},
+			Status: v1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionTrue,
+							Reason: v1.TaskRunReasonSuccessful.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	ns := []*corev1.Namespace{
@@ -630,10 +725,10 @@ func TestListTaskRuns(t *testing.T) {
 		cb.UnstructuredTR(trs[2], version),
 		cb.UnstructuredTR(trs[3], version),
 		cb.UnstructuredTR(trs[4], version),
-		// cb.UnstructuredTR(trs[5], version),
+		cb.UnstructuredTR(trs[5], version),
 		cb.UnstructuredTR(trsMultipleNs[0], version),
 		cb.UnstructuredTR(trsMultipleNs[1], version),
-		// cb.UnstructuredTR(trsMultipleNs[2], version),
+		cb.UnstructuredTR(trsMultipleNs[2], version),
 	)
 	if err != nil {
 		t.Errorf("unable to create dynamic client: %v", err)
@@ -642,7 +737,7 @@ func TestListTaskRuns(t *testing.T) {
 	dc2, err := tdc2.Client(
 		cb.UnstructuredTR(trsMultipleNs[0], version),
 		cb.UnstructuredTR(trsMultipleNs[1], version),
-		// cb.UnstructuredTR(trsMultipleNs[2], version),
+		cb.UnstructuredTR(trsMultipleNs[2], version),
 	)
 	if err != nil {
 		t.Errorf("unable to create dynamic client: %v", err)

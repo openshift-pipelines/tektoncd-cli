@@ -27,7 +27,7 @@ import (
 
 // TODO: Find a more generic way to do this
 var (
-	allowedKinds = []string{"task", "pipeline"}
+	allowedKinds = []string{"task", "pipeline", "clustertask"}
 )
 
 func normalizeKind(kind string) string {

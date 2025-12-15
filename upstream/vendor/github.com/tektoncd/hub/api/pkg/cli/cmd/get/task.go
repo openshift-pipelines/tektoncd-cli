@@ -15,6 +15,8 @@
 package get
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/tektoncd/hub/api/pkg/cli/hub"
 	"github.com/tektoncd/hub/api/pkg/cli/printer"
@@ -22,6 +24,7 @@ import (
 
 type taskOptions struct {
 	*options
+	clusterTask bool
 }
 
 func taskCommand(opts *options) *cobra.Command {
@@ -43,6 +46,8 @@ func taskCommand(opts *options) *cobra.Command {
 			return taskOpts.run()
 		},
 	}
+
+	cmd.Flags().BoolVar(&taskOpts.clusterTask, "as-clustertask", false, "Get the Task as ClusterTask")
 
 	return cmd
 }
@@ -73,6 +78,14 @@ func (opts *taskOptions) run() error {
 		return err
 	}
 
+	if opts.clusterTask {
+		data = taskToClusterTask(data)
+	}
+
 	out := opts.cli.Stream().Out
 	return printer.New(out).Raw([]byte(data), nil)
+}
+
+func taskToClusterTask(data string) string {
+	return strings.ReplaceAll(data, "kind: Task", "kind: ClusterTask")
 }

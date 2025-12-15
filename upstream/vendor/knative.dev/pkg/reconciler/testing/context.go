@@ -51,7 +51,7 @@ func SetupFakeContextWithCancel(t testing.TB, fs ...func(context.Context) contex
 	ctx, c := context.WithCancel(logtesting.TestContextWithLogger(t))
 	ctx = controller.WithEventRecorder(ctx, record.NewFakeRecorder(1000))
 	for _, f := range fs {
-		ctx = f(ctx) //nolint:fatcontext
+		ctx = f(ctx)
 	}
 	ctx = injection.WithConfig(ctx, &rest.Config{})
 

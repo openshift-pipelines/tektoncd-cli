@@ -6,28 +6,13 @@ import (
 	"time"
 )
 
-type (
-	// ExternalStatusChecksServiceInterface defines all the API methods for the ExternalStatusChecksService
-	ExternalStatusChecksServiceInterface interface {
-		ListMergeStatusChecks(pid any, mr int, opt *ListOptions, options ...RequestOptionFunc) ([]*MergeStatusCheck, *Response, error)
-		SetExternalStatusCheckStatus(pid any, mergeRequest int, opt *SetExternalStatusCheckStatusOptions, options ...RequestOptionFunc) (*Response, error)
-		ListProjectStatusChecks(pid any, opt *ListOptions, options ...RequestOptionFunc) ([]*ProjectStatusCheck, *Response, error)
-		CreateExternalStatusCheck(pid any, opt *CreateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error)
-		DeleteExternalStatusCheck(pid any, check int, options ...RequestOptionFunc) (*Response, error)
-		UpdateExternalStatusCheck(pid any, check int, opt *UpdateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error)
-		RetryFailedStatusCheckForAMergeRequest(pid any, mergeRequest int, externalStatusCheck int, options ...RequestOptionFunc) (*Response, error)
-	}
-
-	// ExternalStatusChecksService handles communication with the external
-	// status check related methods of the GitLab API.
-	//
-	// GitLab API docs: https://docs.gitlab.com/api/status_checks/
-	ExternalStatusChecksService struct {
-		client *Client
-	}
-)
-
-var _ ExternalStatusChecksServiceInterface = (*ExternalStatusChecksService)(nil)
+// ExternalStatusChecksService handles communication with the external
+// status check related methods of the GitLab API.
+//
+// GitLab API docs: https://docs.gitlab.com/ee/api/status_checks.html
+type ExternalStatusChecksService struct {
+	client *Client
+}
 
 type MergeStatusCheck struct {
 	ID          int    `json:"id"`
@@ -57,8 +42,8 @@ type StatusCheckProtectedBranch struct {
 // and their status for a single merge request.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/status_checks/#list-status-checks-for-a-merge-request
-func (s *ExternalStatusChecksService) ListMergeStatusChecks(pid any, mr int, opt *ListOptions, options ...RequestOptionFunc) ([]*MergeStatusCheck, *Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#list-status-checks-for-a-merge-request
+func (s *ExternalStatusChecksService) ListMergeStatusChecks(pid interface{}, mr int, opt *ListOptions, options ...RequestOptionFunc) ([]*MergeStatusCheck, *Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, nil, err
@@ -83,7 +68,7 @@ func (s *ExternalStatusChecksService) ListMergeStatusChecks(pid any, mr int, opt
 // SetExternalStatusCheckStatus() options.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/status_checks/#set-status-of-an-external-status-check
+// https://docs.gitlab.com/ee/api/status_checks.html#set-status-of-an-external-status-check
 type SetExternalStatusCheckStatusOptions struct {
 	SHA                   *string `url:"sha,omitempty" json:"sha,omitempty"`
 	ExternalStatusCheckID *int    `url:"external_status_check_id,omitempty" json:"external_status_check_id,omitempty"`
@@ -93,8 +78,8 @@ type SetExternalStatusCheckStatusOptions struct {
 // SetExternalStatusCheckStatus sets the status of an external status check.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/status_checks/#set-status-of-an-external-status-check
-func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid any, mergeRequest int, opt *SetExternalStatusCheckStatusOptions, options ...RequestOptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#set-status-of-an-external-status-check
+func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid interface{}, mergeRequest int, opt *SetExternalStatusCheckStatusOptions, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err
@@ -112,8 +97,8 @@ func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid any, merg
 // ListProjectStatusChecks lists the project external status checks.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/status_checks/#get-project-external-status-check-services
-func (s *ExternalStatusChecksService) ListProjectStatusChecks(pid any, opt *ListOptions, options ...RequestOptionFunc) ([]*ProjectStatusCheck, *Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#get-project-external-status-checks
+func (s *ExternalStatusChecksService) ListProjectStatusChecks(pid interface{}, opt *ListOptions, options ...RequestOptionFunc) ([]*ProjectStatusCheck, *Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, nil, err
@@ -138,7 +123,7 @@ func (s *ExternalStatusChecksService) ListProjectStatusChecks(pid any, opt *List
 // CreateExternalStatusCheck() options.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/status_checks/#create-external-status-check-service
+// https://docs.gitlab.com/ee/api/status_checks.html#create-external-status-check
 type CreateExternalStatusCheckOptions struct {
 	Name               *string `url:"name,omitempty" json:"name,omitempty"`
 	ExternalURL        *string `url:"external_url,omitempty" json:"external_url,omitempty"`
@@ -148,8 +133,8 @@ type CreateExternalStatusCheckOptions struct {
 // CreateExternalStatusCheck creates an external status check.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/status_checks/#create-external-status-check-service
-func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid any, opt *CreateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#create-external-status-check
+func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid interface{}, opt *CreateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err
@@ -167,8 +152,8 @@ func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid any, opt *Cr
 // DeleteExternalStatusCheck deletes an external status check.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/status_checks/#delete-external-status-check-service
-func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid any, check int, options ...RequestOptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#delete-external-status-check
+func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid interface{}, check int, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err
@@ -187,7 +172,7 @@ func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid any, check i
 // UpdateExternalStatusCheck() options.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/status_checks/#update-external-status-check-service
+// https://docs.gitlab.com/ee/api/status_checks.html#update-external-status-check
 type UpdateExternalStatusCheckOptions struct {
 	Name               *string `url:"name,omitempty" json:"name,omitempty"`
 	ExternalURL        *string `url:"external_url,omitempty" json:"external_url,omitempty"`
@@ -197,8 +182,8 @@ type UpdateExternalStatusCheckOptions struct {
 // UpdateExternalStatusCheck updates an external status check.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/status_checks/#update-external-status-check-service
-func (s *ExternalStatusChecksService) UpdateExternalStatusCheck(pid any, check int, opt *UpdateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#update-external-status-check
+func (s *ExternalStatusChecksService) UpdateExternalStatusCheck(pid interface{}, check int, opt *UpdateExternalStatusCheckOptions, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err
@@ -216,8 +201,8 @@ func (s *ExternalStatusChecksService) UpdateExternalStatusCheck(pid any, check i
 // UpdateExternalStatusCheck updates an external status check.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/status_checks/#retry-failed-status-check-for-a-merge-request
-func (s *ExternalStatusChecksService) RetryFailedStatusCheckForAMergeRequest(pid any, mergeRequest int, externalStatusCheck int, options ...RequestOptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ee/api/status_checks.html#retry-failed-status-check-for-a-merge-request
+func (s *ExternalStatusChecksService) RetryFailedStatusCheckForAMergeRequest(pid interface{}, mergeRequest int, externalStatusCheck int, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err

@@ -6,7 +6,7 @@ import "github.com/gdamore/tcell/v2/terminfo"
 
 func init() {
 
-	// ibm-pc terminal programs claiming to be ANSI
+	// ibm-pc terminal programs claiming to be ansi
 	terminfo.AddTerminfo(&terminfo.Terminfo{
 		Name:         "pcansi",
 		Columns:      80,

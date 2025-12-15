@@ -21,9 +21,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-
-	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+
 	apioption "google.golang.org/api/option"
 )
 
@@ -70,11 +69,8 @@ type options struct {
 	projectID string
 	// compression enables gzip compression on gRPC calls.
 	compression string
-	// monitoringClient is used as the default client when not nil. If
-	// monitoringClient is nil, a client is created instead.
-	monitoringClient *monitoring.MetricClient
 	// monitoringClientOptions are additional options to be passed
-	// to the underlying Cloud Monitoring API client.
+	// to the underlying Stackdriver Monitoring API client.
 	// Optional.
 	monitoringClientOptions []apioption.ClientOption
 	// destinationProjectQuota sets whether the request should use quota from
@@ -96,7 +92,7 @@ type options struct {
 // WithProjectID sets Google Cloud Platform project as projectID.
 // Without using this option, it automatically detects the project ID
 // from the default credential detection process.
-// Please find the detailed order of the default credential detection process on the doc:
+// Please find the detailed order of the default credentail detection proecess on the doc:
 // https://godoc.org/golang.org/x/oauth2/google#FindDefaultCredentials
 func WithProjectID(id string) func(o *options) {
 	return func(o *options) {
@@ -109,16 +105,6 @@ func WithProjectID(id string) func(o *options) {
 func WithDestinationProjectQuota() func(o *options) {
 	return func(o *options) {
 		o.destinationProjectQuota = true
-	}
-}
-
-// WithMonitoringClient configures the client used by the exporter to write
-// metrics to Cloud Monitoring. This option is mutually exclusive with
-// WithMonitoringClientOptions. If both options are provided,
-// WithMonitoringClient is used and WithMonitoringClientOptions is ignored.
-func WithMonitoringClient(cl *monitoring.MetricClient) func(o *options) {
-	return func(o *options) {
-		o.monitoringClient = cl
 	}
 }
 

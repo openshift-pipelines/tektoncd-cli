@@ -171,7 +171,7 @@ func validateEnv(envVars []corev1.EnvVar) (errs *apis.FieldError) {
 	// This is to make sure both TLS_CERT and TLS_KEY is set for tls connection
 	if count == 1 {
 		errs = errs.Also(&apis.FieldError{
-			Message: "Expected env's are TLS_CERT and TLS_KEY, but got only one env " + envValue,
+			Message: fmt.Sprintf("Expected env's are TLS_CERT and TLS_KEY, but got only one env %s", envValue),
 		})
 	}
 	return errs
@@ -232,7 +232,6 @@ func containerFieldMaskForKubernetes(in *corev1.Container) *corev1.Container {
 	out.LivenessProbe = in.LivenessProbe
 	out.ReadinessProbe = in.ReadinessProbe
 	out.StartupProbe = in.StartupProbe
-	out.SecurityContext = in.SecurityContext
 	return containerFieldMask(out)
 }
 
@@ -240,7 +239,6 @@ func containerFieldMaskForCustomResource(in *corev1.Container) *corev1.Container
 	out := new(corev1.Container)
 	out.Resources = in.Resources
 	out.Env = in.Env
-	out.SecurityContext = in.SecurityContext
 	return containerFieldMask(out)
 }
 
@@ -280,7 +278,6 @@ func podSpecMask(in *corev1.PodSpec) *corev1.PodSpec {
 	out.Affinity = in.Affinity
 	out.TopologySpreadConstraints = in.TopologySpreadConstraints
 	out.ImagePullSecrets = in.ImagePullSecrets
-	out.SecurityContext = in.SecurityContext
 
 	// Disallowed fields
 	// This list clarifies which all podspec fields are not allowed.
@@ -297,6 +294,7 @@ func podSpecMask(in *corev1.PodSpec) *corev1.PodSpec {
 	out.HostPID = false
 	out.HostIPC = false
 	out.ShareProcessNamespace = nil
+	out.SecurityContext = nil
 	out.Hostname = ""
 	out.Subdomain = ""
 	out.SchedulerName = ""

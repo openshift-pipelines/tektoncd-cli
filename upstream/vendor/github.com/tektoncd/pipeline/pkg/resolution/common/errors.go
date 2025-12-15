@@ -153,7 +153,11 @@ func ReasonError(err error) (string, error) {
 // IsErrTransient returns true if an error returned by GetTask/GetStepAction is retryable.
 func IsErrTransient(err error) bool {
 	switch {
-	case apierrors.IsConflict(err), apierrors.IsServerTimeout(err), apierrors.IsTimeout(err), apierrors.IsTooManyRequests(err):
+	case apierrors.IsConflict(err):
+		return true
+	case apierrors.IsServerTimeout(err):
+		return true
+	case apierrors.IsTimeout(err):
 		return true
 	default:
 		return slices.ContainsFunc([]string{errEtcdLeaderChange, context.DeadlineExceeded.Error()}, func(s string) bool {

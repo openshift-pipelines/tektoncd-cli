@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
-	"github.com/aws/aws-sdk-go-v2/service/ssooidc/types"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
@@ -124,11 +123,6 @@ type CreateTokenWithIAMOutput struct {
 	// to a user.
 	AccessToken *string
 
-	// A structure containing information from the idToken . Only the identityContext
-	// is in it, which is a value extracted from the idToken . This provides direct
-	// access to identity information without requiring JWT parsing.
-	AwsAdditionalDetails *types.AwsAdditionalDetails
-
 	// Indicates the time in seconds when an access token will expire.
 	ExpiresIn int32
 
@@ -230,9 +224,6 @@ func (c *Client) addOperationCreateTokenWithIAMMiddlewares(stack *middleware.Sta
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
-		return err
-	}
-	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = addOpCreateTokenWithIAMValidationMiddleware(stack); err != nil {

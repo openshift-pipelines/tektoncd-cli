@@ -17,9 +17,7 @@ package remote
 
 import (
 	"errors"
-	"io"
 	"net/http"
-	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -28,7 +26,6 @@ import (
 	"github.com/sigstore/cosign/v2/pkg/oci"
 	"github.com/sigstore/cosign/v2/pkg/oci/empty"
 	"github.com/sigstore/cosign/v2/pkg/oci/internal/signature"
-	sgbundle "github.com/sigstore/sigstore-go/pkg/bundle"
 )
 
 const maxLayers = 1000
@@ -50,45 +47,6 @@ func Signatures(ref name.Reference, opts ...Option) (oci.Signatures, error) {
 	return &sigs{
 		Image: img,
 	}, nil
-}
-
-func Bundle(ref name.Reference, opts ...Option) (*sgbundle.Bundle, error) {
-	o := makeOptions(ref.Context(), opts...)
-	img, err := remoteImage(ref, o.ROpt...)
-	if err != nil {
-		return nil, err
-	}
-	layers, err := img.Layers()
-	if err != nil {
-		return nil, err
-	}
-	if len(layers) != 1 {
-		return nil, errors.New("expected exactly one layer")
-	}
-	mediaType, err := layers[0].MediaType()
-	if err != nil {
-		return nil, err
-	}
-	if !strings.HasPrefix(string(mediaType), "application/vnd.dev.sigstore.bundle") {
-		return nil, errors.New("expected bundle layer")
-	}
-	layer0, err := layers[0].Uncompressed()
-	if err != nil {
-		return nil, err
-	}
-	bundleBytes, err := io.ReadAll(layer0)
-	if err != nil {
-		return nil, err
-	}
-	b := &sgbundle.Bundle{}
-	err = b.UnmarshalJSON(bundleBytes)
-	if err != nil {
-		return nil, err
-	}
-	if !b.MinVersion("v0.3") {
-		return nil, errors.New("bundle version too old")
-	}
-	return b, nil
 }
 
 type sigs struct {
@@ -115,7 +73,7 @@ func (s *sigs) Get() ([]oci.Signature, error) {
 	}
 	signatures := make([]oci.Signature, 0, len(m.Layers))
 	for _, desc := range m.Layers {
-		layer, err := s.LayerByDigest(desc.Digest)
+		layer, err := s.Image.LayerByDigest(desc.Digest)
 		if err != nil {
 			return nil, err
 		}

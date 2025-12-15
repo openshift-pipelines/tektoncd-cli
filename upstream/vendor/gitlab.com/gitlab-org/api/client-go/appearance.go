@@ -18,25 +18,16 @@ package gitlab
 
 import "net/http"
 
-type (
-	AppearanceServiceInterface interface {
-		GetAppearance(options ...RequestOptionFunc) (*Appearance, *Response, error)
-		ChangeAppearance(opt *ChangeAppearanceOptions, options ...RequestOptionFunc) (*Appearance, *Response, error)
-	}
-
-	// AppearanceService handles communication with appearance of the Gitlab API.
-	//
-	// Gitlab API docs: https://docs.gitlab.com/api/appearance/
-	AppearanceService struct {
-		client *Client
-	}
-)
-
-var _ AppearanceServiceInterface = (*AppearanceService)(nil)
+// AppearanceService handles communication with appearance of the Gitlab API.
+//
+// Gitlab API docs : https://docs.gitlab.com/ee/api/appearance.html
+type AppearanceService struct {
+	client *Client
+}
 
 // Appearance represents a GitLab appearance.
 //
-// Gitlab API docs: https://docs.gitlab.com/api/appearance/
+// Gitlab API docs : https://docs.gitlab.com/ee/api/appearance.html
 type Appearance struct {
 	Title                       string `json:"title"`
 	Description                 string `json:"description"`
@@ -60,7 +51,7 @@ type Appearance struct {
 // GetAppearance gets the current appearance configuration of the GitLab instance.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/appearance/#get-details-on-current-application-appearance
+// https://docs.gitlab.com/ee/api/appearance.html#get-current-appearance-configuration
 func (s *AppearanceService) GetAppearance(options ...RequestOptionFunc) (*Appearance, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "application/appearance", nil, options)
 	if err != nil {
@@ -79,7 +70,7 @@ func (s *AppearanceService) GetAppearance(options ...RequestOptionFunc) (*Appear
 // ChangeAppearanceOptions represents the available ChangeAppearance() options.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/api/appearance/#update-application-appearance
+// https://docs.gitlab.com/ee/api/appearance.html#change-appearance-configuration
 type ChangeAppearanceOptions struct {
 	Title                       *string `url:"title,omitempty" json:"title,omitempty"`
 	Description                 *string `url:"description,omitempty" json:"description,omitempty"`
@@ -104,7 +95,7 @@ type ChangeAppearanceOptions struct {
 // ChangeAppearance changes the appearance configuration.
 //
 // Gitlab API docs:
-// https://docs.gitlab.com/api/appearance/#update-application-appearance
+// https://docs.gitlab.com/ee/api/appearance.html#change-appearance-configuration
 func (s *AppearanceService) ChangeAppearance(opt *ChangeAppearanceOptions, options ...RequestOptionFunc) (*Appearance, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodPut, "application/appearance", opt, options)
 	if err != nil {

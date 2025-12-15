@@ -34,8 +34,7 @@ import (
 
 // NewSpoofingClient returns a spoofing client to make requests
 func NewSpoofingClient(ctx context.Context, client kubernetes.Interface, logf logging.FormatLogger,
-	domain string, resolvable bool, opts ...spoof.TransportOption,
-) (*spoof.SpoofingClient, error) {
+	domain string, resolvable bool, opts ...spoof.TransportOption) (*spoof.SpoofingClient, error) {
 	return spoof.New(ctx, client, logf, domain, resolvable, Flags.IngressEndpoint,
 		Flags.SpoofRequestInterval, Flags.SpoofRequestTimeout, opts...)
 }

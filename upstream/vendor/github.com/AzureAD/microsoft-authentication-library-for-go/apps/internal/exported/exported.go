@@ -31,6 +31,4 @@ type TokenProviderResult struct {
 	AccessToken string
 	// ExpiresInSeconds is the lifetime of the token in seconds
 	ExpiresInSeconds int
-	// RefreshInSeconds indicates the suggested	time to refresh the token, if any
-	RefreshInSeconds int
 }
