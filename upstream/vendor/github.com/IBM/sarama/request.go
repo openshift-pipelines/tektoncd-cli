@@ -194,8 +194,7 @@ func allocateBody(key, version int16) protocolBody {
 	// 41: DescribeDelegationTokenRequest
 	case 42:
 		return &DeleteGroupsRequest{Version: version}
-	case 43:
-		return &ElectLeadersRequest{Version: version}
+	// 43: ElectLeadersRequest
 	case 44:
 		return &IncrementalAlterConfigsRequest{Version: version}
 	case 45:

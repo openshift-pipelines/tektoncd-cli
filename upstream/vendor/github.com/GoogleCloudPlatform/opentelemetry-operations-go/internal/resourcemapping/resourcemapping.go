@@ -221,8 +221,9 @@ func commonResourceAttributesToMonitoredResource(cloudPlatform string, attrs Rea
 				return createMonitoredResource(k8sPod, attrs)
 			} else if _, ok := attrs.GetString(string(semconv.K8SNodeNameKey)); ok {
 				return createMonitoredResource(k8sNode, attrs)
+			} else {
+				return createMonitoredResource(k8sCluster, attrs)
 			}
-			return createMonitoredResource(k8sCluster, attrs)
 		}
 
 		// Fallback to generic_task

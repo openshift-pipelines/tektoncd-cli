@@ -19,6 +19,7 @@ package outlierdetection
 
 import (
 	"sync/atomic"
+	"unsafe"
 )
 
 type bucket struct {
@@ -27,11 +28,10 @@ type bucket struct {
 }
 
 func newCallCounter() *callCounter {
-	cc := &callCounter{
+	return &callCounter{
+		activeBucket:   unsafe.Pointer(&bucket{}),
 		inactiveBucket: &bucket{},
 	}
-	cc.activeBucket.Store(&bucket{})
-	return cc
 }
 
 // callCounter has two buckets, which each count successful and failing RPC's.
@@ -40,14 +40,14 @@ func newCallCounter() *callCounter {
 // use by the Outlier Detection algorithm.
 type callCounter struct {
 	// activeBucket updates every time a call finishes (from picker passed to
-	// Client Conn), so protect pointer read with atomic load of the pointer
+	// Client Conn), so protect pointer read with atomic load of unsafe.Pointer
 	// so picker does not have to grab a mutex per RPC, the critical path.
-	activeBucket   atomic.Pointer[bucket]
+	activeBucket   unsafe.Pointer // bucket
 	inactiveBucket *bucket
 }
 
 func (cc *callCounter) clear() {
-	cc.activeBucket.Store(&bucket{})
+	atomic.StorePointer(&cc.activeBucket, unsafe.Pointer(&bucket{}))
 	cc.inactiveBucket = &bucket{}
 }
 
@@ -58,7 +58,7 @@ func (cc *callCounter) clear() {
 func (cc *callCounter) swap() {
 	ib := cc.inactiveBucket
 	*ib = bucket{}
-	ab := cc.activeBucket.Swap(ib)
+	ab := (*bucket)(atomic.SwapPointer(&cc.activeBucket, unsafe.Pointer(ib)))
 	cc.inactiveBucket = &bucket{
 		numSuccesses: atomic.LoadUint32(&ab.numSuccesses),
 		numFailures:  atomic.LoadUint32(&ab.numFailures),

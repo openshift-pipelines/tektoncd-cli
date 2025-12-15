@@ -65,49 +65,55 @@ func TestDescribeOptions_ValidateOpts(t *testing.T) {
 }
 
 func TestDescribeOptions_Ask(t *testing.T) {
-	pipelineOptions := []string{
+	options := []string{
 		"pipeline1",
 		"pipeline2",
 		"pipeline3",
 	}
 
-	pipelineRunOptions := []string{
+	options2 := []string{
 		"sample-pipeline-run1 started 1 minutes ago",
 		"sample-pipeline-run2 started 2 minutes ago",
 		"sample-pipeline-run3 started 3 minutes ago",
 	}
 
-	taskOptions := []string{
+	options3 := []string{
 		"task1",
 		"task2",
 		"task3",
 	}
 
-	taskRunOptions := []string{
+	options4 := []string{
 		"sample-task-run1 started 1 minutes ago",
 		"sample-task-run2 started 2 minutes ago",
 		"sample-task-run3 started 3 minutes ago",
 	}
 
-	eventListenerOptions := []string{
+	options6 := []string{
+		"clustertask1",
+		"clustertask2",
+		"clustertask3",
+	}
+
+	options7 := []string{
 		"eventlistener1",
 		"eventlistener2",
 		"eventlistener3",
 	}
 
-	triggerTemplateOptions := []string{
+	options8 := []string{
 		"triggertemplate1",
 		"triggertemplate2",
 		"triggertemplate3",
 	}
 
-	triggerBindingOptions := []string{
+	options9 := []string{
 		"triggerbinding1",
 		"triggerbinding2",
 		"triggerbinding3",
 	}
 
-	clusterTriggerBindingOptions := []string{
+	options10 := []string{
 		"clustertriggerbinding1",
 		"clustertriggerbinding2",
 		"clustertriggerbinding3",
@@ -129,18 +135,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select pipelinerun:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(pipelineRunOptions[0]); err != nil {
+					if _, err := c.SendLine(options2[0]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: pipelineRunOptions,
+			options: options2,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "sample-pipeline-run1",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -156,18 +163,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select pipelinerun:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(pipelineRunOptions[2]); err != nil {
+					if _, err := c.SendLine(options2[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: pipelineRunOptions,
+			options: options2,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "sample-pipeline-run3",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -183,18 +191,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select taskrun:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(taskRunOptions[0]); err != nil {
+					if _, err := c.SendLine(options4[0]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: taskRunOptions,
+			options: options4,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "sample-task-run1",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -210,18 +219,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select taskrun:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(taskRunOptions[2]); err != nil {
+					if _, err := c.SendLine(options4[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: taskRunOptions,
+			options: options4,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "sample-task-run3",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -237,18 +247,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select task:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(taskOptions[0]); err != nil {
+					if _, err := c.SendLine(options3[0]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: taskOptions,
+			options: options3,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "task1",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -264,18 +275,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select task:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(taskOptions[2]); err != nil {
+					if _, err := c.SendLine(options3[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: taskOptions,
+			options: options3,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "task3",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -291,18 +303,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select pipeline:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(pipelineOptions[0]); err != nil {
+					if _, err := c.SendLine(options[0]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: pipelineOptions,
+			options: options,
 			want: DescribeOptions{
 				PipelineName:              "pipeline1",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -318,20 +331,76 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select pipeline:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(pipelineOptions[2]); err != nil {
+					if _, err := c.SendLine(options[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: pipelineOptions,
+			options: options,
 			want: DescribeOptions{
 				PipelineName:              "pipeline3",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
+				ClusterTriggerBindingName: "",
+				EventListenerName:         "",
+			},
+		},
+		{
+			name:     "select clustertask name",
+			resource: ResourceNameClusterTask,
+			prompt: prompt.Prompt{
+				CmdArgs: []string{},
+				Procedure: func(c *goexpect.Console) error {
+					if _, err := c.ExpectString("Select clustertask:"); err != nil {
+						return err
+					}
+					if _, err := c.SendLine(options6[0]); err != nil {
+						return err
+					}
+					return nil
+				},
+			},
+			options: options6,
+			want: DescribeOptions{
+				PipelineName:              "",
+				PipelineRunName:           "",
+				TaskName:                  "",
+				TaskrunName:               "",
+				ClusterTaskName:           "clustertask1",
+				TriggerTemplateName:       "",
+				TriggerBindingName:        "",
+				ClusterTriggerBindingName: "",
+				EventListenerName:         "",
+			},
+		},
+		{
+			name:     "select clustertask name option 3",
+			resource: ResourceNameClusterTask,
+			prompt: prompt.Prompt{
+				CmdArgs: []string{},
+				Procedure: func(c *goexpect.Console) error {
+					if _, err := c.ExpectString("Select clustertask:"); err != nil {
+						return err
+					}
+					if _, err := c.SendLine(options6[2]); err != nil {
+						return err
+					}
+					return nil
+				},
+			},
+			options: options6,
+			want: DescribeOptions{
+				PipelineName:              "",
+				PipelineRunName:           "",
+				TaskName:                  "",
+				TaskrunName:               "",
+				ClusterTaskName:           "clustertask3",
+				TriggerTemplateName:       "",
 				ClusterTriggerBindingName: "",
 				EventListenerName:         "",
 			},
@@ -345,18 +414,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select triggertemplate:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(triggerTemplateOptions[2]); err != nil {
+					if _, err := c.SendLine(options8[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: triggerTemplateOptions,
+			options: options8,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "triggertemplate3",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "",
@@ -372,18 +442,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select triggerbinding:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(triggerBindingOptions[2]); err != nil {
+					if _, err := c.SendLine(options9[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: triggerBindingOptions,
+			options: options9,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "triggerbinding3",
 				ClusterTriggerBindingName: "",
@@ -399,18 +470,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select clustertriggerbinding:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(clusterTriggerBindingOptions[2]); err != nil {
+					if _, err := c.SendLine(options10[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: clusterTriggerBindingOptions,
+			options: options10,
 			want: DescribeOptions{
 				PipelineName:              "",
 				PipelineRunName:           "",
 				TaskName:                  "",
 				TaskrunName:               "",
+				ClusterTaskName:           "",
 				TriggerTemplateName:       "",
 				TriggerBindingName:        "",
 				ClusterTriggerBindingName: "clustertriggerbinding3",
@@ -426,18 +498,19 @@ func TestDescribeOptions_Ask(t *testing.T) {
 					if _, err := c.ExpectString("Select eventlistener:"); err != nil {
 						return err
 					}
-					if _, err := c.SendLine(eventListenerOptions[2]); err != nil {
+					if _, err := c.SendLine(options7[2]); err != nil {
 						return err
 					}
 					return nil
 				},
 			},
-			options: eventListenerOptions,
+			options: options7,
 			want: DescribeOptions{
 				PipelineName:      "",
 				PipelineRunName:   "",
 				TaskName:          "",
 				TaskrunName:       "",
+				ClusterTaskName:   "",
 				EventListenerName: "eventlistener3",
 			},
 		},
@@ -473,6 +546,9 @@ func TestDescribeOptions_Ask(t *testing.T) {
 			}
 			if opts.ClusterTriggerBindingName != tp.want.ClusterTriggerBindingName {
 				t.Errorf("Unexpected ClusterTriggerBinding Name")
+			}
+			if opts.ClusterTaskName != tp.want.ClusterTaskName {
+				t.Errorf("Unexpected ClusterTask Name")
 			}
 			if opts.EventListenerName != tp.want.EventListenerName {
 				t.Errorf("Unexpected EventListener Name")

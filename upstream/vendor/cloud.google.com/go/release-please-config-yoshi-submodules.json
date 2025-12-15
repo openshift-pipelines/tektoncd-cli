@@ -12,12 +12,6 @@
         "advisorynotifications": {
             "component": "advisorynotifications"
         },
-        "ai": {
-            "component": "ai"
-        },
-        "aiplatform": {
-            "component": "aiplatform"
-        },
         "alloydb": {
             "component": "alloydb"
         },
@@ -89,9 +83,6 @@
         },
         "chat": {
             "component": "chat"
-        },
-        "chronicle": {
-            "component": "chronicle"
         },
         "cloudbuild": {
             "component": "cloudbuild"
@@ -168,9 +159,6 @@
         "developerconnect": {
             "component": "developerconnect"
         },
-        "devicestreaming": {
-            "component": "devicestreaming"
-        },
         "dialogflow": {
             "component": "dialogflow"
         },
@@ -200,9 +188,6 @@
         },
         "filestore": {
             "component": "filestore"
-        },
-        "financialservices": {
-            "component": "financialservices"
         },
         "functions": {
             "component": "functions"
@@ -252,9 +237,6 @@
         "longrunning": {
             "component": "longrunning"
         },
-        "lustre": {
-            "component": "lustre"
-        },
         "managedidentities": {
             "component": "managedidentities"
         },
@@ -270,17 +252,11 @@
         "memcache": {
             "component": "memcache"
         },
-        "memorystore": {
-            "component": "memorystore"
-        },
         "metastore": {
             "component": "metastore"
         },
         "migrationcenter": {
             "component": "migrationcenter"
-        },
-        "modelarmor": {
-            "component": "modelarmor"
         },
         "monitoring": {
             "component": "monitoring"
@@ -306,9 +282,6 @@
         "optimization": {
             "component": "optimization"
         },
-        "oracledatabase": {
-            "component": "oracledatabase"
-        },
         "orchestration": {
             "component": "orchestration"
         },
@@ -323,9 +296,6 @@
         },
         "parallelstore": {
             "component": "parallelstore"
-        },
-        "parametermanager": {
-            "component": "parametermanager"
         },
         "phishingprotection": {
             "component": "phishingprotection"
@@ -359,6 +329,9 @@
         },
         "resourcemanager": {
             "component": "resourcemanager"
+        },
+        "resourcesettings": {
+            "component": "resourcesettings"
         },
         "retail": {
             "component": "retail"
@@ -408,14 +381,8 @@
         "shopping": {
             "component": "shopping"
         },
-        "spanner/benchmarks": {
-            "component": "spanner/benchmarks"
-        },
         "speech": {
             "component": "speech"
-        },
-        "storagebatchoperations": {
-            "component": "storagebatchoperations"
         },
         "storageinsights": {
             "component": "storageinsights"

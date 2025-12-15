@@ -51,13 +51,6 @@ type AuthenticationScheme = authority.AuthenticationScheme
 
 type Account = shared.Account
 
-type TokenSource = base.TokenSource
-
-const (
-	TokenSourceIdentityProvider = base.TokenSourceIdentityProvider
-	TokenSourceCache            = base.TokenSourceCache
-)
-
 var errNoAccount = errors.New("no account was specified with public.WithSilentAccount(), or the specified account is invalid")
 
 // clientOptions configures the Client's behavior.
@@ -394,7 +387,7 @@ func (pca Client) AcquireTokenByUsernamePassword(ctx context.Context, scopes []s
 	if err != nil {
 		return AuthResult{}, err
 	}
-	return pca.base.AuthResultFromToken(ctx, authParams, token)
+	return pca.base.AuthResultFromToken(ctx, authParams, token, true)
 }
 
 type DeviceCodeResult = accesstokens.DeviceCodeResult
@@ -419,7 +412,7 @@ func (d DeviceCode) AuthenticationResult(ctx context.Context) (AuthResult, error
 	if err != nil {
 		return AuthResult{}, err
 	}
-	return d.client.base.AuthResultFromToken(ctx, d.authParams, token)
+	return d.client.base.AuthResultFromToken(ctx, d.authParams, token, true)
 }
 
 // acquireTokenByDeviceCodeOptions contains optional configuration for AcquireTokenByDeviceCode
@@ -694,7 +687,7 @@ func (pca Client) AcquireTokenInteractive(ctx context.Context, scopes []string, 
 		return AuthResult{}, err
 	}
 
-	return pca.base.AuthResultFromToken(ctx, authParams, token)
+	return pca.base.AuthResultFromToken(ctx, authParams, token, true)
 }
 
 type interactiveAuthResult struct {

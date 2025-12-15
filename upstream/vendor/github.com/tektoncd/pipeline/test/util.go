@@ -66,6 +66,7 @@ func setup(ctx context.Context, t *testing.T, fn ...func(context.Context, *testi
 	t.Helper()
 	skipIfExcluded(t)
 
+	t.Helper()
 	namespace := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("arendelle")
 
 	initializeLogsAndMetrics(t)
@@ -198,6 +199,15 @@ func getCRDYaml(ctx context.Context, cs *clients, ns string) ([]byte, error) {
 		}
 		output = append(output, []byte("\n---\n")...)
 		output = append(output, bs...)
+	}
+
+	v1beta1ClusterTasks, err := cs.V1beta1ClusterTaskClient.List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("could not get v1beta1 clustertasks: %w", err)
+	}
+	for _, i := range v1beta1ClusterTasks.Items {
+		i.SetManagedFields(nil)
+		printOrAdd(i)
 	}
 
 	v1Tasks, err := cs.V1TaskClient.List(ctx, metav1.ListOptions{})

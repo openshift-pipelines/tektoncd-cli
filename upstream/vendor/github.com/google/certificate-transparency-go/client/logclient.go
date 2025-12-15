@@ -160,7 +160,6 @@ func (c *LogClient) VerifySCTSignature(sct ct.SignedCertificateTimestamp, ctype 
 	if err != nil {
 		return fmt.Errorf("failed to build MerkleTreeLeaf: %v", err)
 	}
-	leaf.TimestampedEntry.Extensions = sct.Extensions
 	entry := ct.LogEntry{Leaf: *leaf}
 	return c.Verifier.VerifySCTSignature(sct, entry)
 }

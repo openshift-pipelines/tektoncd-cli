@@ -105,9 +105,6 @@ func newClientNewAuth(ctx context.Context, base http.RoundTripper, ds *internal.
 	if ds.RequestReason != "" {
 		headers.Set("X-goog-request-reason", ds.RequestReason)
 	}
-	if ds.UserAgent != "" {
-		headers.Set("User-Agent", ds.UserAgent)
-	}
 	client, err := httptransport.NewClient(&httptransport.Options{
 		DisableTelemetry:      ds.TelemetryDisabled,
 		DisableAuthentication: ds.NoAuth,

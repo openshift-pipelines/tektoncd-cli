@@ -45,14 +45,19 @@ easier to find things.
 
 ### Setting up your local development environment to contribute
 
+1. [Fork](https://gitlab.com/gitlab-org/api/client-go), then clone the repository.
+   ```sh
+   git clone https://gitlab.com/<your-username>/client-go.git
+   # or via ssh
+   git clone git@gitlab.com:<your-username>/client-go.git
+   ```
 1. Install dependencies:
    ```sh
    make setup
    ```
-1. Make your changes on your feature branch in the community fork or your personal fork
-1. Run the reviewable command, which tests, lints and formats the code:
+1. Make your changes on your feature branch
+1. Run the tests and `gofumpt`
    ```sh
-   make reviewable
+   make test && make fmt
    ```
-1. Push your feature branch upstream
 1. Open up your merge request

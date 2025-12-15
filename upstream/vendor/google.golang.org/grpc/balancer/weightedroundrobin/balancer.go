@@ -16,15 +16,6 @@
  *
  */
 
-// Package weightedroundrobin provides an implementation of the weighted round
-// robin LB policy, as defined in [gRFC A58].
-//
-// # Experimental
-//
-// Notice: This package is EXPERIMENTAL and may be changed or removed in a
-// later release.
-//
-// [gRFC A58]: https://github.com/grpc/proposal/blob/master/A58-client-side-weighted-round-robin-lb-policy.md
 package weightedroundrobin
 
 import (
@@ -93,8 +84,16 @@ var (
 	})
 )
 
+// endpointSharding which specifies pick first children.
+var endpointShardingLBConfig serviceconfig.LoadBalancingConfig
+
 func init() {
 	balancer.Register(bb{})
+	var err error
+	endpointShardingLBConfig, err = endpointsharding.ParseConfig(json.RawMessage(endpointsharding.PickFirstConfig))
+	if err != nil {
+		logger.Fatal(err)
+	}
 }
 
 type bb struct{}
@@ -103,13 +102,13 @@ func (bb) Build(cc balancer.ClientConn, bOpts balancer.BuildOptions) balancer.Ba
 	b := &wrrBalancer{
 		ClientConn:       cc,
 		target:           bOpts.Target.String(),
-		metricsRecorder:  cc.MetricsRecorder(),
-		addressWeights:   resolver.NewAddressMapV2[*endpointWeight](),
-		endpointToWeight: resolver.NewEndpointMap[*endpointWeight](),
+		metricsRecorder:  bOpts.MetricsRecorder,
+		addressWeights:   resolver.NewAddressMap(),
+		endpointToWeight: resolver.NewEndpointMap(),
 		scToWeight:       make(map[balancer.SubConn]*endpointWeight),
 	}
 
-	b.child = endpointsharding.NewBalancer(b, bOpts, balancer.Get(pickfirstleaf.Name).Build, endpointsharding.Options{})
+	b.child = endpointsharding.NewBalancer(b, bOpts)
 	b.logger = prefixLogger(b)
 	b.logger.Infof("Created")
 	return b
@@ -155,15 +154,17 @@ func (bb) Name() string {
 //
 // Caller must hold b.mu.
 func (b *wrrBalancer) updateEndpointsLocked(endpoints []resolver.Endpoint) {
-	endpointSet := resolver.NewEndpointMap[*endpointWeight]()
-	addressSet := resolver.NewAddressMapV2[*endpointWeight]()
+	endpointSet := resolver.NewEndpointMap()
+	addressSet := resolver.NewAddressMap()
 	for _, endpoint := range endpoints {
 		endpointSet.Set(endpoint, nil)
 		for _, addr := range endpoint.Addresses {
 			addressSet.Set(addr, nil)
 		}
-		ew, ok := b.endpointToWeight.Get(endpoint)
-		if !ok {
+		var ew *endpointWeight
+		if ewi, ok := b.endpointToWeight.Get(endpoint); ok {
+			ew = ewi.(*endpointWeight)
+		} else {
 			ew = &endpointWeight{
 				logger:            b.logger,
 				connectivityState: connectivity.Connecting,
@@ -212,8 +213,8 @@ type wrrBalancer struct {
 	cfg              *lbConfig // active config
 	locality         string
 	stopPicker       *grpcsync.Event
-	addressWeights   *resolver.AddressMapV2[*endpointWeight]
-	endpointToWeight *resolver.EndpointMap[*endpointWeight]
+	addressWeights   *resolver.AddressMap  // addr -> endpointWeight
+	endpointToWeight *resolver.EndpointMap // endpoint -> endpointWeight
 	scToWeight       map[balancer.SubConn]*endpointWeight
 }
 
@@ -234,12 +235,14 @@ func (b *wrrBalancer) UpdateClientConnState(ccs balancer.ClientConnState) error 
 	b.updateEndpointsLocked(ccs.ResolverState.Endpoints)
 	b.mu.Unlock()
 
+	// Make pickfirst children use health listeners for outlier detection to
+	// work.
+	ccs.ResolverState = pickfirstleaf.EnableHealthListener(ccs.ResolverState)
 	// This causes child to update picker inline and will thus cause inline
 	// picker update.
 	return b.child.UpdateClientConnState(balancer.ClientConnState{
-		// Make pickfirst children use health listeners for outlier detection to
-		// work.
-		ResolverState: pickfirstleaf.EnableHealthListener(ccs.ResolverState),
+		BalancerConfig: endpointShardingLBConfig,
+		ResolverState:  ccs.ResolverState,
 	})
 }
 
@@ -258,12 +261,13 @@ func (b *wrrBalancer) UpdateState(state balancer.State) {
 
 	for _, childState := range childStates {
 		if childState.State.ConnectivityState == connectivity.Ready {
-			ew, ok := b.endpointToWeight.Get(childState.Endpoint)
+			ewv, ok := b.endpointToWeight.Get(childState.Endpoint)
 			if !ok {
 				// Should never happen, simply continue and ignore this endpoint
 				// for READY pickers.
 				continue
 			}
+			ew := ewv.(*endpointWeight)
 			readyPickersWeight = append(readyPickersWeight, pickerWeightedEndpoint{
 				picker:           childState.State.Picker,
 				weightedEndpoint: ew,
@@ -326,7 +330,7 @@ func (b *wrrBalancer) NewSubConn(addrs []resolver.Address, opts balancer.NewSubC
 	if err != nil {
 		return nil, err
 	}
-	b.scToWeight[sc] = ewi
+	b.scToWeight[sc] = ewi.(*endpointWeight)
 	return sc, nil
 }
 
@@ -395,16 +399,18 @@ func (b *wrrBalancer) Close() {
 	b.mu.Unlock()
 
 	// Ensure any lingering OOB watchers are stopped.
-	for _, ew := range b.endpointToWeight.Values() {
+	for _, ewv := range b.endpointToWeight.Values() {
+		ew := ewv.(*endpointWeight)
 		if ew.stopORCAListener != nil {
 			ew.stopORCAListener()
 		}
 	}
-	b.child.Close()
 }
 
 func (b *wrrBalancer) ExitIdle() {
-	b.child.ExitIdle()
+	if ei, ok := b.child.(balancer.ExitIdler); ok { // Should always be ok, as child is endpoint sharding.
+		ei.ExitIdle()
+	}
 }
 
 // picker is the WRR policy's picker.  It uses live-updating backend weights to
@@ -495,6 +501,7 @@ func (p *picker) start(stopPicker *grpcsync.Event) {
 // that listener.
 type endpointWeight struct {
 	// The following fields are immutable.
+	balancer.SubConn
 	logger          *grpclog.PrefixLogger
 	target          string
 	metricsRecorder estats.MetricsRecorder
@@ -524,7 +531,7 @@ type endpointWeight struct {
 
 func (w *endpointWeight) OnLoadReport(load *v3orcapb.OrcaLoadReport) {
 	if w.logger.V(2) {
-		w.logger.Infof("Received load report for subchannel %v: %v", w.pickedSC, load)
+		w.logger.Infof("Received load report for subchannel %v: %v", w.SubConn, load)
 	}
 	// Update weights of this endpoint according to the reported load.
 	utilization := load.ApplicationUtilization
@@ -533,7 +540,7 @@ func (w *endpointWeight) OnLoadReport(load *v3orcapb.OrcaLoadReport) {
 	}
 	if utilization == 0 || load.RpsFractional == 0 {
 		if w.logger.V(2) {
-			w.logger.Infof("Ignoring empty load report for subchannel %v", w.pickedSC)
+			w.logger.Infof("Ignoring empty load report for subchannel %v", w.SubConn)
 		}
 		return
 	}
@@ -544,7 +551,7 @@ func (w *endpointWeight) OnLoadReport(load *v3orcapb.OrcaLoadReport) {
 	errorRate := load.Eps / load.RpsFractional
 	w.weightVal = load.RpsFractional / (utilization + errorRate*w.cfg.ErrorUtilizationPenalty)
 	if w.logger.V(2) {
-		w.logger.Infof("New weight for subchannel %v: %v", w.pickedSC, w.weightVal)
+		w.logger.Infof("New weight for subchannel %v: %v", w.SubConn, w.weightVal)
 	}
 
 	w.lastUpdated = internal.TimeNow()

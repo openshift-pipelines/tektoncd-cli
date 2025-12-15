@@ -163,7 +163,8 @@ func CheckResponseWithBody(res *http.Response, body []byte) error {
 		return nil
 	}
 
-	jerr, err := errorReplyFromBody(body)
+	jerr := new(errorReply)
+	err := json.Unmarshal(body, jerr)
 	if err == nil && jerr.Error != nil {
 		if jerr.Error.Code == 0 {
 			jerr.Error.Code = res.StatusCode
@@ -178,21 +179,6 @@ func CheckResponseWithBody(res *http.Response, body []byte) error {
 		Body:   string(body),
 		Header: res.Header,
 	}
-}
-
-// errorReplyFromBody attempts to get the error from body. The body
-// may be a JSON object or JSON array, or may be something else.
-func errorReplyFromBody(body []byte) (*errorReply, error) {
-	jerr := new(errorReply)
-	if len(body) > 0 && body[0] == '[' {
-		// Attempt JSON array
-		jsonArr := []*errorReply{jerr}
-		err := json.Unmarshal(body, &jsonArr)
-		return jerr, err
-	}
-	// Attempt JSON object
-	err := json.Unmarshal(body, jerr)
-	return jerr, err
 }
 
 // IsNotModified reports whether err is the result of the

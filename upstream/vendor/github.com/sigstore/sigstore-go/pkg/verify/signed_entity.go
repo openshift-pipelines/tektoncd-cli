@@ -34,7 +34,7 @@ const (
 	VerificationResultMediaType01 = "application/vnd.dev.sigstore.verificationresult+json;version=0.1"
 )
 
-type Verifier struct {
+type SignedEntityVerifier struct {
 	trustedMaterial root.TrustedMaterial
 	config          VerifierConfig
 }
@@ -75,7 +75,7 @@ type VerifierConfig struct { // nolint: revive
 
 type VerifierOption func(*VerifierConfig) error
 
-// NewVerifier creates a new Verifier. It takes a
+// NewSignedEntityVerifier creates a new SignedEntityVerifier. It takes a
 // root.TrustedMaterial, which contains a set of trusted public keys and
 // certificates, and a set of VerifierConfigurators, which set the config
 // that determines the behaviour of the Verify function.
@@ -83,7 +83,7 @@ type VerifierOption func(*VerifierConfig) error
 // VerifierConfig's set of options should match the properties of a given
 // Sigstore deployment, i.e. whether to expect SCTs, Tlog entries, or signed
 // timestamps.
-func NewVerifier(trustedMaterial root.TrustedMaterial, options ...VerifierOption) (*Verifier, error) {
+func NewSignedEntityVerifier(trustedMaterial root.TrustedMaterial, options ...VerifierOption) (*SignedEntityVerifier, error) {
 	var err error
 	c := VerifierConfig{}
 
@@ -99,7 +99,7 @@ func NewVerifier(trustedMaterial root.TrustedMaterial, options ...VerifierOption
 		return nil, err
 	}
 
-	v := &Verifier{
+	v := &SignedEntityVerifier{
 		trustedMaterial: trustedMaterial,
 		config:          c,
 	}
@@ -107,17 +107,7 @@ func NewVerifier(trustedMaterial root.TrustedMaterial, options ...VerifierOption
 	return v, nil
 }
 
-// TODO: Remove the following deprecated functions in a future release before sigstore-go 2.0.
-
-// Deprecated: Use Verifier instead
-type SignedEntityVerifier = Verifier
-
-// Deprecated: Use NewVerifier instead
-func NewSignedEntityVerifier(trustedMaterial root.TrustedMaterial, options ...VerifierOption) (*Verifier, error) {
-	return NewVerifier(trustedMaterial, options...)
-}
-
-// WithSignedTimestamps configures the Verifier to expect RFC 3161
+// WithSignedTimestamps configures the SignedEntityVerifier to expect RFC 3161
 // timestamps from a Timestamp Authority, verify them using the TrustedMaterial's
 // TimestampingAuthorities(), and, if it exists, use the resulting timestamp(s)
 // to verify the Fulcio certificate.
@@ -132,7 +122,7 @@ func WithSignedTimestamps(threshold int) VerifierOption {
 	}
 }
 
-// WithObserverTimestamps configures the Verifier to expect
+// WithObserverTimestamps configures the SignedEntityVerifier to expect
 // timestamps from either an RFC3161 timestamp authority or a log's
 // SignedEntryTimestamp. These are verified using the TrustedMaterial's
 // TimestampingAuthorities() or RekorLogs(), and used to verify
@@ -148,7 +138,7 @@ func WithObserverTimestamps(threshold int) VerifierOption {
 	}
 }
 
-// WithTransparencyLog configures the Verifier to expect
+// WithTransparencyLog configures the SignedEntityVerifier to expect
 // Transparency Log inclusion proofs or SignedEntryTimestamps, verifying them
 // using the TrustedMaterial's RekorLogs().
 func WithTransparencyLog(threshold int) VerifierOption {
@@ -162,7 +152,7 @@ func WithTransparencyLog(threshold int) VerifierOption {
 	}
 }
 
-// WithIntegratedTimestamps configures the Verifier to
+// WithIntegratedTimestamps configures the SignedEntityVerifier to
 // expect log entry integrated timestamps from either SignedEntryTimestamps
 // or live log lookups.
 func WithIntegratedTimestamps(threshold int) VerifierOption {
@@ -173,7 +163,7 @@ func WithIntegratedTimestamps(threshold int) VerifierOption {
 	}
 }
 
-// WithSignedCertificateTimestamps configures the Verifier to
+// WithSignedCertificateTimestamps configures the SignedEntityVerifier to
 // expect the Fulcio certificate to have a SignedCertificateTimestamp, and
 // verify it using the TrustedMaterial's CTLogAuthorities().
 func WithSignedCertificateTimestamps(threshold int) VerifierOption {
@@ -187,7 +177,7 @@ func WithSignedCertificateTimestamps(threshold int) VerifierOption {
 	}
 }
 
-// WithCurrentTime configures the Verifier to not expect
+// WithCurrentTime configures the SignedEntityVerifier to not expect
 // any timestamps from either a Timestamp Authority or a Transparency Log.
 // This option should not be enabled when verifying short-lived certificates,
 // as an observer timestamp is needed. This option is useful primarily for
@@ -201,7 +191,7 @@ func WithCurrentTime() VerifierOption {
 
 func (c *VerifierConfig) Validate() error {
 	if !c.requireObserverTimestamps && !c.requireSignedTimestamps && !c.requireIntegratedTimestamps && !c.useCurrentTime {
-		return errors.New("when initializing a new Verifier, you must specify at least one of " +
+		return errors.New("when initializing a new SignedEntityVerifier, you must specify at least one of " +
 			"WithObserverTimestamps(), WithSignedTimestamps(), or WithIntegratedTimestamps()")
 	}
 
@@ -276,7 +266,7 @@ type PolicyBuilder struct {
 	policyOptions  []PolicyOption
 }
 
-func (pc PolicyBuilder) options() []PolicyOption {
+func (pc PolicyBuilder) Options() []PolicyOption {
 	arr := []PolicyOption{PolicyOption(pc.artifactPolicy)}
 	return append(arr, pc.policyOptions...)
 }
@@ -285,85 +275,74 @@ func (pc PolicyBuilder) BuildConfig() (*PolicyConfig, error) {
 	var err error
 
 	policy := &PolicyConfig{}
-	for _, applyOption := range pc.options() {
+	for _, applyOption := range pc.Options() {
 		err = applyOption(policy)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if err := policy.validate(); err != nil {
+	if err := policy.Validate(); err != nil {
 		return nil, err
 	}
 
 	return policy, nil
 }
 
-type ArtifactDigest struct {
-	Algorithm string
-	Digest    []byte
-}
-
 type PolicyConfig struct {
-	ignoreArtifact        bool
-	ignoreIdentities      bool
-	requireSigningKey     bool
-	certificateIdentities CertificateIdentities
-	verifyArtifacts       bool
-	artifacts             []io.Reader
-	verifyArtifactDigests bool
-	artifactDigests       []ArtifactDigest
+	weDoNotExpectAnArtifact bool
+	weDoNotExpectIdentities bool
+	weExpectSigningKey      bool
+	certificateIdentities   CertificateIdentities
+	verifyArtifact          bool
+	artifact                io.Reader
+	verifyArtifactDigest    bool
+	artifactDigest          []byte
+	artifactDigestAlgorithm string
 }
 
-func (p *PolicyConfig) withVerifyAlreadyConfigured() error {
-	if p.verifyArtifacts || p.verifyArtifactDigests {
-		return errors.New("only one invocation of WithArtifact/WithArtifacts/WithArtifactDigest/WithArtifactDigests is allowed")
-	}
-
-	return nil
-}
-
-func (p *PolicyConfig) validate() error {
-	if p.RequireIdentities() && len(p.certificateIdentities) == 0 {
+func (p *PolicyConfig) Validate() error {
+	if p.WeExpectIdentities() && len(p.certificateIdentities) == 0 {
 		return errors.New("can't verify identities without providing at least one identity")
 	}
 
 	return nil
 }
 
-// RequireArtifact returns true if the Verify algorithm should perform
+// WeExpectAnArtifact returns true if the Verify algorithm should perform
 // signature verification with an an artifact provided by either the
 // WithArtifact or the WithArtifactDigest functions.
 //
 // By default, unless explicitly turned off, we should always expect to verify
 // a SignedEntity's signature using an artifact. Bools are initialized to false,
-// so this behaviour is therefore controlled by the ignoreArtifact field.
+// so this behaviour is therefore controlled by the weDoNotExpectAnArtifact
+// field.
 //
 // Double negatives are confusing, though. To aid with comprehension of the
 // main Verify loop, this function therefore just wraps the double negative.
-func (p *PolicyConfig) RequireArtifact() bool {
-	return !p.ignoreArtifact
+func (p *PolicyConfig) WeExpectAnArtifact() bool {
+	return !p.weDoNotExpectAnArtifact
 }
 
-// RequireIdentities returns true if the Verify algorithm should check
+// WeExpectIdentities returns true if the Verify algorithm should check
 // whether the SignedEntity's certificate was created by one of the identities
 // provided by the WithCertificateIdentity function.
 //
 // By default, unless explicitly turned off, we should always expect to enforce
 // that a SignedEntity's certificate was created by an Identity we trust. Bools
 // are initialized to false, so this behaviour is therefore controlled by the
-// ignoreIdentities field.
+// weDoNotExpectIdentities field.
 //
 // Double negatives are confusing, though. To aid with comprehension of the
 // main Verify loop, this function therefore just wraps the double negative.
-func (p *PolicyConfig) RequireIdentities() bool {
-	return !p.ignoreIdentities
+func (p *PolicyConfig) WeExpectIdentities() bool {
+	return !p.weDoNotExpectIdentities
 }
 
-// RequireSigningKey returns true if we expect the SignedEntity to be signed
+// WeExpectSigningKey returns true if we expect the SignedEntity to be signed
 // with a key and not a certificate.
-func (p *PolicyConfig) RequireSigningKey() bool {
-	return p.requireSigningKey
+func (p *PolicyConfig) WeExpectSigningKey() bool {
+	return p.weExpectSigningKey
 }
 
 func NewPolicy(artifactOpt ArtifactPolicyOption, options ...PolicyOption) PolicyBuilder {
@@ -386,7 +365,7 @@ func WithoutIdentitiesUnsafe() PolicyOption {
 			return errors.New("can't use WithoutIdentitiesUnsafe while specifying CertificateIdentities")
 		}
 
-		p.ignoreIdentities = true
+		p.weDoNotExpectIdentities = true
 		return nil
 	}
 }
@@ -411,10 +390,10 @@ func WithoutIdentitiesUnsafe() PolicyOption {
 // For convenience, consult the NewShortCertificateIdentity function.
 func WithCertificateIdentity(identity CertificateIdentity) PolicyOption {
 	return func(p *PolicyConfig) error {
-		if p.ignoreIdentities {
+		if p.weDoNotExpectIdentities {
 			return errors.New("can't use WithCertificateIdentity while using WithoutIdentitiesUnsafe")
 		}
-		if p.requireSigningKey {
+		if p.weExpectSigningKey {
 			return errors.New("can't use WithCertificateIdentity while using WithKey")
 		}
 
@@ -431,8 +410,8 @@ func WithKey() PolicyOption {
 			return errors.New("can't use WithKey while using WithCertificateIdentity")
 		}
 
-		p.requireSigningKey = true
-		p.ignoreIdentities = true
+		p.weExpectSigningKey = true
+		p.weDoNotExpectIdentities = true
 		return nil
 	}
 }
@@ -453,11 +432,11 @@ func WithKey() PolicyOption {
 // an artifact.
 func WithoutArtifactUnsafe() ArtifactPolicyOption {
 	return func(p *PolicyConfig) error {
-		if err := p.withVerifyAlreadyConfigured(); err != nil {
-			return err
+		if p.verifyArtifact || p.verifyArtifactDigest {
+			return errors.New("can't use WithoutArtifactUnsafe while using WithArtifact or WithArtifactDigest")
 		}
 
-		p.ignoreArtifact = true
+		p.weDoNotExpectAnArtifact = true
 		return nil
 	}
 }
@@ -470,38 +449,16 @@ func WithoutArtifactUnsafe() ArtifactPolicyOption {
 // envelope's statement.
 func WithArtifact(artifact io.Reader) ArtifactPolicyOption {
 	return func(p *PolicyConfig) error {
-		if err := p.withVerifyAlreadyConfigured(); err != nil {
-			return err
+		if p.verifyArtifact || p.verifyArtifactDigest {
+			return errors.New("only one invocation of WithArtifact/WithArtifactDigest is allowed")
 		}
 
-		if p.ignoreArtifact {
+		if p.weDoNotExpectAnArtifact {
 			return errors.New("can't use WithArtifact while using WithoutArtifactUnsafe")
 		}
 
-		p.verifyArtifacts = true
-		p.artifacts = []io.Reader{artifact}
-		return nil
-	}
-}
-
-// WithArtifacts allows the caller of Verify to enforce that the SignedEntity
-// being verified was created from, or references, a slice of artifacts.
-//
-// If the SignedEntity contains a DSSE envelope, then the artifact digest is
-// calculated from the given artifact, and compared to the digest in the
-// envelope's statement.
-func WithArtifacts(artifacts []io.Reader) ArtifactPolicyOption {
-	return func(p *PolicyConfig) error {
-		if err := p.withVerifyAlreadyConfigured(); err != nil {
-			return err
-		}
-
-		if p.ignoreArtifact {
-			return errors.New("can't use WithArtifacts while using WithoutArtifactUnsafe")
-		}
-
-		p.verifyArtifacts = true
-		p.artifacts = artifacts
+		p.verifyArtifact = true
+		p.artifact = artifact
 		return nil
 	}
 }
@@ -517,48 +474,23 @@ func WithArtifacts(artifacts []io.Reader) ArtifactPolicyOption {
 // compared to the digest in the envelope's statement.
 func WithArtifactDigest(algorithm string, artifactDigest []byte) ArtifactPolicyOption {
 	return func(p *PolicyConfig) error {
-		if err := p.withVerifyAlreadyConfigured(); err != nil {
-			return err
+		if p.verifyArtifact || p.verifyArtifactDigest {
+			return errors.New("only one invocation of WithArtifact/WithArtifactDigest is allowed")
 		}
 
-		if p.ignoreArtifact {
+		if p.weDoNotExpectAnArtifact {
 			return errors.New("can't use WithArtifactDigest while using WithoutArtifactUnsafe")
 		}
 
-		p.verifyArtifactDigests = true
-		p.artifactDigests = []ArtifactDigest{{
-			Algorithm: algorithm,
-			Digest:    artifactDigest,
-		}}
-		return nil
-	}
-}
-
-// WithArtifactDigests allows the caller of Verify to enforce that the
-// SignedEntity being verified was created for a given array of artifact digests.
-//
-// If the SignedEntity contains a DSSE envelope, then the artifact digests
-// are compared to the digests in the envelope's statement.
-//
-// If the SignedEntity does not contain a DSSE envelope, verification fails.
-func WithArtifactDigests(digests []ArtifactDigest) ArtifactPolicyOption {
-	return func(p *PolicyConfig) error {
-		if err := p.withVerifyAlreadyConfigured(); err != nil {
-			return err
-		}
-
-		if p.ignoreArtifact {
-			return errors.New("can't use WithArtifactDigests while using WithoutArtifactUnsafe")
-		}
-
-		p.verifyArtifactDigests = true
-		p.artifactDigests = digests
+		p.verifyArtifactDigest = true
+		p.artifactDigestAlgorithm = algorithm
+		p.artifactDigest = artifactDigest
 		return nil
 	}
 }
 
 // Verify checks the cryptographic integrity of a given SignedEntity according
-// to the options configured in the NewVerifier. Its purpose is to
+// to the options configured in the NewSignedEntityVerifier. Its purpose is to
 // determine whether the SignedEntity was created by a Sigstore deployment we
 // trust, as defined by keys in our TrustedMaterial.
 //
@@ -577,7 +509,7 @@ func WithArtifactDigests(digests []ArtifactDigest) ArtifactPolicyOption {
 //     expected value
 //   - (if the signed entity has a dsse envelope) verify that the envelope's
 //     statement's subject matches the artifact being verified
-func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationResult, error) {
+func (v *SignedEntityVerifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationResult, error) {
 	policy, err := pb.BuildConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to build policy: %w", err)
@@ -608,7 +540,7 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 	// If the bundle was signed with a long-lived key, and does not have a Fulcio certificate,
 	// then skip the certificate verification steps
 	if leafCert := verificationContent.Certificate(); leafCert != nil {
-		if policy.RequireSigningKey() {
+		if policy.WeExpectSigningKey() {
 			return nil, errors.New("expected key signature, not certificate")
 		}
 
@@ -659,13 +591,6 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 		}
 	}
 
-	// If SCTs are required, ensure the bundle is certificate-signed not public key-signed
-	if v.config.requireSCTs {
-		if verificationContent.PublicKey() != nil {
-			return nil, errors.New("SCTs required but bundle is signed with a public key, which cannot contain SCTs")
-		}
-	}
-
 	// From spec:
 	// > ## Signature Verification
 	// > The Verifier MUST verify the provided signature for the constructed payload against the key in the leaf of the certificate chain.
@@ -675,37 +600,12 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 		return nil, fmt.Errorf("failed to fetch signature content: %w", err)
 	}
 
-	entityVersion, err := entity.Version()
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch entity version: %w", err)
-	}
-
-	var enableCompat bool
-	switch entityVersion {
-	case "v0.1":
-		fallthrough
-	case "0.1":
-		fallthrough
-	case "v0.2":
-		fallthrough
-	case "0.2":
-		fallthrough
-	case "v0.3":
-		fallthrough
-	case "0.3":
-		enableCompat = true
-	}
-	verifier, err := getSignatureVerifier(sigContent, verificationContent, v.trustedMaterial, enableCompat)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get signature verifier: %w", err)
-	}
-
-	if policy.RequireArtifact() {
+	if policy.WeExpectAnArtifact() {
 		switch {
-		case policy.verifyArtifacts:
-			err = verifySignatureWithVerifierAndArtifacts(verifier, sigContent, verificationContent, v.trustedMaterial, policy.artifacts)
-		case policy.verifyArtifactDigests:
-			err = verifySignatureWithVerifierAndArtifactDigests(verifier, sigContent, verificationContent, v.trustedMaterial, policy.artifactDigests)
+		case policy.verifyArtifact:
+			err = VerifySignatureWithArtifact(sigContent, verificationContent, v.trustedMaterial, policy.artifact)
+		case policy.verifyArtifactDigest:
+			err = VerifySignatureWithArtifactDigest(sigContent, verificationContent, v.trustedMaterial, policy.artifactDigest, policy.artifactDigestAlgorithm)
 		default:
 			// should never happen, but just in case:
 			err = errors.New("no artifact or artifact digest provided")
@@ -713,7 +613,7 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 	} else {
 		// verifying with artifact has been explicitly turned off, so just check
 		// the signature on the dsse envelope:
-		err = verifySignatureWithVerifier(verifier, sigContent, verificationContent, v.trustedMaterial)
+		err = VerifySignature(sigContent, verificationContent, v.trustedMaterial)
 	}
 
 	if err != nil {
@@ -749,7 +649,7 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 
 	// From ## Certificate section,
 	// >The Verifier MUST then check the certificate against the verification policy. Details on how to do this depend on the verification policy, but the Verifier SHOULD check the Issuer X.509 extension (OID 1.3.6.1.4.1.57264.1.1) at a minimum, and will in most cases check the SubjectAlternativeName as well. See  Spec: Fulcio §TODO for example checks on the certificate.
-	if policy.RequireIdentities() {
+	if policy.WeExpectIdentities() {
 		if !signedWithCertificate {
 			// We got asked to verify identities, but the entity was not signed with
 			// a certificate. That's a problem!
@@ -775,12 +675,12 @@ func (v *Verifier) Verify(entity SignedEntity, pb PolicyBuilder) (*VerificationR
 // a list of verified timestamps from the log integrated timestamps when verifying
 // with observer timestamps.
 // TODO: Return a different verification result for logs specifically (also for #48)
-func (v *Verifier) VerifyTransparencyLogInclusion(entity SignedEntity) ([]TimestampVerificationResult, error) {
+func (v *SignedEntityVerifier) VerifyTransparencyLogInclusion(entity SignedEntity) ([]TimestampVerificationResult, error) {
 	verifiedTimestamps := []TimestampVerificationResult{}
 
 	if v.config.requireTlogEntries {
 		// log timestamps should be verified if with WithIntegratedTimestamps or WithObserverTimestamps is used
-		verifiedTlogTimestamps, err := VerifyTlogEntry(entity, v.trustedMaterial, v.config.tlogEntriesThreshold,
+		verifiedTlogTimestamps, err := VerifyArtifactTransparencyLog(entity, v.trustedMaterial, v.config.tlogEntriesThreshold,
 			v.config.requireIntegratedTimestamps || v.config.requireObserverTimestamps)
 		if err != nil {
 			return nil, err
@@ -801,13 +701,13 @@ func (v *Verifier) VerifyTransparencyLogInclusion(entity SignedEntity) ([]Timest
 // logTimestamps may be populated with verified log entry integrated timestamps
 // In order to be verifiable, a SignedEntity must have at least one verified
 // "observer timestamp".
-func (v *Verifier) VerifyObserverTimestamps(entity SignedEntity, logTimestamps []TimestampVerificationResult) ([]TimestampVerificationResult, error) {
+func (v *SignedEntityVerifier) VerifyObserverTimestamps(entity SignedEntity, logTimestamps []TimestampVerificationResult) ([]TimestampVerificationResult, error) {
 	verifiedTimestamps := []TimestampVerificationResult{}
 
 	// From spec:
 	// > … if verification or timestamp parsing fails, the Verifier MUST abort
 	if v.config.requireSignedTimestamps {
-		verifiedSignedTimestamps, err := VerifySignedTimestampWithThreshold(entity, v.trustedMaterial, v.config.signedTimestampThreshold)
+		verifiedSignedTimestamps, err := VerifyTimestampAuthorityWithThreshold(entity, v.trustedMaterial, v.config.signedTimestampThreshold)
 		if err != nil {
 			return nil, err
 		}
@@ -824,16 +724,16 @@ func (v *Verifier) VerifyObserverTimestamps(entity SignedEntity, logTimestamps [
 	}
 
 	if v.config.requireObserverTimestamps {
-		verifiedSignedTimestamps, verificationErrors, err := VerifySignedTimestamp(entity, v.trustedMaterial)
+		verifiedSignedTimestamps, err := VerifyTimestampAuthority(entity, v.trustedMaterial)
 		if err != nil {
-			return nil, fmt.Errorf("failed to verify signed timestamps: %w", err)
+			return nil, err
 		}
 
 		// check threshold for both RFC3161 and log timestamps
 		tsCount := len(verifiedSignedTimestamps) + len(logTimestamps)
 		if tsCount < v.config.observerTimestampThreshold {
-			return nil, fmt.Errorf("threshold not met for verified signed & log entry integrated timestamps: %d < %d; error: %w",
-				tsCount, v.config.observerTimestampThreshold, errors.Join(verificationErrors...))
+			return nil, fmt.Errorf("threshold not met for verified signed & log entry integrated timestamps: %d < %d",
+				tsCount, v.config.observerTimestampThreshold)
 		}
 
 		// append all timestamps

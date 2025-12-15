@@ -29,7 +29,7 @@ type FakeResolutionV1beta1 struct {
 }
 
 func (c *FakeResolutionV1beta1) ResolutionRequests(namespace string) v1beta1.ResolutionRequestInterface {
-	return newFakeResolutionRequests(c, namespace)
+	return &FakeResolutionRequests{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

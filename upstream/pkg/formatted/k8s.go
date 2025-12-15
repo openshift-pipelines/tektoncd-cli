@@ -29,7 +29,7 @@ var ConditionColor = map[string]color.Attribute{
 	"Running":   color.FgHiBlue,
 	"Cancelled": color.FgHiYellow,
 	"Completed": color.FgHiMagenta,
-	"Pending":   color.FgHiYellow,
+	"Pending":   color.FgHiBlue,
 	"Started":   color.FgHiCyan,
 }
 
@@ -86,8 +86,6 @@ func Condition(c v1.Conditions) string {
 				return ColorStatus("Pending")
 			}
 			return ColorStatus("Pending") + "(" + c[0].Reason + ")"
-		case "PipelineRunPending":
-			return ColorStatus("Pending")
 		default:
 			return ColorStatus(status) + "(" + c[0].Reason + ")"
 		}

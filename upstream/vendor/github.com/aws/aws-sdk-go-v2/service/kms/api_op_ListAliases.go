@@ -47,10 +47,10 @@ import (
 // Eventual consistency: The KMS API follows an eventual consistency model. For
 // more information, see [KMS eventual consistency].
 //
-// [KMS aliases quota]: https://docs.aws.amazon.com/kms/latest/developerguide/resource-limits.html#aliases-per-key
+// [KMS aliases quota]: https://docs.aws.amazon.com/kms/latest/developerguide/limits.html#aliases-limit
 // [kms:ListAliases]: https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html
-// [KMS eventual consistency]: https://docs.aws.amazon.com/kms/latest/developerguide/accessing-kms.html#programming-eventual-consistency
-// [Controlling access to aliases]: https://docs.aws.amazon.com/kms/latest/developerguide/alias-access.html
+// [KMS eventual consistency]: https://docs.aws.amazon.com/kms/latest/developerguide/programming-eventual-consistency.html
+// [Controlling access to aliases]: https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html#alias-access
 func (c *Client) ListAliases(ctx context.Context, params *ListAliasesInput, optFns ...func(*Options)) (*ListAliasesOutput, error) {
 	if params == nil {
 		params = &ListAliasesInput{}
@@ -185,9 +185,6 @@ func (c *Client) addOperationListAliasesMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
-		return err
-	}
-	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = stack.Initialize.Add(newServiceMetadataMiddleware_opListAliases(options.Region), middleware.Before); err != nil {

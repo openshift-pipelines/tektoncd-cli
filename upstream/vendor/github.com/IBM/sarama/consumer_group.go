@@ -861,31 +861,17 @@ func newConsumerGroupSession(ctx context.Context, parent *consumerGroup, claims 
 		return nil, err
 	}
 
-	// start consuming each topic partition in its own goroutine
+	// start consuming
 	for topic, partitions := range claims {
 		for _, partition := range partitions {
-			sess.waitGroup.Add(1) // increment wait group before spawning goroutine
+			sess.waitGroup.Add(1)
+
 			go func(topic string, partition int32) {
 				defer sess.waitGroup.Done()
-				// cancel the group session as soon as any of the consume calls return
+
+				// cancel the as session as soon as the first
+				// goroutine exits
 				defer sess.cancel()
-
-				// if partition not currently readable, wait for it to become readable
-				if sess.parent.client.PartitionNotReadable(topic, partition) {
-					timer := time.NewTimer(5 * time.Second)
-					defer timer.Stop()
-
-					for sess.parent.client.PartitionNotReadable(topic, partition) {
-						select {
-						case <-ctx.Done():
-							return
-						case <-parent.closed:
-							return
-						case <-timer.C:
-							timer.Reset(5 * time.Second)
-						}
-					}
-				}
 
 				// consume a single topic/partition, blocking
 				sess.consume(topic, partition)

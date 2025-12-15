@@ -95,6 +95,7 @@ type shim struct {
 func (s *shim) Start(t ti) Canceler {
 	name := helpers.ObjectPrefixForTest(t)
 	canceler, err := s.StartStream(name, t.Logf)
+
 	if err != nil {
 		t.Error("Failed to start logstream", "error", err)
 	}

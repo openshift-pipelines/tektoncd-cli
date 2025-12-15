@@ -23,27 +23,21 @@ import (
 	"encoding/json"
 	"fmt"
 	rand "math/rand/v2"
-	"sync"
 	"sync/atomic"
 
 	"google.golang.org/grpc/balancer"
-	"google.golang.org/grpc/balancer/endpointsharding"
-	"google.golang.org/grpc/balancer/pickfirst/pickfirstleaf"
-	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/balancer/base"
 	"google.golang.org/grpc/grpclog"
-	internalgrpclog "google.golang.org/grpc/internal/grpclog"
-	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/serviceconfig"
 )
+
+// randuint32 is a global to stub out in tests.
+var randuint32 = rand.Uint32
 
 // Name is the name of the least request balancer.
 const Name = "least_request_experimental"
 
-var (
-	// randuint32 is a global to stub out in tests.
-	randuint32 = rand.Uint32
-	logger     = grpclog.Component("least-request")
-)
+var logger = grpclog.Component("least-request")
 
 func init() {
 	balancer.Register(bb{})
@@ -86,165 +80,104 @@ func (bb) Name() string {
 }
 
 func (bb) Build(cc balancer.ClientConn, bOpts balancer.BuildOptions) balancer.Balancer {
-	b := &leastRequestBalancer{
-		ClientConn:        cc,
-		endpointRPCCounts: resolver.NewEndpointMap[*atomic.Int32](),
-	}
-	b.child = endpointsharding.NewBalancer(b, bOpts, balancer.Get(pickfirstleaf.Name).Build, endpointsharding.Options{})
-	b.logger = internalgrpclog.NewPrefixLogger(logger, fmt.Sprintf("[%p] ", b))
-	b.logger.Infof("Created")
+	b := &leastRequestBalancer{scRPCCounts: make(map[balancer.SubConn]*atomic.Int32)}
+	baseBuilder := base.NewBalancerBuilder(Name, b, base.Config{HealthCheck: true})
+	b.Balancer = baseBuilder.Build(cc, bOpts)
 	return b
 }
 
 type leastRequestBalancer struct {
-	// Embeds balancer.ClientConn because we need to intercept UpdateState
-	// calls from the child balancer.
-	balancer.ClientConn
-	child  balancer.Balancer
-	logger *internalgrpclog.PrefixLogger
+	// Embeds balancer.Balancer because needs to intercept UpdateClientConnState
+	// to learn about choiceCount.
+	balancer.Balancer
 
-	mu          sync.Mutex
 	choiceCount uint32
-	// endpointRPCCounts holds RPC counts to keep track for subsequent picker
-	// updates.
-	endpointRPCCounts *resolver.EndpointMap[*atomic.Int32]
+	scRPCCounts map[balancer.SubConn]*atomic.Int32 // Hold onto RPC counts to keep track for subsequent picker updates.
 }
 
-func (lrb *leastRequestBalancer) Close() {
-	lrb.child.Close()
-	lrb.endpointRPCCounts = nil
-}
-
-func (lrb *leastRequestBalancer) UpdateSubConnState(sc balancer.SubConn, state balancer.SubConnState) {
-	lrb.logger.Errorf("UpdateSubConnState(%v, %+v) called unexpectedly", sc, state)
-}
-
-func (lrb *leastRequestBalancer) ResolverError(err error) {
-	// Will cause inline picker update from endpoint sharding.
-	lrb.child.ResolverError(err)
-}
-
-func (lrb *leastRequestBalancer) ExitIdle() {
-	lrb.child.ExitIdle()
-}
-
-func (lrb *leastRequestBalancer) UpdateClientConnState(ccs balancer.ClientConnState) error {
-	lrCfg, ok := ccs.BalancerConfig.(*LBConfig)
+func (lrb *leastRequestBalancer) UpdateClientConnState(s balancer.ClientConnState) error {
+	lrCfg, ok := s.BalancerConfig.(*LBConfig)
 	if !ok {
-		logger.Errorf("least-request: received config with unexpected type %T: %v", ccs.BalancerConfig, ccs.BalancerConfig)
+		logger.Errorf("least-request: received config with unexpected type %T: %v", s.BalancerConfig, s.BalancerConfig)
 		return balancer.ErrBadResolverState
 	}
 
-	lrb.mu.Lock()
 	lrb.choiceCount = lrCfg.ChoiceCount
-	lrb.mu.Unlock()
-	return lrb.child.UpdateClientConnState(balancer.ClientConnState{
-		// Enable the health listener in pickfirst children for client side health
-		// checks and outlier detection, if configured.
-		ResolverState: pickfirstleaf.EnableHealthListener(ccs.ResolverState),
-	})
+	return lrb.Balancer.UpdateClientConnState(s)
 }
 
-type endpointState struct {
-	picker  balancer.Picker
+type scWithRPCCount struct {
+	sc      balancer.SubConn
 	numRPCs *atomic.Int32
 }
 
-func (lrb *leastRequestBalancer) UpdateState(state balancer.State) {
-	var readyEndpoints []endpointsharding.ChildState
-	for _, child := range endpointsharding.ChildStatesFromPicker(state.Picker) {
-		if child.State.ConnectivityState == connectivity.Ready {
-			readyEndpoints = append(readyEndpoints, child)
+func (lrb *leastRequestBalancer) Build(info base.PickerBuildInfo) balancer.Picker {
+	if logger.V(2) {
+		logger.Infof("least-request: Build called with info: %v", info)
+	}
+	if len(info.ReadySCs) == 0 {
+		return base.NewErrPicker(balancer.ErrNoSubConnAvailable)
+	}
+
+	for sc := range lrb.scRPCCounts {
+		if _, ok := info.ReadySCs[sc]; !ok { // If no longer ready, no more need for the ref to count active RPCs.
+			delete(lrb.scRPCCounts, sc)
 		}
 	}
 
-	// If no ready pickers are present, simply defer to the round robin picker
-	// from endpoint sharding, which will round robin across the most relevant
-	// pick first children in the highest precedence connectivity state.
-	if len(readyEndpoints) == 0 {
-		lrb.ClientConn.UpdateState(state)
-		return
-	}
-
-	lrb.mu.Lock()
-	defer lrb.mu.Unlock()
-
-	if logger.V(2) {
-		lrb.logger.Infof("UpdateState called with ready endpoints: %v", readyEndpoints)
-	}
-
-	// Reconcile endpoints.
-	newEndpoints := resolver.NewEndpointMap[any]()
-	for _, child := range readyEndpoints {
-		newEndpoints.Set(child.Endpoint, nil)
-	}
-
-	// If endpoints are no longer ready, no need to count their active RPCs.
-	for _, endpoint := range lrb.endpointRPCCounts.Keys() {
-		if _, ok := newEndpoints.Get(endpoint); !ok {
-			lrb.endpointRPCCounts.Delete(endpoint)
+	// Create new refs if needed.
+	for sc := range info.ReadySCs {
+		if _, ok := lrb.scRPCCounts[sc]; !ok {
+			lrb.scRPCCounts[sc] = new(atomic.Int32)
 		}
 	}
 
 	// Copy refs to counters into picker.
-	endpointStates := make([]endpointState, 0, len(readyEndpoints))
-	for _, child := range readyEndpoints {
-		counter, ok := lrb.endpointRPCCounts.Get(child.Endpoint)
-		if !ok {
-			// Create new counts if needed.
-			counter = new(atomic.Int32)
-			lrb.endpointRPCCounts.Set(child.Endpoint, counter)
-		}
-		endpointStates = append(endpointStates, endpointState{
-			picker:  child.State.Picker,
-			numRPCs: counter,
+	scs := make([]scWithRPCCount, 0, len(info.ReadySCs))
+	for sc := range info.ReadySCs {
+		scs = append(scs, scWithRPCCount{
+			sc:      sc,
+			numRPCs: lrb.scRPCCounts[sc], // guaranteed to be present due to algorithm
 		})
 	}
 
-	lrb.ClientConn.UpdateState(balancer.State{
-		Picker: &picker{
-			choiceCount:    lrb.choiceCount,
-			endpointStates: endpointStates,
-		},
-		ConnectivityState: connectivity.Ready,
-	})
+	return &picker{
+		choiceCount: lrb.choiceCount,
+		subConns:    scs,
+	}
 }
 
 type picker struct {
-	// choiceCount is the number of random endpoints to sample for choosing the
-	// one with the least requests.
-	choiceCount    uint32
-	endpointStates []endpointState
+	// choiceCount is the number of random SubConns to find the one with
+	// the least request.
+	choiceCount uint32
+	// Built out when receives list of ready RPCs.
+	subConns []scWithRPCCount
 }
 
-func (p *picker) Pick(pInfo balancer.PickInfo) (balancer.PickResult, error) {
-	var pickedEndpointState *endpointState
-	var pickedEndpointNumRPCs int32
+func (p *picker) Pick(balancer.PickInfo) (balancer.PickResult, error) {
+	var pickedSC *scWithRPCCount
+	var pickedSCNumRPCs int32
 	for i := 0; i < int(p.choiceCount); i++ {
-		index := randuint32() % uint32(len(p.endpointStates))
-		endpointState := p.endpointStates[index]
-		n := endpointState.numRPCs.Load()
-		if pickedEndpointState == nil || n < pickedEndpointNumRPCs {
-			pickedEndpointState = &endpointState
-			pickedEndpointNumRPCs = n
+		index := randuint32() % uint32(len(p.subConns))
+		sc := p.subConns[index]
+		n := sc.numRPCs.Load()
+		if pickedSC == nil || n < pickedSCNumRPCs {
+			pickedSC = &sc
+			pickedSCNumRPCs = n
 		}
-	}
-	result, err := pickedEndpointState.picker.Pick(pInfo)
-	if err != nil {
-		return result, err
 	}
 	// "The counter for a subchannel should be atomically incremented by one
 	// after it has been successfully picked by the picker." - A48
-	pickedEndpointState.numRPCs.Add(1)
+	pickedSC.numRPCs.Add(1)
 	// "the picker should add a callback for atomically decrementing the
 	// subchannel counter once the RPC finishes (regardless of Status code)." -
 	// A48.
-	originalDone := result.Done
-	result.Done = func(info balancer.DoneInfo) {
-		pickedEndpointState.numRPCs.Add(-1)
-		if originalDone != nil {
-			originalDone(info)
-		}
+	done := func(balancer.DoneInfo) {
+		pickedSC.numRPCs.Add(-1)
 	}
-	return result, nil
+	return balancer.PickResult{
+		SubConn: pickedSC.sc,
+		Done:    done,
+	}, nil
 }

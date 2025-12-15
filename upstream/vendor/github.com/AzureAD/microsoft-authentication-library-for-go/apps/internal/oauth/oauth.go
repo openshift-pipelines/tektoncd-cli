@@ -111,7 +111,7 @@ func (t *Client) Credential(ctx context.Context, authParams authority.AuthParams
 			Scopes:        scopes,
 			TenantID:      authParams.AuthorityInfo.Tenant,
 		}
-		pr, err := cred.TokenProvider(ctx, params)
+		tr, err := cred.TokenProvider(ctx, params)
 		if err != nil {
 			if len(scopes) == 0 {
 				err = fmt.Errorf("token request had an empty authority.AuthParams.Scopes, which may cause the following error: %w", err)
@@ -119,18 +119,14 @@ func (t *Client) Credential(ctx context.Context, authParams authority.AuthParams
 			}
 			return accesstokens.TokenResponse{}, err
 		}
-		tr := accesstokens.TokenResponse{
-			TokenType:     authParams.AuthnScheme.AccessTokenType(),
-			AccessToken:   pr.AccessToken,
-			ExpiresOn:     now.Add(time.Duration(pr.ExpiresInSeconds) * time.Second),
+		return accesstokens.TokenResponse{
+			TokenType:   authParams.AuthnScheme.AccessTokenType(),
+			AccessToken: tr.AccessToken,
+			ExpiresOn: internalTime.DurationTime{
+				T: now.Add(time.Duration(tr.ExpiresInSeconds) * time.Second),
+			},
 			GrantedScopes: accesstokens.Scopes{Slice: authParams.Scopes},
-		}
-		if pr.RefreshInSeconds > 0 {
-			tr.RefreshOn = internalTime.DurationTime{
-				T: now.Add(time.Duration(pr.RefreshInSeconds) * time.Second),
-			}
-		}
-		return tr, nil
+		}, nil
 	}
 
 	if err := t.resolveEndpoint(ctx, &authParams, ""); err != nil {

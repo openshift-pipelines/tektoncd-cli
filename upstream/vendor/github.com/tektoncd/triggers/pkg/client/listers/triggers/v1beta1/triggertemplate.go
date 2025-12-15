@@ -19,10 +19,10 @@ limitations under the License.
 package v1beta1
 
 import (
-	triggersv1beta1 "github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	listers "k8s.io/client-go/listers"
-	cache "k8s.io/client-go/tools/cache"
+	v1beta1 "github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/tools/cache"
 )
 
 // TriggerTemplateLister helps list TriggerTemplates.
@@ -30,7 +30,7 @@ import (
 type TriggerTemplateLister interface {
 	// List lists all TriggerTemplates in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*triggersv1beta1.TriggerTemplate, err error)
+	List(selector labels.Selector) (ret []*v1beta1.TriggerTemplate, err error)
 	// TriggerTemplates returns an object that can list and get TriggerTemplates.
 	TriggerTemplates(namespace string) TriggerTemplateNamespaceLister
 	TriggerTemplateListerExpansion
@@ -38,17 +38,25 @@ type TriggerTemplateLister interface {
 
 // triggerTemplateLister implements the TriggerTemplateLister interface.
 type triggerTemplateLister struct {
-	listers.ResourceIndexer[*triggersv1beta1.TriggerTemplate]
+	indexer cache.Indexer
 }
 
 // NewTriggerTemplateLister returns a new TriggerTemplateLister.
 func NewTriggerTemplateLister(indexer cache.Indexer) TriggerTemplateLister {
-	return &triggerTemplateLister{listers.New[*triggersv1beta1.TriggerTemplate](indexer, triggersv1beta1.Resource("triggertemplate"))}
+	return &triggerTemplateLister{indexer: indexer}
+}
+
+// List lists all TriggerTemplates in the indexer.
+func (s *triggerTemplateLister) List(selector labels.Selector) (ret []*v1beta1.TriggerTemplate, err error) {
+	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1beta1.TriggerTemplate))
+	})
+	return ret, err
 }
 
 // TriggerTemplates returns an object that can list and get TriggerTemplates.
 func (s *triggerTemplateLister) TriggerTemplates(namespace string) TriggerTemplateNamespaceLister {
-	return triggerTemplateNamespaceLister{listers.NewNamespaced[*triggersv1beta1.TriggerTemplate](s.ResourceIndexer, namespace)}
+	return triggerTemplateNamespaceLister{indexer: s.indexer, namespace: namespace}
 }
 
 // TriggerTemplateNamespaceLister helps list and get TriggerTemplates.
@@ -56,15 +64,36 @@ func (s *triggerTemplateLister) TriggerTemplates(namespace string) TriggerTempla
 type TriggerTemplateNamespaceLister interface {
 	// List lists all TriggerTemplates in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*triggersv1beta1.TriggerTemplate, err error)
+	List(selector labels.Selector) (ret []*v1beta1.TriggerTemplate, err error)
 	// Get retrieves the TriggerTemplate from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*triggersv1beta1.TriggerTemplate, error)
+	Get(name string) (*v1beta1.TriggerTemplate, error)
 	TriggerTemplateNamespaceListerExpansion
 }
 
 // triggerTemplateNamespaceLister implements the TriggerTemplateNamespaceLister
 // interface.
 type triggerTemplateNamespaceLister struct {
-	listers.ResourceIndexer[*triggersv1beta1.TriggerTemplate]
+	indexer   cache.Indexer
+	namespace string
+}
+
+// List lists all TriggerTemplates in the indexer for a given namespace.
+func (s triggerTemplateNamespaceLister) List(selector labels.Selector) (ret []*v1beta1.TriggerTemplate, err error) {
+	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1beta1.TriggerTemplate))
+	})
+	return ret, err
+}
+
+// Get retrieves the TriggerTemplate from the indexer for a given namespace and name.
+func (s triggerTemplateNamespaceLister) Get(name string) (*v1beta1.TriggerTemplate, error) {
+	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, errors.NewNotFound(v1beta1.Resource("triggertemplate"), name)
+	}
+	return obj.(*v1beta1.TriggerTemplate), nil
 }

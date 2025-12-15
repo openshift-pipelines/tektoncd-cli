@@ -27,7 +27,7 @@ import (
 
 	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/common/decls"
+	"github.com/google/cel-go/checker/decls"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/common/types/traits"
@@ -100,8 +100,7 @@ func evaluate(expr string, env *cel.Env, data map[string]interface{}) (ref.Val, 
 }
 
 func makeCelEnv(ctx context.Context, ns string, sg interceptors.SecretGetter) (*cel.Env, error) {
-	mapStrDyn := types.NewMapType(types.StringType, types.DynType)
-
+	mapStrDyn := decls.NewMapType(decls.String, decls.Dyn)
 	return cel.NewEnv(
 		Triggers(ctx, ns, sg),
 		celext.Strings(),
@@ -109,11 +108,11 @@ func makeCelEnv(ctx context.Context, ns string, sg interceptors.SecretGetter) (*
 		celext.Sets(),
 		celext.Lists(),
 		celext.Math(),
-		cel.VariableDecls(
-			decls.NewVariable("body", mapStrDyn),
-			decls.NewVariable("header", mapStrDyn),
-			decls.NewVariable("extensions", mapStrDyn),
-			decls.NewVariable("requestURL", types.StringType),
+		cel.Declarations(
+			decls.NewVar("body", mapStrDyn),
+			decls.NewVar("header", mapStrDyn),
+			decls.NewVar("extensions", mapStrDyn),
+			decls.NewVar("requestURL", decls.String),
 		))
 }
 
@@ -187,7 +186,7 @@ func (w *InterceptorImpl) Process(ctx context.Context, r *triggersv1.Interceptor
 		// https://golang.org/pkg/encoding/json/#Marshal
 		//
 		// An alternative might be to return " + val + " for types.Bytes to
-		// simulate the JSON encoding.
+		// simulate the the JSON encoding.
 		case types.String, types.Bytes:
 			raw, err = val.ConvertToNative(structType)
 			if err == nil {
