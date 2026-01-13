@@ -1,10 +1,10 @@
-# Generated for Konflux Application openshift-pipelines-cli by openshift-pipelines/hack. DO NOT EDIT
+# Generated for Konflux Application openshift-pipelines-core by openshift-pipelines/hack. DO NOT EDIT
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
     pipelinesascode.tekton.dev/cancel-in-progress: "true" # Cancel in-progress pipelines
-    pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/openshift-pipelines/operator/refs/heads/main/.tekton/docker-build-ta.yaml"
+    pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/openshift-pipelines/operator/refs/heads/next/.tekton/docker-build-ta.yaml"
     build.appstudio.openshift.io/repo: https://github.com/openshift-pipelines/tektoncd-cli.git?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
@@ -16,7 +16,7 @@ metadata:
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
       ".tekton/tektoncd-cli-next-tkn-pull-request.yaml".pathChanged())
   labels:
-    appstudio.openshift.io/application: openshift-pipelines-cli-next
+    appstudio.openshift.io/application: openshift-pipelines-core-next
     appstudio.openshift.io/component: tektoncd-cli-next-tkn
     pipelines.appstudio.openshift.io/type: build
   name: tektoncd-cli-next-tkn-on-pull-request
