@@ -1,5 +1,5 @@
 # Generated for Konflux Application openshift-pipelines-cli by openshift-pipelines/hack. DO NOT EDIT
-name: auto-merge-upstream
+name: auto-merge-upstream-tektoncd/cli
 
 on:
   workflow_dispatch: {}
@@ -10,10 +10,9 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-    - name: Checkout the current repo
+    - id: Checkout the current repo
       uses: actions/checkout@v5
-    - name: List PRs
-      id: list-prs
+    - id: list-prs
       run: |
         echo "Listing PRs"
         gh auth status
@@ -31,7 +30,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: add LGTM Label
+    - id: add LGTM Label
       run: |
         # Approve and merge pull-request with no reviews
         for p in $pr_list; do
@@ -41,7 +40,7 @@ jobs:
       env:
         pr_list: ${{ steps.list-prs.outputs.pr_list }} 
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Merging PRs
+    - id: Merging PRs
       run: |
         # Approve and merge pull-request with no reviews
         for p in $pr_list; do
