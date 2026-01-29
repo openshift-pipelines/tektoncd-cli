@@ -1,5 +1,5 @@
 # Generated for Konflux Application openshift-pipelines-cli by openshift-pipelines/hack. DO NOT EDIT
-name: update-sources
+name: update-sources-tektoncd/cli
 on:
   workflow_dispatch: {}
   schedule:
