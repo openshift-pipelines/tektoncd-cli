@@ -1,6 +1,5 @@
 ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.24 
 ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:759f5f42d9d6ce2a705e290b7fc549e2d2cd39312c4fa345f93c02e4abb8da95
-ARG PAC_BUILDER=quay.io/redhat-user-workloads/tekton-ecosystem-tenant/pipelines-pipelines-as-code-cli-rhel9@sha256:363623a9d95a632d174c87e8190a805930ac8cf88fc102605ecb09076fc045f4
 
 FROM $GO_BUILDER AS builder
 
@@ -21,13 +20,16 @@ RUN go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vend
        -ldflags "-X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=${TKN_VERSION}" \
        -o /tmp/tkn ./cmd/tkn
 
-FROM $PAC_BUILDER AS pacbuilder
+# Build tkn-pac from sources
+COPY sources/pac $REMOTE_SOURCE/pac
+RUN cd $REMOTE_SOURCE/pac && \
+    go build -tags strictfipsruntime -mod=vendor -o /tmp/tkn-pac ./cmd/tkn-pac
 
 FROM $RUNTIME
 
 ARG VERSION=tkn-next
 COPY --from=builder /tmp/tkn /usr/bin
-COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
+COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
       com.redhat.component="openshift-pipelines-cli-tkn-container" \
       name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
