@@ -14,12 +14,12 @@ metadata:
       == "release-v1.22.x" &&
       ("upstream/***".pathChanged() || ".konflux/patches/***".pathChanged() || ".konflux/rpms/***".pathChanged() ||
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
-      ".tekton/tektoncd-cli-1-22-tkn-pull-request.yaml".pathChanged())
+      ".tekton/cli-1-22-tkn-pull-request.yaml".pathChanged())
   labels:
     appstudio.openshift.io/application: openshift-pipelines-core-1-22
-    appstudio.openshift.io/component: tektoncd-cli-1-22-tkn
+    appstudio.openshift.io/component: cli-1-22-tkn
     pipelines.appstudio.openshift.io/type: build
-  name: tektoncd-cli-1-22-tkn-on-pull-request
+  name: cli-1-22-tkn-on-pull-request
   namespace: tekton-ecosystem-tenant
 spec:
   params:
@@ -47,7 +47,7 @@ spec:
   pipelineRef:
     name: docker-build-ta
   taskRunTemplate:
-    serviceAccountName: build-pipeline-tektoncd-cli-1-22-tkn
+    serviceAccountName: build-pipeline-cli-1-22-tkn
   workspaces:
   - name: git-auth
     secret:
