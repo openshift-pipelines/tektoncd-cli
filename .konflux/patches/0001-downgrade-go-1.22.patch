@@ -1,0 +1,27 @@
+From 54f867dd56978cad769097fc34c6b2186bca03bb Mon Sep 17 00:00:00 2001
+From: Vibhav Bobade <vibhav.bobde@gmail.com>
+Date: Sun, 8 Feb 2026 03:09:30 +0530
+Subject: [PATCH] Downgrade go directive to 1.22 for RHEL 8 buildroot compat
+
+---
+ go.mod | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index 582c641..a34d5a4 100644
+--- a/go.mod
++++ b/go.mod
+@@ -1,8 +1,8 @@
+ module github.com/tektoncd/cli
+ 
+-go 1.23.0
++go 1.22.0
+ 
+-toolchain go1.24.6
++toolchain go1.22.2
+ 
+ require (
+ 	github.com/AlecAivazis/survey/v2 v2.3.7
+-- 
+2.50.1
+

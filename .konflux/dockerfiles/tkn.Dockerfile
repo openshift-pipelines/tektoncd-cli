@@ -1,5 +1,5 @@
 # Rebuild trigger: 1.15.4 release 2026-01-19
-ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23
+ARG GO_BUILDER=brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.22
 ARG RUNTIME=registry.redhat.io/ubi8/ubi:latest@sha256:8bd1b6306f8164de7fb0974031a0f903bd3ab3e6bcab835854d3d9a1a74ea5db
 ARG PAC_BUILDER=quay.io/openshift-pipeline/pipelines-pipelines-as-code-cli-rhel8@sha256:9e48b69be27efc7ee21f467e68f200cb3ef103dc671e4515b06f8ac41e6c4d2e
 
@@ -16,6 +16,7 @@ COPY .konflux/patches patches/
 RUN set -e; for f in patches/*.patch; do echo ${f}; [[ -f ${f} ]] || continue; git apply ${f}; done
 
 COPY head HEAD
+ENV GOTOOLCHAIN=local
 ENV GODEBUG="http2server=0"
 RUN go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp -v \
        -ldflags "-X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=${TKN_VERSION}" \
