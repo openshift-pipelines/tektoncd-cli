@@ -1,4 +1,4 @@
-# Generated for Konflux Application openshift-pipelines-core by openshift-pipelines/hack. DO NOT EDIT
+# Generated for Konflux Application openshift-pipelines-cli by openshift-pipelines/hack. DO NOT EDIT
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
@@ -16,7 +16,7 @@ metadata:
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
       ".tekton/tektoncd-cli-1-22-tkn-pull-request.yaml".pathChanged())
   labels:
-    appstudio.openshift.io/application: openshift-pipelines-core-1-22
+    appstudio.openshift.io/application: openshift-pipelines-cli-1-22
     appstudio.openshift.io/component: tektoncd-cli-1-22-tkn
     pipelines.appstudio.openshift.io/type: build
   name: tektoncd-cli-1-22-tkn-on-pull-request
