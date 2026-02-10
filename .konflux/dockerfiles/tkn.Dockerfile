@@ -25,7 +25,7 @@ FROM $PAC_BUILDER AS pacbuilder
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-1.15.3
+ARG VERSION=tkn-1.15.4
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 LABEL \
