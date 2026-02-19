@@ -1,5 +1,5 @@
 # Rebuild trigger: 1.15.4 release 2026-01-19
-ARG GO_BUILDER=registry.access.redhat.com/ubi9/go-toolset:9.7-1771271449
+ARG GO_BUILDER=registry.access.redhat.com/ubi8/go-toolset:1.25
 ARG RUNTIME=registry.redhat.io/ubi8/ubi@sha256:87463a8cd4ea7b3e7d066f114b64a44782515031b221253d1357d27572b6d53e
 ARG PAC_BUILDER=quay.io/openshift-pipeline/pipelines-pipelines-as-code-cli-rhel8@sha256:4fe9af08579f18a9389fa3d142b384eb5c88a49b702d11720868595f3be52fa5
 
