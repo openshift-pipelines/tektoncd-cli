@@ -1,6 +1,6 @@
 ARG GO_BUILDER=registry.access.redhat.com/ubi9/go-toolset:9.7-1772454089
 ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:c7d44146f826037f6873d99da479299b889473492d3c1ab8af86f08af04ec8a0
-ARG PAC_BUILDER=registry.stage.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel9@sha256:372c4999817d0c8e5e7404150c3c27a6878254ae394e259e7511f0f759074995
+ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel9@sha256:372c4999817d0c8e5e7404150c3c27a6878254ae394e259e7511f0f759074995
 
 FROM $GO_BUILDER AS builder
 
