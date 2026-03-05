@@ -30,16 +30,16 @@ COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 
 LABEL \
-      com.redhat.component="openshift-pipelines-cli-tkn-container" \
-      name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
-      version=$VERSION \
+      com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
       cpe="cpe:/a:redhat:openshift_pipelines:1.18::el9" \
-      summary="Red Hat OpenShift pipelines tkn CLI" \
-      description="CLI client 'tkn' for managing openshift pipelines" \
-      io.k8s.display-name="Red Hat OpenShift Pipelines tkn CLI" \
+      description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+      io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+      io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+      io.openshift.tags="tekton,openshift,tektoncd-cli,tkn" \
       maintainer="pipelines-extcomm@redhat.com" \
-      io.k8s.description="Red Hat OpenShift Pipelines tkn CLI" \
-      io.openshift.tags="pipelines,tekton,openshift"
+      name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
+      summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+      version="v1.18.0"
 
 RUN microdnf install -y shadow-utils
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
