@@ -44,6 +44,7 @@ import (
 const StorageBackendOCI = "oci"
 
 // Backend implements a storage backend for OCI artifacts.
+//
 // Deprecated: Use SimpleStorer and AttestationStorer instead.
 type Backend struct {
 	cfg              config.Config
@@ -62,11 +63,10 @@ func NewStorageBackend(ctx context.Context, client kubernetes.Interface, cfg con
 				k8schain.Options{
 					Namespace:          obj.GetNamespace(),
 					ServiceAccountName: obj.GetServiceAccountName(),
-					ImagePullSecrets:   obj.GetPullSecrets(),
 					UseMountSecrets:    true,
 				})
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "creating new keychain from serviceaccount %s/%s", obj.GetNamespace(), obj.GetServiceAccountName())
 			}
 			return remote.WithAuthFromKeychain(kc), nil
 		},
@@ -78,7 +78,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 	logger := logging.FromContext(ctx)
 	auth, err := b.getAuthenticator(ctx, obj, b.client)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "getting oci authenticator")
 	}
 
 	logger.Infof("Storing payload on %s/%s/%s", obj.GetGVK(), obj.GetNamespace(), obj.GetName())
@@ -252,13 +252,13 @@ func (b *Backend) RetrievePayloads(ctx context.Context, obj objects.TektonObject
 			if payload, err := s.Payload(); err == nil {
 				envelope := dsse.Envelope{}
 				if err := json.Unmarshal(payload, &envelope); err != nil {
-					return nil, fmt.Errorf("cannot decode the envelope: %s", err)
+					return nil, fmt.Errorf("cannot decode the envelope: %w", err)
 				}
 
 				var decodedPayload []byte
 				decodedPayload, err = base64.StdEncoding.DecodeString(envelope.Payload)
 				if err != nil {
-					return nil, fmt.Errorf("error decoding the payload: %s", err)
+					return nil, fmt.Errorf("error decoding the payload: %w", err)
 				}
 
 				m[ref] = string(decodedPayload)
