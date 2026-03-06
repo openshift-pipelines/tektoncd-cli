@@ -1,4 +1,4 @@
-ARG GO_BUILDER=registry.redhat.io/ubi9/go-toolset:1.25
+ARG GO_BUILDER=registry.access.redhat.com/ubi9/go-toolset:1.25
 ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:c7d44146f826037f6873d99da479299b889473492d3c1ab8af86f08af04ec8a0
 
 FROM $GO_BUILDER AS builder
@@ -27,20 +27,20 @@ RUN cd $REMOTE_SOURCE/pac && \
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-next
+ARG VERSION=next
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
-      com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
-      cpe="cpe:/a:redhat:openshift_pipelines:next::el9" \
-      description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-      io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-      io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-      io.openshift.tags="tekton,openshift,tektoncd-cli,tkn" \
-      maintainer="pipelines-extcomm@redhat.com" \
-      name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
-      summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-      version="next"
+    com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
+    cpe="cpe:/a:redhat:openshift_pipelines:next::el9" \
+    description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.openshift.tags="tekton,openshift,tektoncd-cli,tkn" \
+    maintainer="pipelines-extcomm@redhat.com" \
+    name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
+    summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    version="next"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 USER 65532
