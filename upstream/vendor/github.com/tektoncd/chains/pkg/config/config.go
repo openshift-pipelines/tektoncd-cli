@@ -53,12 +53,13 @@ type Artifact struct {
 
 // StorageConfigs contains the configuration to instantiate different storage providers
 type StorageConfigs struct {
-	GCS     GCSStorageConfig
-	OCI     OCIStorageConfig
-	Tekton  TektonStorageConfig
-	DocDB   DocDBStorageConfig
-	Grafeas GrafeasConfig
-	PubSub  PubSubStorageConfig
+	GCS        GCSStorageConfig
+	OCI        OCIStorageConfig
+	Tekton     TektonStorageConfig
+	DocDB      DocDBStorageConfig
+	Grafeas    GrafeasConfig
+	PubSub     PubSubStorageConfig
+	Archivista ArchivistaStorageConfig
 }
 
 // SignerConfigs contains the configuration to instantiate different signers
@@ -155,6 +156,12 @@ type TransparencyConfig struct {
 	URL              string
 }
 
+// ArchivistaStorageConfig holds configuration for the Archivista storage backend.
+type ArchivistaStorageConfig struct {
+	// URL is the endpoint for the Archivista service.
+	URL string `json:"url"`
+}
+
 const (
 	taskrunFormatKey  = "artifacts.taskrun.format"
 	taskrunStorageKey = "artifacts.taskrun.storage"
@@ -176,6 +183,8 @@ const (
 	docDBMongoServerURLKey     = "storage.docdb.mongo-server-url"
 	docDBMongoServerURLDirKey  = "storage.docdb.mongo-server-url-dir"
 	docDBMongoServerURLPathKey = "storage.docdb.mongo-server-url-path"
+
+	archivistaURLKey = "storage.archivista.url"
 
 	grafeasProjectIDKey = "storage.grafeas.projectid"
 	grafeasNoteIDKey    = "storage.grafeas.noteid"
@@ -221,6 +230,10 @@ const (
 )
 
 func (artifact *Artifact) Enabled() bool {
+	// If signer is "none", signing is disabled
+	if artifact.Signer == "none" {
+		return false
+	}
 	return !(artifact.StorageBackend.Len() == 1 && artifact.StorageBackend.Has(""))
 }
 
@@ -276,19 +289,19 @@ func NewConfigFromMap(data map[string]string) (*Config, error) {
 		// Artifact-specific configs
 		// TaskRuns
 		asString(taskrunFormatKey, &cfg.Artifacts.TaskRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha3", "slsa/v2alpha4"),
-		asStringSet(taskrunStorageKey, &cfg.Artifacts.TaskRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka")),
-		asString(taskrunSignerKey, &cfg.Artifacts.TaskRuns.Signer, "x509", "kms"),
+		asStringSet(taskrunStorageKey, &cfg.Artifacts.TaskRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka", "archivista")),
+		asString(taskrunSignerKey, &cfg.Artifacts.TaskRuns.Signer, "x509", "kms", "none"),
 
 		// PipelineRuns
 		asString(pipelinerunFormatKey, &cfg.Artifacts.PipelineRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha3", "slsa/v2alpha4"),
-		asStringSet(pipelinerunStorageKey, &cfg.Artifacts.PipelineRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas")),
-		asString(pipelinerunSignerKey, &cfg.Artifacts.PipelineRuns.Signer, "x509", "kms"),
+		asStringSet(pipelinerunStorageKey, &cfg.Artifacts.PipelineRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "archivista")),
+		asString(pipelinerunSignerKey, &cfg.Artifacts.PipelineRuns.Signer, "x509", "kms", "none"),
 		asBool(pipelinerunEnableDeepInspectionKey, &cfg.Artifacts.PipelineRuns.DeepInspectionEnabled),
 
 		// OCI
 		asString(ociFormatKey, &cfg.Artifacts.OCI.Format, "simplesigning"),
-		asStringSet(ociStorageKey, &cfg.Artifacts.OCI.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka")),
-		asString(ociSignerKey, &cfg.Artifacts.OCI.Signer, "x509", "kms"),
+		asStringSet(ociStorageKey, &cfg.Artifacts.OCI.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka", "archivista")),
+		asString(ociSignerKey, &cfg.Artifacts.OCI.Signer, "x509", "kms", "none"),
 
 		// PubSub - General
 		asString(pubsubProvider, &cfg.Storage.PubSub.Provider, "inmemory", "kafka"),
@@ -305,6 +318,9 @@ func NewConfigFromMap(data map[string]string) (*Config, error) {
 		asString(docDBMongoServerURLKey, &cfg.Storage.DocDB.MongoServerURL),
 		asString(docDBMongoServerURLDirKey, &cfg.Storage.DocDB.MongoServerURLDir),
 		asString(docDBMongoServerURLPathKey, &cfg.Storage.DocDB.MongoServerURLPath),
+
+		asString(archivistaURLKey, &cfg.Storage.Archivista.URL),
+
 		asString(grafeasProjectIDKey, &cfg.Storage.Grafeas.ProjectID),
 		asString(grafeasNoteIDKey, &cfg.Storage.Grafeas.NoteID),
 		asString(grafeasNoteHint, &cfg.Storage.Grafeas.NoteHint),

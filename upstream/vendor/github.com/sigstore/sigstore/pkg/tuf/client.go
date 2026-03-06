@@ -110,6 +110,7 @@ type MetadataStatus struct {
 }
 
 type TargetFile struct {
+	Name   string
 	Target []byte
 	Status StatusKind
 }
@@ -430,7 +431,7 @@ func (t *TUF) GetTargetsByMeta(usage UsageKind, fallbacks []string) ([]TargetFil
 			if err != nil {
 				return nil, fmt.Errorf("error getting target %s by usage: %w", name, err)
 			}
-			matchedTargets = append(matchedTargets, TargetFile{Target: target, Status: scm.Sigstore.Status})
+			matchedTargets = append(matchedTargets, TargetFile{Name: name, Target: target, Status: scm.Sigstore.Status})
 		}
 	}
 	if len(matchedTargets) == 0 {
@@ -440,7 +441,7 @@ func (t *TUF) GetTargetsByMeta(usage UsageKind, fallbacks []string) ([]TargetFil
 				fmt.Fprintf(os.Stderr, "**Warning** Missing fallback target %s, skipping\n", fallback)
 				continue
 			}
-			matchedTargets = append(matchedTargets, TargetFile{Target: target, Status: Active})
+			matchedTargets = append(matchedTargets, TargetFile{Name: fallback, Target: target, Status: Active})
 		}
 	}
 	if len(matchedTargets) == 0 {
@@ -670,12 +671,16 @@ type diskCache struct {
 	memory *memoryCache
 }
 
+func (d *diskCache) safePath(p string) string {
+	return filepath.FromSlash(filepath.Join(d.base, url.PathEscape(p)))
+}
+
 func (d *diskCache) Get(p string) ([]byte, error) {
 	// Read from the in-memory cache first.
 	if b, err := d.memory.Get(p); err == nil {
 		return b, nil
 	}
-	fp := filepath.FromSlash(filepath.Join(d.base, p))
+	fp := d.safePath(p)
 	return os.ReadFile(fp)
 }
 
@@ -684,7 +689,7 @@ func (d *diskCache) Set(p string, b []byte) error {
 		return err
 	}
 
-	fp := filepath.FromSlash(filepath.Join(d.base, p))
+	fp := d.safePath(p)
 	if err := os.MkdirAll(filepath.Dir(fp), 0o700); err != nil {
 		return fmt.Errorf("creating targets dir: %w", err)
 	}

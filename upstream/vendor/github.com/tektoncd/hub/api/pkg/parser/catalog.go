@@ -253,7 +253,7 @@ func (c CatalogParser) appendVersion(res *Resource, filePath string) Result {
 	version, ok := labels[VersionLabel]
 	if !ok {
 		issue := fmt.Sprintf("Resource %s - %s is missing mandatory version label", tkn.GVK, tkn.Name)
-		result.Critical(issue)
+		result.Critical("%s", issue)
 		log.With("action", "error").Warn(issue)
 		return result
 	}
@@ -263,7 +263,7 @@ func (c CatalogParser) appendVersion(res *Resource, filePath string) Result {
 	if !ok {
 		issue := fmt.Sprintf("Resource %s - %s is missing mandatory minimum pipeline version annotation", tkn.GVK, tkn.Name)
 		log.With("action", "error").Warn(issue)
-		result.Critical(issue)
+		result.Critical("%s", issue)
 		return result
 	}
 
@@ -272,7 +272,7 @@ func (c CatalogParser) appendVersion(res *Resource, filePath string) Result {
 	if !ok {
 		issue := fmt.Sprintf("Resource %s - %s has no display name", tkn.GVK, tkn.Name)
 		log.With("action", "ignore").Info(issue)
-		result.Info(issue)
+		result.Info("%s", issue)
 	}
 
 	// optional check
@@ -418,9 +418,6 @@ func typeForKind(kind string) (tektonKind, error) {
 	switch kind {
 	case "Task":
 		return &v1beta1.Task{}, nil
-	// ClusterTasks are deprecated in Pipeline 0.44.0 and will be removed in future releases
-	case "ClusterTask":
-		return &v1beta1.ClusterTask{}, nil
 	case "Pipeline":
 		return &v1beta1.Pipeline{}, nil
 	}
