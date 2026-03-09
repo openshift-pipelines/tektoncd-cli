@@ -1,5 +1,5 @@
 # Rebuild trigger: 1.15.4 release 2026-02-27
-ARG GO_BUILDER=registry.access.redhat.com/ubi8/go-toolset:1.25.7-1772050971
+ARG GO_BUILDER=registry.access.redhat.com/ubi9/go-toolset:1.25
 ARG RUNTIME=registry.redhat.io/ubi8/ubi@sha256:a9bd8791589bee5bc0f9444fc37bdf7e8fabb8edf1d3f71dd673d31688c10950
 ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel8@sha256:c3c8fcadb15bed1134934a603264cdab044a356102c5330c0f2923c5588c71ef
 
@@ -25,20 +25,20 @@ FROM $PAC_BUILDER AS pacbuilder
 
 FROM $RUNTIME
 
-ARG VERSION=tkn-1.15.4
+ARG VERSION=1.15
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
 LABEL \
-      com.redhat.component="openshift-pipelines-cli-tkn-container" \
-      name="openshift-pipelines/pipelines-cli-tkn-rhel8" \
-      version=$VERSION \
-      summary="Red Hat OpenShift pipelines tkn CLI" \
-      description="CLI client 'tkn' for managing openshift pipelines" \
-      io.k8s.display-name="Red Hat OpenShift Pipelines tkn CLI" \
-      maintainer="pipelines-extcomm@redhat.com" \
-      io.k8s.description="Red Hat OpenShift Pipelines tkn CLI" \
-      io.openshift.tags="pipelines,tekton,openshift" \
-      cpe="cpe:/a:redhat:openshift_pipelines:1.15::el8"
+    com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
+    cpe="cpe:/a:redhat:openshift_pipelines:1.15::el9" \
+    description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    io.openshift.tags="tekton,openshift,tektoncd-cli,tkn" \
+    maintainer="pipelines-extcomm@redhat.com" \
+    name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
+    summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
+    version="v1.15.5"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 
