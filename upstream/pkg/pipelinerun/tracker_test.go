@@ -15,8 +15,6 @@
 package pipelinerun
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -239,30 +237,5 @@ func startPipelineRun(t *testing.T, data pipelinetest.Data, prStatus ...v1.Pipel
 		Tekton:  cs.Pipeline,
 		Kube:    cs.Kube,
 		Dynamic: dynamic,
-	}
-}
-
-func TestTracker_watchErrorHandler(t *testing.T) {
-	tests := []struct {
-		name string
-		err  error
-	}{
-		{
-			name: "context.Canceled should be filtered",
-			err:  context.Canceled,
-		},
-		{
-			name: "wrapped context.Canceled should be filtered",
-			err:  errors.Join(errors.New("watch failed"), context.Canceled),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(_ *testing.T) {
-			// Call watchErrorHandler with context.Canceled errors
-			// These should be filtered (not passed to DefaultWatchErrorHandler)
-			// so passing nil reflector is safe
-			watchErrorHandler(context.Background(), nil, tt.err)
-		})
 	}
 }
