@@ -5,8 +5,6 @@ FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
 
-ARG TKN_VERSION=0.41.0
-
 WORKDIR $REMOTE_SOURCE
 
 COPY upstream .
@@ -16,18 +14,23 @@ RUN set -e; for f in patches/*.patch; do echo ${f}; [[ -f ${f} ]] || continue; g
 COPY head HEAD
 ENV GODEBUG="http2server=0"
 ENV GOEXPERIMENT=strictfipsruntime
-RUN go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp,strictfipsruntime -v \
+RUN TKN_VERSION=$(cat VERSION);\
+    echo "Build TKN ($TKN_VER)" ;\
+    go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp,strictfipsruntime -v \
        -ldflags "-X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=${TKN_VERSION}" \
        -o /tmp/tkn ./cmd/tkn
 
 # Build tkn-pac from sources
 COPY sources/pac $REMOTE_SOURCE/pac
-RUN cd $REMOTE_SOURCE/pac && \
-    go build -tags strictfipsruntime -mod=vendor -o /tmp/tkn-pac ./cmd/tkn-pac
+RUN PAC_VER=$(cat pac/pkg/params/versiondata/version.txt); \
+    echo "Build TKN-PAC Version : ($PAC_VER)"; \
+    cd $REMOTE_SOURCE/pac ; \
+    go build -tags strictfipsruntime -mod=vendor \
+        -ldflags "-X github.com/tektoncd/pipelines-as-code/pkg/params/version.Version=${PAC_VER}"\
+        -o /tmp/tkn-pac ./cmd/tkn-pac
 
 FROM $RUNTIME
 
-ARG VERSION=1.22
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
