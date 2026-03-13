@@ -1,0 +1,4 @@
+[submodule "sources/pac"]
+	path = sources/pac
+	url = https://github.com/tektoncd/pipelines-as-code.git
+	branch = release-v0.42.x
