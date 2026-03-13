@@ -22,7 +22,7 @@ RUN TKN_VERSION=$(cat VERSION);\
 
 # Build tkn-pac from sources
 COPY sources/pac $REMOTE_SOURCE/pac
-RUN PAC_VER=$(cat pac/pkg/params/versiondata/version.txt); \
+RUN PAC_VER=$(cat pac/pkg/params/version/version.txt); \
     echo "Build TKN-PAC Version : ($PAC_VER)"; \
     cd $REMOTE_SOURCE/pac ; \
     go build -tags strictfipsruntime -mod=vendor \
@@ -35,7 +35,7 @@ COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
     com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
-    cpe="cpe:/a:redhat:openshift_pipelines:1.22::el9" \
+    cpe="cpe:/a:redhat:openshift_pipelines:1.21::el9" \
     description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
@@ -43,7 +43,7 @@ LABEL \
     maintainer="pipelines-extcomm@redhat.com" \
     name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
     summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-    version="v1.22.0"
+    version="v1.21.0"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 USER 65532
