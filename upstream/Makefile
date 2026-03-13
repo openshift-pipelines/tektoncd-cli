@@ -12,7 +12,8 @@ M = $(shell printf "\033[34;1m🐱\033[0m")
 TIMEOUT_UNIT = 5m
 TIMEOUT_E2E  = 20m
 
-GOLANGCI_VERSION = v1.58.0
+# Get golangci version from workflow to match CI; fallback to tools/go.mod
+GOLANGCI_VERSION = $(or $(shell yq '.jobs.linting.steps[] | select(.name == "golangci-lint") | .with.version' .github/workflows/ci.yaml 2>/dev/null),$(shell grep 'golangci/golangci-lint/v2' tools/go.mod | awk '{print $$3}'))
 
 YAML_FILES := $(shell find . -type f -regex ".*y[a]ml" -print)
 
@@ -95,18 +96,18 @@ test: test-unit ## run all tests
 .PHONY: lint
 lint: lint-go goimports lint-yaml  ## run all linters
 
-GOLANGCILINT = $(BIN)/golangci-lint
+GOLANGCILINT = $(or $(GOLANGCILINT_BIN),$(BIN)/golangci-lint)
 $(BIN)/golangci-lint: ; $(info $(M) getting golangci-lint $(GOLANGCI_VERSION))
-	cd tools; GOBIN=$(BIN) $(GO) install -mod=mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
+	@mkdir -p $(BIN)
+	GOTOOLCHAIN=go$$(grep '^go ' go.mod | awk '{print $$2}') GOBIN=$(BIN) $(GO) install -mod=mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
 
 .PHONY: lint-go
 lint-go: | $(GOLANGCILINT) ; $(info $(M) running golangci-lint…) @ ## Run golangci-lint
 	$Q $(GOLANGCILINT) run --modules-download-mode=vendor --max-issues-per-linter=0 --max-same-issues=0 --timeout 10m
-	@rm -f $(GOLANGCILINT)
 
 GOIMPORTS = $(BIN)/goimports
 $(GOIMPORTS): ; $(info $(M) getting goimports )
-	GOBIN=$(BIN) $(GO) install -mod=mod golang.org/x/tools/cmd/goimports
+	GOBIN=$(BIN) $(GO) install -mod=mod golang.org/x/tools/cmd/goimports@latest
 
 .PHONY: goimports
 goimports: | $(GOIMPORTS) ; $(info $(M) running goimports…) ## Run goimports
@@ -118,9 +119,10 @@ lint-yaml: ${YAML_FILES}  ; $(info $(M) running yamllint…) ## runs yamllint on
 	@yamllint -c .yamllint $(YAML_FILES)
 
 ## Tests
-TEST_UNIT_TARGETS := test-unit-verbose test-unit-race
+TEST_UNIT_TARGETS := test-unit-verbose test-unit-race test-unit-verbose-and-race
 test-unit-verbose: ARGS=-v
 test-unit-race:    ARGS=-race
+test-unit-verbose-and-race: ARGS=-v -race
 $(TEST_UNIT_TARGETS): test-unit
 .PHONY: $(TEST_UNIT_TARGETS) test-unit
 test-unit: ; $(info $(M) running unit tests…) ## Run unit tests

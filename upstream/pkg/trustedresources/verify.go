@@ -59,8 +59,6 @@ func Verify(o metav1.Object, keyfile, kmsKey string) error {
 	}
 	delete(a, SignatureAnnotation)
 	o.SetAnnotations(a)
-	// Normalize so digest matches what was signed (e.g. creationTimestamp)
-	normalizeObjectForDigest(o)
 	// Verify signature
 	return VerifyInterface(o, verifier, signatureBytes)
 }

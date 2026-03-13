@@ -37,10 +37,9 @@ import (
 	fakepipelineruninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1/pipelinerun/fake"
 	faketaskinformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1/task/fake"
 	faketaskruninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1/taskrun/fake"
-	fakestepactioninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1alpha1/stepaction/fake"
 	fakeverificationpolicyinformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1alpha1/verificationpolicy/fake"
-	fakeclustertaskinformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1beta1/clustertask/fake"
 	fakecustomruninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1beta1/customrun/fake"
+	fakestepactioninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1beta1/stepaction/fake"
 	fakeresolutionclientset "github.com/tektoncd/pipeline/pkg/client/resolution/clientset/versioned/fake"
 	resolutioninformersv1alpha1 "github.com/tektoncd/pipeline/pkg/client/resolution/informers/externalversions/resolution/v1beta1"
 	fakeresolutionrequestclient "github.com/tektoncd/pipeline/pkg/client/resolution/injection/client/fake"
@@ -74,8 +73,7 @@ type Data struct {
 	Pipelines               []*v1.Pipeline
 	TaskRuns                []*v1.TaskRun
 	Tasks                   []*v1.Task
-	StepActions             []*v1alpha1.StepAction
-	ClusterTasks            []*v1beta1.ClusterTask
+	StepActions             []*v1beta1.StepAction
 	CustomRuns              []*v1beta1.CustomRun
 	Pods                    []*corev1.Pod
 	Namespaces              []*corev1.Namespace
@@ -104,8 +102,7 @@ type Informers struct {
 	Run                informersv1alpha1.RunInformer
 	CustomRun          informersv1beta1.CustomRunInformer
 	Task               informersv1.TaskInformer
-	StepAction         informersv1alpha1.StepActionInformer
-	ClusterTask        informersv1beta1.ClusterTaskInformer
+	StepAction         informersv1beta1.StepActionInformer
 	Pod                coreinformers.PodInformer
 	ConfigMap          coreinformers.ConfigMapInformer
 	ServiceAccount     coreinformers.ServiceAccountInformer
@@ -192,7 +189,6 @@ func SeedTestData(t *testing.T, ctx context.Context, d Data) (Clients, Informers
 		CustomRun:          fakecustomruninformer.Get(ctx),
 		Task:               faketaskinformer.Get(ctx),
 		StepAction:         fakestepactioninformer.Get(ctx),
-		ClusterTask:        fakeclustertaskinformer.Get(ctx),
 		Pod:                fakefilteredpodinformer.Get(ctx, v1.ManagedByLabelKey),
 		ConfigMap:          fakeconfigmapinformer.Get(ctx),
 		ServiceAccount:     fakeserviceaccountinformer.Get(ctx),
@@ -236,14 +232,7 @@ func SeedTestData(t *testing.T, ctx context.Context, d Data) (Clients, Informers
 	c.Pipeline.PrependReactor("*", "stepactions", AddToInformer(t, i.StepAction.Informer().GetIndexer()))
 	for _, sa := range d.StepActions {
 		sa := sa.DeepCopy() // Avoid assumptions that the informer's copy is modified.
-		if _, err := c.Pipeline.TektonV1alpha1().StepActions(sa.Namespace).Create(ctx, sa, metav1.CreateOptions{}); err != nil {
-			t.Fatal(err)
-		}
-	}
-	c.Pipeline.PrependReactor("*", "clustertasks", AddToInformer(t, i.ClusterTask.Informer().GetIndexer()))
-	for _, ct := range d.ClusterTasks {
-		ct := ct.DeepCopy() // Avoid assumptions that the informer's copy is modified.
-		if _, err := c.Pipeline.TektonV1beta1().ClusterTasks().Create(ctx, ct, metav1.CreateOptions{}); err != nil {
+		if _, err := c.Pipeline.TektonV1beta1().StepActions(sa.Namespace).Create(ctx, sa, metav1.CreateOptions{}); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -353,7 +342,7 @@ func PrependResourceVersionReactor(f *ktesting.Fake) {
 
 // EnsureConfigurationConfigMapsExist makes sure all the configmaps exists.
 func EnsureConfigurationConfigMapsExist(d *Data) {
-	var defaultsExists, featureFlagsExists, metricsExists, spireconfigExists, eventsExists, tracingExists bool
+	var defaultsExists, featureFlagsExists, metricsExists, spireconfigExists, eventsExists, tracingExists, backoffExists bool
 	for _, cm := range d.ConfigMaps {
 		if cm.Name == config.GetDefaultsConfigName() {
 			defaultsExists = true
@@ -372,6 +361,9 @@ func EnsureConfigurationConfigMapsExist(d *Data) {
 		}
 		if cm.Name == config.GetTracingConfigName() {
 			tracingExists = true
+		}
+		if cm.Name == config.GetWaitExponentialBackoffConfigName() {
+			backoffExists = true
 		}
 	}
 	if !defaultsExists {
@@ -407,6 +399,12 @@ func EnsureConfigurationConfigMapsExist(d *Data) {
 	if !tracingExists {
 		d.ConfigMaps = append(d.ConfigMaps, &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{Name: config.GetTracingConfigName(), Namespace: system.Namespace()},
+			Data:       map[string]string{},
+		})
+	}
+	if !backoffExists {
+		d.ConfigMaps = append(d.ConfigMaps, &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{Name: config.GetWaitExponentialBackoffConfigName(), Namespace: system.Namespace()},
 			Data:       map[string]string{},
 		})
 	}

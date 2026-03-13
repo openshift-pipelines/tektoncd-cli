@@ -10,13 +10,13 @@ as follows:
 - Four releases a year are chosen for [long term support (LTS)](https://github.com/tektoncd/community/blob/main/releases.md#support-policy).
   All remaining releases are supported for approximately 1 month (until the next
   release is produced)
-    - LTS releases take place in January, April, July and October every year
-    - The first Tekton CLI LTS release will be **v0.30.0** in January 2023
-    - Releases happen towards the middle of the month, but the exact date may vary,
-      depending on week-ends and readiness
+  - LTS releases take place in January, April, July and October every year
+  - The first Tekton CLI LTS release will be **v0.30.0** in January 2023
+  - Releases happen towards the middle of the month, but the exact date may vary,
+    depending on week-ends and readiness
 
 Tekton CLI produces nightly builds, publicly available on
-`gcr.io/tekton-nightly`. 
+`gcr.io/tekton-nightly`.
 
 ### Transition Process
 
@@ -36,15 +36,57 @@ Further documentation available:
 
 ## Releases
 
+### v0.43 (LTS)
+
+- **Latest Release**: [v0.43.0][v0-43-0] (2025-11-21) ([docs][v0-43-0-docs])
+- **Initial Release**: [v0.43.0][v0-43-0] (2025-11-21) ([docs][v0-43-0-docs])
+- **End of Life**: 2026-11-20
+
+### v0.42 (LTS)
+
+- **Latest Release**: [v0.42.0][v0-42-0] (2025-08-22) ([docs][v0-42-0-docs])
+- **Initial Release**: [v0.42.0][v0-42-0] (2025-08-22) ([docs][v0-42-0-docs])
+- **End of Life**: 2026-08-21
+
+### v0.41 (LTS)
+
+- **Latest Release**: [v0.41.1][v0-41-1] (2025-07-14) ([docs][v0-41-1-docs])
+- **Initial Release**: [v0.41.0][v0-41-0] (2025-05-20) ([docs][v0-41-0-docs])
+- **End of Life**: 2026-05-19
+
+### v0.40 (LTS)
+
+- **Latest Release**: [v0.40.0][v0-40-0] (2025-02-25) ([docs][v0-40-0-docs])
+- **Initial Release**: [v0.40.0][v0-40-0] (2025-02-26) ([docs][v0-40-0-docs])
+- **End of Life**: 2026-02-25
+
+### v0.39 (LTS)
+
+- **Latest Release**: [v0.39.1][v0-39-1] (2025-01-31) ([docs][v0-39-1-docs])
+- **Initial Release**: [v0.39.0][v0-39-0] (2024-11-26) ([docs][v0-39-0-docs])
+- **End of Life**: 2025-11-25
+
+### v0.38 (LTS)
+
+- **Latest Release**: [v0.38.2][v0-38-2] (2025-01-30) ([docs][v0-38-2-docs])
+- **Initial Release**: [v0.38.0][v0-38-0] (2024-08-21) ([docs][v0-38-0-docs])
+- **End of Life**: 2025-08-20
+
+### v0.37 (LTS)
+
+- **Latest Release**: [v0.37.1][v0-37-1] (2025-02-10) ([docs][v0-37-1-docs])
+- **Initial Release**: [v0.37.0][v0-37-0] (2024-05-13) ([docs][v0-37-0-docs])
+- **End of Life**: 2025-05-12
+
 ### v0.36
 
 - **Latest Release**: [v0.36.0][v0-36-0] (2024-03-21) ([docs][v0-36-0-docs])
 - **Initial Release**: [v0.36.0][v0-36-0] (2024-03-21) ([docs][v0-36-0-docs])
-- **End of Life**: 2025-03-20
+- **End of Life**: 2024-04-20
 
 ### v0.35 (LTS)
 
-- **Latest Release**: [v0.35.2][v0-35-2] (2024-03-25) ([docs][v0-35-2-docs])
+- **Latest Release**: [v0.35.3][v0-35-3] (2025-02-10) ([docs][v0-35-3-docs])
 - **Initial Release**: [v0.35.0][v0-35-0] (2024-02-07) ([docs][v0-35-0-docs])
 - **End of Life**: 2025-02-06
 
@@ -117,16 +159,25 @@ Further documentation available:
 
 Older releases are EOL and available on [GitHub][tekton-cli-releases].
 
-
 [release-policy]: https://github.com/tektoncd/community/blob/main/releases.md
 [tekton-chains]: https://github.com/tektoncd/chains
 [tekton-cli-releases]: https://github.com/tektoncd/cli/releases
 [tekton-releases-docs]: tekton/README.md
-[release-notes-standards]:
-    https://github.com/tektoncd/community/blob/main/standards.md#release-notes
+[release-notes-standards]: https://github.com/tektoncd/community/blob/main/standards.md#release-notes
 [tekton-release-process]: RELEASE_PROCESS.md
-
+[v0-43-0]: https://github.com/tektoncd/cli/releases/tag/v0.43.0
+[v0-42-0]: https://github.com/tektoncd/cli/releases/tag/v0.42.0
+[v0-41-1]: https://github.com/tektoncd/cli/releases/tag/v0.41.1
+[v0-41-0]: https://github.com/tektoncd/cli/releases/tag/v0.41.0
+[v0-40-0]: https://github.com/tektoncd/cli/releases/tag/v0.40.0
+[v0-39-1]: https://github.com/tektoncd/cli/releases/tag/v0.39.1
+[v0-39-0]: https://github.com/tektoncd/cli/releases/tag/v0.39.0
+[v0-38-2]: https://github.com/tektoncd/cli/releases/tag/v0.38.2
+[v0-38-0]: https://github.com/tektoncd/cli/releases/tag/v0.38.0
+[v0-37-1]: https://github.com/tektoncd/cli/releases/tag/v0.37.1
+[v0-37-0]: https://github.com/tektoncd/cli/releases/tag/v0.37.0
 [v0-36-0]: https://github.com/tektoncd/cli/releases/tag/v0.36.0
+[v0-35-3]: https://github.com/tektoncd/cli/releases/tag/v0.35.3
 [v0-35-2]: https://github.com/tektoncd/cli/releases/tag/v0.35.2
 [v0-35-0]: https://github.com/tektoncd/cli/releases/tag/v0.35.0
 [v0-34-0]: https://github.com/tektoncd/cli/releases/tag/v0.34.0
@@ -143,8 +194,19 @@ Older releases are EOL and available on [GitHub][tekton-cli-releases].
 [v0-27-0]: https://github.com/tektoncd/cli/releases/tag/v0.27.0
 [v0-26-0]: https://github.com/tektoncd/cli/releases/tag/v0.26.0
 [v0-25-0]: https://github.com/tektoncd/cli/releases/tag/v0.25.0
-
+[v0-43-0-docs]: https://github.com/tektoncd/cli/tree/v0.43.0/docs
+[v0-42-0-docs]: https://github.com/tektoncd/cli/tree/v0.42.0/docs
+[v0-41-1-docs]: https://github.com/tektoncd/cli/tree/v0.41.1/docs
+[v0-41-0-docs]: https://github.com/tektoncd/cli/tree/v0.41.0/docs
+[v0-40-0-docs]: https://github.com/tektoncd/cli/tree/v0.40.0/docs
+[v0-39-1-docs]: https://github.com/tektoncd/cli/tree/v0.39.1/docs
+[v0-39-0-docs]: https://github.com/tektoncd/cli/tree/v0.39.0/docs
+[v0-38-2-docs]: https://github.com/tektoncd/cli/tree/v0.38.2/docs
+[v0-38-0-docs]: https://github.com/tektoncd/cli/tree/v0.38.0/docs
+[v0-37-1-docs]: https://github.com/tektoncd/cli/tree/v0.37.1/docs
+[v0-37-0-docs]: https://github.com/tektoncd/cli/tree/v0.37.0/docs
 [v0-36-0-docs]: https://github.com/tektoncd/cli/tree/v0.36.0/docs
+[v0-35-3-docs]: https://github.com/tektoncd/cli/tree/v0.35.3/docs
 [v0-35-2-docs]: https://github.com/tektoncd/cli/tree/v0.35.2/docs
 [v0-35-0-docs]: https://github.com/tektoncd/cli/tree/v0.35.0/docs
 [v0-34-0-docs]: https://github.com/tektoncd/cli/tree/v0.34.0/docs

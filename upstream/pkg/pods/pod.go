@@ -16,6 +16,7 @@ package pods
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -69,6 +70,12 @@ func NewWithDefaults(name, ns string, client k8s.Interface) *Pod {
 	}
 }
 
+// podResult holds the result of pod status check
+type podResult struct {
+	pod *corev1.Pod
+	err error
+}
+
 // Wait wait for the pod to get up and running
 func (p *Pod) Wait() (*corev1.Pod, error) {
 	// ensure pod exists before we actually check for it
@@ -77,66 +84,67 @@ func (p *Pod) Wait() (*corev1.Pod, error) {
 	}
 
 	stopC := make(chan struct{})
-	eventC := make(chan interface{})
 	mu := sync.Mutex{}
-	defer func() {
-		mu.Lock()
-		close(stopC)
-		close(eventC)
-		mu.Unlock()
+
+	var result podResult
+
+	// Start watcher in a goroutine
+	go func() {
+		p.watcher(stopC, &result, &mu)
 	}()
 
-	p.watcher(stopC, eventC, &mu)
-
-	var pod *corev1.Pod
-	var err error
-	for e := range eventC {
-		pod, err = checkPodStatus(e)
-		if pod != nil || err != nil {
-			break
-		}
-	}
-
-	return pod, err
+	// Wait for stopC
+	<-stopC
+	return result.pod, result.err
 }
 
-func (p *Pod) watcher(stopC <-chan struct{}, eventC chan<- interface{}, mu *sync.Mutex) {
+func (p *Pod) watcher(stopC chan struct{}, result *podResult, mu *sync.Mutex) {
 	factory := informers.NewSharedInformerFactoryWithOptions(
 		p.Kc, time.Second*10,
 		informers.WithNamespace(p.Ns),
 		informers.WithTweakListOptions(podOpts(p.Name)))
 
-	_, err := factory.Core().V1().Pods().Informer().AddEventHandler(
+	updatePodStatus := func(obj interface{}) {
+		mu.Lock()
+		defer mu.Unlock()
+
+		pod, err := checkPodStatus(obj)
+		if pod != nil || err != nil {
+			result.pod = pod
+			result.err = err
+			close(stopC)
+		}
+	}
+
+	informer := factory.Core().V1().Pods().Informer()
+	// Set a custom watch error handler that ignores context.Canceled errors
+	// to prevent "Failed to watch" log messages when the informer is stopped intentionally
+	_ = informer.SetWatchErrorHandlerWithContext(watchErrorHandler)
+
+	_, err := informer.AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				mu.Lock()
-				defer mu.Unlock()
 				select {
 				case <-stopC:
 					return
 				default:
-					// default is used to avoid pseudo-random selection of multiple matching cases
-					eventC <- obj
+					updatePodStatus(obj)
 				}
 			},
 			UpdateFunc: func(_, newObj interface{}) {
-				mu.Lock()
-				defer mu.Unlock()
 				select {
 				case <-stopC:
 					return
 				default:
-					eventC <- newObj
+					updatePodStatus(newObj)
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
-				mu.Lock()
-				defer mu.Unlock()
 				select {
 				case <-stopC:
 					return
 				default:
-					eventC <- obj
+					updatePodStatus(obj)
 				}
 			},
 		})
@@ -151,6 +159,15 @@ func (p *Pod) watcher(stopC <-chan struct{}, eventC chan<- interface{}, mu *sync
 func podOpts(name string) func(opts *metav1.ListOptions) {
 	return func(opts *metav1.ListOptions) {
 		opts.FieldSelector = fields.OneTermEqualSelector("metadata.name", name).String()
+	}
+}
+
+// watchErrorHandler is a custom watch error handler that filters out context.Canceled errors
+// to prevent "Failed to watch" log messages when the informer is stopped intentionally.
+// Other errors are passed to the default handler.
+func watchErrorHandler(ctx context.Context, r *cache.Reflector, err error) {
+	if !errors.Is(err, context.Canceled) {
+		cache.DefaultWatchErrorHandler(ctx, r, err)
 	}
 }
 
