@@ -1,12 +1,9 @@
 ARG GO_BUILDER=registry.access.redhat.com/ubi9/go-toolset:1.25
-ARG RUNTIME=registry.redhat.io/ubi9/ubi-minimal@sha256:c7d44146f826037f6873d99da479299b889473492d3c1ab8af86f08af04ec8a0
-ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel9@sha256:ecec031c16d3e7189849e59efa4dd8d9439980747d6d410b5da6ba66fc72ead5
+ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:c7d44146f826037f6873d99da479299b889473492d3c1ab8af86f08af04ec8a0
 
 FROM $GO_BUILDER AS builder
 
 ARG REMOTE_SOURCE=/go/src/github.com/tektoncd/cli
-
-ARG TKN_VERSION=0.43.0
 
 WORKDIR $REMOTE_SOURCE
 
@@ -17,20 +14,28 @@ RUN set -e; for f in patches/*.patch; do echo ${f}; [[ -f ${f} ]] || continue; g
 COPY head HEAD
 ENV GODEBUG="http2server=0"
 ENV GOEXPERIMENT=strictfipsruntime
-RUN go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp,strictfipsruntime -v \
+RUN TKN_VERSION=$(cat VERSION);\
+    echo "Build TKN ($TKN_VER)" ;\
+    go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp,strictfipsruntime -v \
        -ldflags "-X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=${TKN_VERSION}" \
        -o /tmp/tkn ./cmd/tkn
 
-FROM $PAC_BUILDER AS pacbuilder
+# Build tkn-pac from sources
+COPY sources/pac $REMOTE_SOURCE/pac
+RUN PAC_VER=$(cat pac/pkg/params/versiondata/version.txt); \
+    echo "Build TKN-PAC Version : ($PAC_VER)"; \
+    cd $REMOTE_SOURCE/pac ; \
+    go build -tags strictfipsruntime -mod=vendor \
+        -ldflags "-X github.com/tektoncd/pipelines-as-code/pkg/params/version.Version=${PAC_VER}"\
+        -o /tmp/tkn-pac ./cmd/tkn-pac
 
 FROM $RUNTIME
 
-ARG VERSION=1.21
 COPY --from=builder /tmp/tkn /usr/bin
-COPY --from=pacbuilder /usr/bin/tkn-pac /usr/bin
+COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
     com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
-    cpe="cpe:/a:redhat:openshift_pipelines:1.21::el9" \
+    cpe="cpe:/a:redhat:openshift_pipelines:1.22::el9" \
     description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
@@ -38,7 +43,7 @@ LABEL \
     maintainer="pipelines-extcomm@redhat.com" \
     name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
     summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-    version="v1.21.1"
+    version="v1.22.0"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 USER 65532
