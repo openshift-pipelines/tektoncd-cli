@@ -71,7 +71,6 @@ func GetAllTknPluginFromPaths() []string {
 					continue
 				}
 				fpath := filepath.Join(path, file.Name())
-				// #nosec G703 -- fpath is from filepath.Join with validated path
 				info, err := os.Stat(fpath)
 				if err != nil {
 					continue
