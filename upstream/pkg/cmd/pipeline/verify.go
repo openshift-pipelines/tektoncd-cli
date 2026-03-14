@@ -16,6 +16,7 @@ package pipeline
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -63,16 +64,19 @@ or using kms
 			}
 			b, err := os.ReadFile(args[0])
 			if err != nil {
-				return fmt.Errorf("error reading file: %v", err)
+				log.Fatalf("error reading file: %v", err)
+				return err
 			}
 
 			crd := &v1beta1.Pipeline{}
 			if err := yaml.Unmarshal(b, &crd); err != nil {
-				return fmt.Errorf("error unmarshalling Pipeline: %v", err)
+				log.Fatalf("error unmarshalling Pipeline: %v", err)
+				return err
 			}
 
 			if err := trustedresources.Verify(crd, opts.keyfile, opts.kmsKey); err != nil {
-				return fmt.Errorf("error verifying Pipeline: %v", err)
+				log.Fatalf("error signing Pipeline: %v", err)
+				return err
 			}
 			fmt.Fprintf(s.Out, "Pipeline %s passes verification \n", args[0])
 			return nil
