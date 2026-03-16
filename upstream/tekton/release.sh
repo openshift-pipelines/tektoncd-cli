@@ -118,14 +118,14 @@ kubectl create namespace ${TARGET_NAMESPACE} 2>/dev/null || true
 
 for task in ${CATALOG_TASKS};do
   if [ ${task} == "lint" ]; then
-    tkn -n ${TARGET_NAMESPACE} hub install task golangci-lint --type artifact --from tekton-catalog-tasks
+    tkn -n ${TARGET_NAMESPACE} hub install task golangci-lint
   else
-    tkn -n ${TARGET_NAMESPACE} hub install task golang-${task} --type artifact --from tekton-catalog-tasks
+    tkn -n ${TARGET_NAMESPACE} hub install task golang-${task}
   fi
 done
 
-tkn -n ${TARGET_NAMESPACE} hub install task git-clone --type artifact --from tekton-catalog-tasks
-tkn -n ${TARGET_NAMESPACE} hub install task goreleaser --type artifact --from tekton-catalog-tasks
+tkn -n ${TARGET_NAMESPACE} hub install task git-clone
+tkn -n ${TARGET_NAMESPACE} hub install task goreleaser
 
 kubectl -n ${TARGET_NAMESPACE} apply -f ./tekton/get-version.yaml
 kubectl -n ${TARGET_NAMESPACE} apply -f ./tekton/publish.yaml
