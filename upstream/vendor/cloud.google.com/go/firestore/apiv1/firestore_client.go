@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -793,7 +793,7 @@ func (c *gRPCClient) Connection() *grpc.ClientConn {
 // use by Google-written clients.
 func (c *gRPCClient) setGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", gax.GoVersion}, keyval...)
-	kv = append(kv, "gapic", getVersionClient(), "gax", gax.Version, "grpc", grpc.Version, "pb", protoVersion)
+	kv = append(kv, "gapic", getVersionClient(), "gax", gax.Version, "grpc", grpc.Version)
 	c.xGoogHeaders = []string{
 		"x-goog-api-client", gax.XGoogHeader(kv...),
 	}
@@ -868,7 +868,7 @@ func defaultRESTClientOptions() []option.ClientOption {
 // use by Google-written clients.
 func (c *restClient) setGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", gax.GoVersion}, keyval...)
-	kv = append(kv, "gapic", getVersionClient(), "gax", gax.Version, "rest", "UNKNOWN", "pb", protoVersion)
+	kv = append(kv, "gapic", getVersionClient(), "gax", gax.Version, "rest", "UNKNOWN")
 	c.xGoogHeaders = []string{
 		"x-goog-api-client", gax.XGoogHeader(kv...),
 	}
@@ -1662,7 +1662,7 @@ func (c *restClient) BatchGetDocuments(ctx context.Context, req *firestorepb.Bat
 	hds = append(c.xGoogHeaders, hds...)
 	hds = append(hds, "Content-Type", "application/json")
 	headers := gax.BuildHeaders(ctx, hds...)
-	var streamClient *batchGetDocumentsRESTStreamClient
+	var streamClient *batchGetDocumentsRESTClient
 	e := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		if settings.Path != "" {
 			baseUrl.Path = settings.Path
@@ -1679,7 +1679,7 @@ func (c *restClient) BatchGetDocuments(ctx context.Context, req *firestorepb.Bat
 			return err
 		}
 
-		streamClient = &batchGetDocumentsRESTStreamClient{
+		streamClient = &batchGetDocumentsRESTClient{
 			ctx:    ctx,
 			md:     metadata.MD(httpRsp.Header),
 			stream: gax.NewProtoJSONStreamReader(httpRsp.Body, (&firestorepb.BatchGetDocumentsResponse{}).ProtoReflect().Type()),
@@ -1690,15 +1690,15 @@ func (c *restClient) BatchGetDocuments(ctx context.Context, req *firestorepb.Bat
 	return streamClient, e
 }
 
-// batchGetDocumentsRESTStreamClient is the stream client used to consume the server stream created by
+// batchGetDocumentsRESTClient is the stream client used to consume the server stream created by
 // the REST implementation of BatchGetDocuments.
-type batchGetDocumentsRESTStreamClient struct {
+type batchGetDocumentsRESTClient struct {
 	ctx    context.Context
 	md     metadata.MD
 	stream *gax.ProtoJSONStream
 }
 
-func (c *batchGetDocumentsRESTStreamClient) Recv() (*firestorepb.BatchGetDocumentsResponse, error) {
+func (c *batchGetDocumentsRESTClient) Recv() (*firestorepb.BatchGetDocumentsResponse, error) {
 	if err := c.ctx.Err(); err != nil {
 		defer c.stream.Close()
 		return nil, err
@@ -1712,29 +1712,29 @@ func (c *batchGetDocumentsRESTStreamClient) Recv() (*firestorepb.BatchGetDocumen
 	return res, nil
 }
 
-func (c *batchGetDocumentsRESTStreamClient) Header() (metadata.MD, error) {
+func (c *batchGetDocumentsRESTClient) Header() (metadata.MD, error) {
 	return c.md, nil
 }
 
-func (c *batchGetDocumentsRESTStreamClient) Trailer() metadata.MD {
+func (c *batchGetDocumentsRESTClient) Trailer() metadata.MD {
 	return c.md
 }
 
-func (c *batchGetDocumentsRESTStreamClient) CloseSend() error {
+func (c *batchGetDocumentsRESTClient) CloseSend() error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *batchGetDocumentsRESTStreamClient) Context() context.Context {
+func (c *batchGetDocumentsRESTClient) Context() context.Context {
 	return c.ctx
 }
 
-func (c *batchGetDocumentsRESTStreamClient) SendMsg(m interface{}) error {
+func (c *batchGetDocumentsRESTClient) SendMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *batchGetDocumentsRESTStreamClient) RecvMsg(m interface{}) error {
+func (c *batchGetDocumentsRESTClient) RecvMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented, use Recv")
 }
@@ -1917,7 +1917,7 @@ func (c *restClient) RunQuery(ctx context.Context, req *firestorepb.RunQueryRequ
 	hds = append(c.xGoogHeaders, hds...)
 	hds = append(hds, "Content-Type", "application/json")
 	headers := gax.BuildHeaders(ctx, hds...)
-	var streamClient *runQueryRESTStreamClient
+	var streamClient *runQueryRESTClient
 	e := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		if settings.Path != "" {
 			baseUrl.Path = settings.Path
@@ -1934,7 +1934,7 @@ func (c *restClient) RunQuery(ctx context.Context, req *firestorepb.RunQueryRequ
 			return err
 		}
 
-		streamClient = &runQueryRESTStreamClient{
+		streamClient = &runQueryRESTClient{
 			ctx:    ctx,
 			md:     metadata.MD(httpRsp.Header),
 			stream: gax.NewProtoJSONStreamReader(httpRsp.Body, (&firestorepb.RunQueryResponse{}).ProtoReflect().Type()),
@@ -1945,15 +1945,15 @@ func (c *restClient) RunQuery(ctx context.Context, req *firestorepb.RunQueryRequ
 	return streamClient, e
 }
 
-// runQueryRESTStreamClient is the stream client used to consume the server stream created by
+// runQueryRESTClient is the stream client used to consume the server stream created by
 // the REST implementation of RunQuery.
-type runQueryRESTStreamClient struct {
+type runQueryRESTClient struct {
 	ctx    context.Context
 	md     metadata.MD
 	stream *gax.ProtoJSONStream
 }
 
-func (c *runQueryRESTStreamClient) Recv() (*firestorepb.RunQueryResponse, error) {
+func (c *runQueryRESTClient) Recv() (*firestorepb.RunQueryResponse, error) {
 	if err := c.ctx.Err(); err != nil {
 		defer c.stream.Close()
 		return nil, err
@@ -1967,29 +1967,29 @@ func (c *runQueryRESTStreamClient) Recv() (*firestorepb.RunQueryResponse, error)
 	return res, nil
 }
 
-func (c *runQueryRESTStreamClient) Header() (metadata.MD, error) {
+func (c *runQueryRESTClient) Header() (metadata.MD, error) {
 	return c.md, nil
 }
 
-func (c *runQueryRESTStreamClient) Trailer() metadata.MD {
+func (c *runQueryRESTClient) Trailer() metadata.MD {
 	return c.md
 }
 
-func (c *runQueryRESTStreamClient) CloseSend() error {
+func (c *runQueryRESTClient) CloseSend() error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *runQueryRESTStreamClient) Context() context.Context {
+func (c *runQueryRESTClient) Context() context.Context {
 	return c.ctx
 }
 
-func (c *runQueryRESTStreamClient) SendMsg(m interface{}) error {
+func (c *runQueryRESTClient) SendMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *runQueryRESTStreamClient) RecvMsg(m interface{}) error {
+func (c *runQueryRESTClient) RecvMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented, use Recv")
 }
@@ -2026,7 +2026,7 @@ func (c *restClient) RunAggregationQuery(ctx context.Context, req *firestorepb.R
 	hds = append(c.xGoogHeaders, hds...)
 	hds = append(hds, "Content-Type", "application/json")
 	headers := gax.BuildHeaders(ctx, hds...)
-	var streamClient *runAggregationQueryRESTStreamClient
+	var streamClient *runAggregationQueryRESTClient
 	e := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		if settings.Path != "" {
 			baseUrl.Path = settings.Path
@@ -2043,7 +2043,7 @@ func (c *restClient) RunAggregationQuery(ctx context.Context, req *firestorepb.R
 			return err
 		}
 
-		streamClient = &runAggregationQueryRESTStreamClient{
+		streamClient = &runAggregationQueryRESTClient{
 			ctx:    ctx,
 			md:     metadata.MD(httpRsp.Header),
 			stream: gax.NewProtoJSONStreamReader(httpRsp.Body, (&firestorepb.RunAggregationQueryResponse{}).ProtoReflect().Type()),
@@ -2054,15 +2054,15 @@ func (c *restClient) RunAggregationQuery(ctx context.Context, req *firestorepb.R
 	return streamClient, e
 }
 
-// runAggregationQueryRESTStreamClient is the stream client used to consume the server stream created by
+// runAggregationQueryRESTClient is the stream client used to consume the server stream created by
 // the REST implementation of RunAggregationQuery.
-type runAggregationQueryRESTStreamClient struct {
+type runAggregationQueryRESTClient struct {
 	ctx    context.Context
 	md     metadata.MD
 	stream *gax.ProtoJSONStream
 }
 
-func (c *runAggregationQueryRESTStreamClient) Recv() (*firestorepb.RunAggregationQueryResponse, error) {
+func (c *runAggregationQueryRESTClient) Recv() (*firestorepb.RunAggregationQueryResponse, error) {
 	if err := c.ctx.Err(); err != nil {
 		defer c.stream.Close()
 		return nil, err
@@ -2076,29 +2076,29 @@ func (c *runAggregationQueryRESTStreamClient) Recv() (*firestorepb.RunAggregatio
 	return res, nil
 }
 
-func (c *runAggregationQueryRESTStreamClient) Header() (metadata.MD, error) {
+func (c *runAggregationQueryRESTClient) Header() (metadata.MD, error) {
 	return c.md, nil
 }
 
-func (c *runAggregationQueryRESTStreamClient) Trailer() metadata.MD {
+func (c *runAggregationQueryRESTClient) Trailer() metadata.MD {
 	return c.md
 }
 
-func (c *runAggregationQueryRESTStreamClient) CloseSend() error {
+func (c *runAggregationQueryRESTClient) CloseSend() error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *runAggregationQueryRESTStreamClient) Context() context.Context {
+func (c *runAggregationQueryRESTClient) Context() context.Context {
 	return c.ctx
 }
 
-func (c *runAggregationQueryRESTStreamClient) SendMsg(m interface{}) error {
+func (c *runAggregationQueryRESTClient) SendMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented for a server-stream")
 }
 
-func (c *runAggregationQueryRESTStreamClient) RecvMsg(m interface{}) error {
+func (c *runAggregationQueryRESTClient) RecvMsg(m interface{}) error {
 	// This is a no-op to fulfill the interface.
 	return errors.New("this method is not implemented, use Recv")
 }
