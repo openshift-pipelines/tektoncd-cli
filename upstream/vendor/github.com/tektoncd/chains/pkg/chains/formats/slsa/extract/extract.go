@@ -22,16 +22,13 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
-	intoto "github.com/in-toto/in-toto-golang/in_toto"
+	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/in-toto/in-toto-golang/in_toto/slsa_provenance/common"
-	"github.com/tektoncd/chains/internal/backport"
 	"github.com/tektoncd/chains/pkg/artifacts"
-	extractv1beta1 "github.com/tektoncd/chains/pkg/chains/formats/slsa/extract/v1beta1"
 	"github.com/tektoncd/chains/pkg/chains/formats/slsa/internal/artifact"
 	"github.com/tektoncd/chains/pkg/chains/formats/slsa/internal/slsaconfig"
 	"github.com/tektoncd/chains/pkg/chains/objects"
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"knative.dev/pkg/logging"
 )
 
@@ -44,24 +41,23 @@ import (
 //   - the `*_URL` or `*_URI` fields cannot be empty.
 //
 //nolint:all
-func SubjectDigests(ctx context.Context, obj objects.TektonObject, slsaconfig *slsaconfig.SlsaConfig) []intoto.Subject {
-	var subjects []intoto.Subject
+func SubjectDigests(ctx context.Context, obj objects.TektonObject, slsaconfig *slsaconfig.SlsaConfig) []*intoto.ResourceDescriptor {
+	var subjects []*intoto.ResourceDescriptor
 
 	switch obj.GetObject().(type) {
 	case *v1.PipelineRun:
 		subjects = subjectsFromPipelineRun(ctx, obj, slsaconfig)
 	case *v1.TaskRun:
 		subjects = subjectsFromTektonObject(ctx, obj)
-	case *v1beta1.PipelineRun:
-		subjects = extractv1beta1.SubjectsFromPipelineRunV1Beta1(ctx, obj, slsaconfig)
-	case *v1beta1.TaskRun:
-		subjects = extractv1beta1.SubjectsFromTektonObjectV1Beta1(ctx, obj)
+	default:
+		logger := logging.FromContext(ctx)
+		logger.Warnf("object type %T not supported", obj.GetObject())
 	}
 
 	return subjects
 }
 
-func subjectsFromPipelineRun(ctx context.Context, obj objects.TektonObject, slsaconfig *slsaconfig.SlsaConfig) []intoto.Subject {
+func subjectsFromPipelineRun(ctx context.Context, obj objects.TektonObject, slsaconfig *slsaconfig.SlsaConfig) []*intoto.ResourceDescriptor {
 	prSubjects := subjectsFromTektonObject(ctx, obj)
 
 	// If deep inspection is not enabled, just return subjects observed on the pipelinerun level
@@ -71,23 +67,29 @@ func subjectsFromPipelineRun(ctx context.Context, obj objects.TektonObject, slsa
 
 	logger := logging.FromContext(ctx)
 	// If deep inspection is enabled, collect subjects from child taskruns
-	var result []intoto.Subject
+	var result []*intoto.ResourceDescriptor
 
 	pro := obj.(*objects.PipelineRunObjectV1)
 
 	pSpec := pro.Status.PipelineSpec
 	if pSpec != nil {
-		pipelineTasks := append(pSpec.Tasks, pSpec.Finally...)
+		pipelineTasks := pSpec.Tasks
+		pipelineTasks = append(pipelineTasks, pSpec.Finally...)
 		for _, t := range pipelineTasks {
-			tr := pro.GetTaskRunFromTask(t.Name)
-			// Ignore Tasks that did not execute during the PipelineRun.
-			if tr == nil || tr.Status.CompletionTime == nil {
-				logger.Infof("taskrun status not found for task %s", t.Name)
+			taskRuns := pro.GetTaskRunsFromTask(t.Name)
+			if len(taskRuns) == 0 {
+				logger.Infof("no taskruns found for task %s", t.Name)
 				continue
 			}
-
-			trSubjects := subjectsFromTektonObject(ctx, tr)
-			result = artifact.AppendSubjects(result, trSubjects...)
+			for _, tr := range taskRuns {
+				// Ignore Tasks that did not execute during the PipelineRun.
+				if tr == nil || tr.Status.CompletionTime == nil {
+					logger.Infof("taskrun status not found for task %s", t.Name)
+					continue
+				}
+				trSubjects := subjectsFromTektonObject(ctx, tr)
+				result = artifact.AppendSubjects(result, trSubjects...)
+			}
 		}
 	}
 
@@ -97,14 +99,14 @@ func subjectsFromPipelineRun(ctx context.Context, obj objects.TektonObject, slsa
 	return result
 }
 
-func subjectsFromTektonObject(ctx context.Context, obj objects.TektonObject) []intoto.Subject {
+func subjectsFromTektonObject(ctx context.Context, obj objects.TektonObject) []*intoto.ResourceDescriptor {
 	logger := logging.FromContext(ctx)
-	var subjects []intoto.Subject
+	var subjects []*intoto.ResourceDescriptor
 
-	imgs := artifacts.ExtractOCIImagesFromResults(ctx, obj)
+	imgs := artifacts.ExtractOCIImagesFromResults(ctx, obj.GetResults())
 	for _, i := range imgs {
 		if d, ok := i.(name.Digest); ok {
-			subjects = artifact.AppendSubjects(subjects, intoto.Subject{
+			subjects = artifact.AppendSubjects(subjects, &intoto.ResourceDescriptor{
 				Name: d.Repository.Name(),
 				Digest: common.DigestSet{
 					"sha256": strings.TrimPrefix(d.DigestStr(), "sha256:"),
@@ -120,7 +122,7 @@ func subjectsFromTektonObject(ctx context.Context, obj objects.TektonObject) []i
 			logger.Errorf("Digest %s should be in the format of: algorthm:abc", obj.Digest)
 			continue
 		}
-		subjects = artifact.AppendSubjects(subjects, intoto.Subject{
+		subjects = artifact.AppendSubjects(subjects, &intoto.ResourceDescriptor{
 			Name: obj.URI,
 			Digest: common.DigestSet{
 				splits[0]: splits[1],
@@ -128,60 +130,17 @@ func subjectsFromTektonObject(ctx context.Context, obj objects.TektonObject) []i
 		})
 	}
 
-	ssts := artifacts.ExtractStructuredTargetFromResults(ctx, obj, artifacts.ArtifactsOutputsResultName)
+	ssts := artifacts.ExtractStructuredTargetFromResults(ctx, obj.GetResults(), artifacts.ArtifactsOutputsResultName)
 	for _, s := range ssts {
 		splits := strings.Split(s.Digest, ":")
 		alg := splits[0]
 		digest := splits[1]
-		subjects = artifact.AppendSubjects(subjects, intoto.Subject{
+		subjects = artifact.AppendSubjects(subjects, &intoto.ResourceDescriptor{
 			Name: s.URI,
 			Digest: common.DigestSet{
 				alg: digest,
 			},
 		})
-	}
-
-	if trV1, ok := obj.GetObject().(*v1.TaskRun); ok {
-		trV1Beta1 := &v1beta1.TaskRun{} //nolint:staticcheck
-		if err := trV1Beta1.ConvertFrom(ctx, trV1); err == nil {
-			// Check if object is a Taskrun, if so search for images used in PipelineResources
-			// Otherwise object is a PipelineRun, where Pipelineresources are not relevant.
-			// PipelineResources have been deprecated so their support has been left out of
-			// the POC for TEP-84
-			// More info: https://tekton.dev/docs/pipelines/resources/
-			if !ok || trV1Beta1.Spec.Resources == nil { //nolint:staticcheck
-				return subjects
-			}
-
-			// go through resourcesResult
-			for _, output := range trV1Beta1.Spec.Resources.Outputs { //nolint:staticcheck
-				name := output.Name
-				if output.PipelineResourceBinding.ResourceSpec == nil {
-					continue
-				}
-				// similarly, we could do this for other pipeline resources or whatever thing replaces them
-				if output.PipelineResourceBinding.ResourceSpec.Type == backport.PipelineResourceTypeImage {
-					// get the url and digest, and save as a subject
-					var url, digest string
-					for _, s := range trV1Beta1.Status.ResourcesResult {
-						if s.ResourceName == name {
-							if s.Key == "url" {
-								url = s.Value
-							}
-							if s.Key == "digest" {
-								digest = s.Value
-							}
-						}
-					}
-					subjects = artifact.AppendSubjects(subjects, intoto.Subject{
-						Name: url,
-						Digest: common.DigestSet{
-							"sha256": strings.TrimPrefix(digest, "sha256:"),
-						},
-					})
-				}
-			}
-		}
 	}
 
 	return subjects
@@ -201,4 +160,48 @@ func RetrieveAllArtifactURIs(ctx context.Context, obj objects.TektonObject, deep
 		}
 	}
 	return result
+}
+
+// SubjectsFromBuildArtifact returns the software artifacts/images produced by the TaskRun/PipelineRun in the form of standard
+// subject field of intoto statement. The detection is based on type hinting. To be read as a software artifact the
+// type hintint should:
+// - use one of the following type-hints:
+//   - Use the *ARTIFACT_OUTPUTS object type-hinting suffix. The value associated with the result should be an object
+//     with the fields `uri`, `digest`, and `isBuildArtifact` set to true.
+//   - Use the IMAGES type-hint
+//   - Use the *IMAGE_URL / *IMAGE_DIGEST type-hint suffix
+func SubjectsFromBuildArtifact(ctx context.Context, results []objects.Result) []*intoto.ResourceDescriptor {
+	var subjects []*intoto.ResourceDescriptor
+	logger := logging.FromContext(ctx)
+	buildArtifacts := artifacts.ExtractBuildArtifactsFromResults(ctx, results)
+	for _, ba := range buildArtifacts {
+		splits := strings.Split(ba.Digest, ":")
+		if len(splits) != 2 {
+			logger.Errorf("Error procesing build artifact %v, digest %v malformed. Build artifact skipped", ba.FullRef(), ba.Digest)
+			continue
+		}
+
+		alg := splits[0]
+		digest := splits[1]
+		subjects = artifact.AppendSubjects(subjects, &intoto.ResourceDescriptor{
+			Name: ba.URI,
+			Digest: common.DigestSet{
+				alg: digest,
+			},
+		})
+	}
+
+	imgs := artifacts.ExtractOCIImagesFromResults(ctx, results)
+	for _, i := range imgs {
+		if d, ok := i.(name.Digest); ok {
+			subjects = artifact.AppendSubjects(subjects, &intoto.ResourceDescriptor{
+				Name: d.Repository.Name(),
+				Digest: common.DigestSet{
+					"sha256": strings.TrimPrefix(d.DigestStr(), "sha256:"),
+				},
+			})
+		}
+	}
+
+	return subjects
 }
