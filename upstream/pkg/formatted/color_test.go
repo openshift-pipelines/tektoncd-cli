@@ -20,6 +20,7 @@ import (
 	"text/template"
 
 	"github.com/fatih/color"
+	"github.com/tektoncd/cli/pkg/test"
 	"gotest.tools/v3/assert"
 )
 
@@ -87,12 +88,6 @@ func TestDecoration(t *testing.T) {
 	if err := processed.Execute(buf, nil); err != nil {
 		t.Error("Could not process the template.")
 	}
-	// When stdout is not a TTY, fatih/color may not emit ANSI codes even with NoColor=false.
-	expectedWithColor := "⏱  ⏭️  ∙ Foo ✔ ️📦 ⚓ 📝 📂 🗒  ⛩  🌡️  📨 📡 🦶 💌 🗂  🚗 \x1b[91mRed\x1b[0m \x1b[4mFoo\x1b[24m"
-	expectedNoColor := "⏱  ⏭️  ∙ Foo ✔ ️📦 ⚓ 📝 📂 🗒  ⛩  🌡️  📨 📡 🦶 💌 🗂  🚗 Red Foo"
-	got := buf.String()
-	if got != expectedWithColor && got != expectedNoColor {
-		t.Errorf("output must match with or without ANSI codes:\nexpected (with color): %q\nexpected (no color): %q\ngot: %q", expectedWithColor, expectedNoColor, got)
-	}
+	test.AssertOutput(t, "⏱  ⏭️  ∙ Foo ✔ ️📦 ⚓ 📝 📂 🗒  ⛩  🌡️  📨 📡 🦶 💌 🗂  🚗 \x1b[91mRed\x1b[0m \x1b[4mFoo\x1b[24m", buf.String())
 
 }

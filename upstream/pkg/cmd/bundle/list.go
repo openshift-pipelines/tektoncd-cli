@@ -21,14 +21,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tektoncd/cli/pkg/bundle"
 	"github.com/tektoncd/cli/pkg/cli"
-	"github.com/tektoncd/cli/pkg/printer"
 	"k8s.io/apimachinery/pkg/runtime"
 	cliopts "k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 // TODO: Find a more generic way to do this
 var (
-	allowedKinds = []string{"task", "pipeline", "clustertask"}
+	allowedKinds = []string{"task", "pipeline"}
 )
 
 func normalizeKind(kind string) string {
@@ -113,8 +112,13 @@ Caching:
 				Err: cmd.OutOrStderr(),
 			}
 
+			p, err := f.ToPrinter()
+			if err != nil {
+				return err
+			}
+
 			return opts.Run(args, func(_, _, _ string, element runtime.Object, _ []byte) {
-				_ = printer.PrintObject(opts.stream.Out, element, f)
+				_ = p.PrintObj(element, opts.stream.Out)
 			})
 		},
 	}

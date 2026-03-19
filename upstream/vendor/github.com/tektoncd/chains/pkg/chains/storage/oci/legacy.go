@@ -26,7 +26,7 @@ import (
 
 	"knative.dev/pkg/logging"
 
-	"github.com/in-toto/in-toto-golang/in_toto"
+	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/secure-systems-lab/go-securesystemslib/dsse"
 
 	"github.com/google/go-containerregistry/pkg/authn/k8schain"
@@ -44,6 +44,7 @@ import (
 const StorageBackendOCI = "oci"
 
 // Backend implements a storage backend for OCI artifacts.
+//
 // Deprecated: Use SimpleStorer and AttestationStorer instead.
 type Backend struct {
 	cfg              config.Config
@@ -62,11 +63,10 @@ func NewStorageBackend(ctx context.Context, client kubernetes.Interface, cfg con
 				k8schain.Options{
 					Namespace:          obj.GetNamespace(),
 					ServiceAccountName: obj.GetServiceAccountName(),
-					ImagePullSecrets:   obj.GetPullSecrets(),
 					UseMountSecrets:    true,
 				})
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "creating new keychain from serviceaccount %s/%s", obj.GetNamespace(), obj.GetServiceAccountName())
 			}
 			return remote.WithAuthFromKeychain(kc), nil
 		},
@@ -78,7 +78,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 	logger := logging.FromContext(ctx)
 	auth, err := b.getAuthenticator(ctx, obj, b.client)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "getting oci authenticator")
 	}
 
 	logger.Infof("Storing payload on %s/%s/%s", obj.GetGVK(), obj.GetNamespace(), obj.GetName())
@@ -92,7 +92,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 	}
 
 	if _, ok := formats.IntotoAttestationSet[storageOpts.PayloadFormat]; ok {
-		attestation := in_toto.Statement{}
+		attestation := intoto.Statement{}
 		if err := json.Unmarshal(rawPayload, &attestation); err != nil {
 			return errors.Wrap(err, "unmarshal attestation")
 		}
@@ -106,7 +106,7 @@ func (b *Backend) StorePayload(ctx context.Context, obj objects.TektonObject, ra
 			return nil
 		}
 
-		return b.uploadAttestation(ctx, attestation, signature, storageOpts, auth)
+		return b.uploadAttestation(ctx, &attestation, signature, storageOpts, auth)
 	}
 
 	// Fallback in case unsupported payload format is used or the deprecated "tekton" format
@@ -152,7 +152,7 @@ func (b *Backend) uploadSignature(ctx context.Context, format simple.SimpleConta
 	return nil
 }
 
-func (b *Backend) uploadAttestation(ctx context.Context, attestation in_toto.Statement, signature string, storageOpts config.StorageOpts, remoteOpts ...remote.Option) error {
+func (b *Backend) uploadAttestation(ctx context.Context, attestation *intoto.Statement, signature string, storageOpts config.StorageOpts, remoteOpts ...remote.Option) error {
 	logger := logging.FromContext(ctx)
 	// upload an attestation for each subject
 	logger.Info("Starting to upload attestations to OCI ...")
@@ -176,7 +176,7 @@ func (b *Backend) uploadAttestation(ctx context.Context, attestation in_toto.Sta
 		}
 		// TODO: make these creation opts.
 		store.remoteOpts = remoteOpts
-		if _, err := store.Store(ctx, &api.StoreRequest[name.Digest, in_toto.Statement]{
+		if _, err := store.Store(ctx, &api.StoreRequest[name.Digest, *intoto.Statement]{
 			Object:   nil,
 			Artifact: ref,
 			Payload:  attestation,
@@ -252,13 +252,13 @@ func (b *Backend) RetrievePayloads(ctx context.Context, obj objects.TektonObject
 			if payload, err := s.Payload(); err == nil {
 				envelope := dsse.Envelope{}
 				if err := json.Unmarshal(payload, &envelope); err != nil {
-					return nil, fmt.Errorf("cannot decode the envelope: %s", err)
+					return nil, fmt.Errorf("cannot decode the envelope: %w", err)
 				}
 
 				var decodedPayload []byte
 				decodedPayload, err = base64.StdEncoding.DecodeString(envelope.Payload)
 				if err != nil {
-					return nil, fmt.Errorf("error decoding the payload: %s", err)
+					return nil, fmt.Errorf("error decoding the payload: %w", err)
 				}
 
 				m[ref] = string(decodedPayload)
@@ -271,7 +271,7 @@ func (b *Backend) RetrievePayloads(ctx context.Context, obj objects.TektonObject
 
 func (b *Backend) RetrieveArtifact(ctx context.Context, obj objects.TektonObject, opts config.StorageOpts) (map[string]oci.SignedImage, error) {
 	// Given the TaskRun, retrieve the OCI images.
-	images := artifacts.ExtractOCIImagesFromResults(ctx, obj)
+	images := artifacts.ExtractOCIImagesFromResults(ctx, obj.GetResults())
 	m := make(map[string]oci.SignedImage)
 
 	for _, image := range images {
