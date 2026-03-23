@@ -16,7 +16,6 @@ package pods
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -116,12 +115,7 @@ func (p *Pod) watcher(stopC chan struct{}, result *podResult, mu *sync.Mutex) {
 		}
 	}
 
-	informer := factory.Core().V1().Pods().Informer()
-	// Set a custom watch error handler that ignores context.Canceled errors
-	// to prevent "Failed to watch" log messages when the informer is stopped intentionally
-	_ = informer.SetWatchErrorHandlerWithContext(watchErrorHandler)
-
-	_, err := informer.AddEventHandler(
+	_, err := factory.Core().V1().Pods().Informer().AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
 				select {
@@ -159,15 +153,6 @@ func (p *Pod) watcher(stopC chan struct{}, result *podResult, mu *sync.Mutex) {
 func podOpts(name string) func(opts *metav1.ListOptions) {
 	return func(opts *metav1.ListOptions) {
 		opts.FieldSelector = fields.OneTermEqualSelector("metadata.name", name).String()
-	}
-}
-
-// watchErrorHandler is a custom watch error handler that filters out context.Canceled errors
-// to prevent "Failed to watch" log messages when the informer is stopped intentionally.
-// Other errors are passed to the default handler.
-func watchErrorHandler(ctx context.Context, r *cache.Reflector, err error) {
-	if !errors.Is(err, context.Canceled) {
-		cache.DefaultWatchErrorHandler(ctx, r, err)
 	}
 }
 
