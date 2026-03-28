@@ -51,7 +51,7 @@ type ResolutionRequest struct {
 type ResolutionRequestList struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata"`
 	Items           []ResolutionRequest `json:"items"`
 }
 
