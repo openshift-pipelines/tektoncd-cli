@@ -54,7 +54,6 @@ type Endpoint struct {
 	Weight       uint32
 	HashKey      string
 	Metadata     map[string]any
-	Hostname     string
 }
 
 // Locality contains information of a locality.
