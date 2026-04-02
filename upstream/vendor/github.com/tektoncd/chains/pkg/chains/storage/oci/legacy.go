@@ -44,7 +44,6 @@ import (
 const StorageBackendOCI = "oci"
 
 // Backend implements a storage backend for OCI artifacts.
-//
 // Deprecated: Use SimpleStorer and AttestationStorer instead.
 type Backend struct {
 	cfg              config.Config
@@ -252,13 +251,13 @@ func (b *Backend) RetrievePayloads(ctx context.Context, obj objects.TektonObject
 			if payload, err := s.Payload(); err == nil {
 				envelope := dsse.Envelope{}
 				if err := json.Unmarshal(payload, &envelope); err != nil {
-					return nil, fmt.Errorf("cannot decode the envelope: %w", err)
+					return nil, fmt.Errorf("cannot decode the envelope: %s", err)
 				}
 
 				var decodedPayload []byte
 				decodedPayload, err = base64.StdEncoding.DecodeString(envelope.Payload)
 				if err != nil {
-					return nil, fmt.Errorf("error decoding the payload: %w", err)
+					return nil, fmt.Errorf("error decoding the payload: %s", err)
 				}
 
 				m[ref] = string(decodedPayload)
