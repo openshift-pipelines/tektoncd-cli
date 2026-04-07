@@ -24,7 +24,7 @@ jobs:
         rm -fR upstream
         git clone https://github.com/tektoncd/cli upstream
         pushd upstream
-        git checkout -B release-v0.44.0 origin/release-v0.44.0
+        git checkout -B release-v0.44.1 origin/release-v0.44.1
         popd
     - name: Commit new changes
       run: |
