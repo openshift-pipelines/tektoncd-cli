@@ -17,7 +17,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tektoncd/chains/pkg/chains/objects"
@@ -27,8 +26,6 @@ import (
 )
 
 const (
-	// ChainsAnnotationPrefix is the prefix for all Chains annotations
-	ChainsAnnotationPrefix = "chains.tekton.dev/"
 	// ChainsAnnotation is the standard annotation to indicate a TR has been signed.
 	ChainsAnnotation             = "chains.tekton.dev/signed"
 	RetryAnnotation              = "chains.tekton.dev/retries"
@@ -66,10 +63,6 @@ func reconciledFromAnnotations(annotations map[string]string) bool {
 // MarkSigned marks a Tekton object as signed.
 func MarkSigned(ctx context.Context, obj objects.TektonObject, ps versioned.Interface, annotations map[string]string) error {
 	if _, ok := obj.GetAnnotations()[ChainsAnnotation]; ok {
-		// Object is already signed, but we may still need to apply additional annotations
-		if len(annotations) > 0 {
-			return AddAnnotation(ctx, obj, ps, ChainsAnnotation, "true", annotations)
-		}
 		return nil
 	}
 	return AddAnnotation(ctx, obj, ps, ChainsAnnotation, "true", annotations)
@@ -104,36 +97,12 @@ func AddRetry(ctx context.Context, obj objects.TektonObject, ps versioned.Interf
 }
 
 func AddAnnotation(ctx context.Context, obj objects.TektonObject, ps versioned.Interface, key, value string, annotations map[string]string) error {
-	// Get current annotations from API server to ensure we have the latest state
-	currentAnnotations, err := obj.GetLatestAnnotations(ctx, ps)
-	if err != nil {
-		return err
+	// Use patch instead of update to help prevent race conditions.
+	if annotations == nil {
+		annotations = map[string]string{}
 	}
-
-	// Start with existing chains annotations, ignore annotations from other controllers,
-	// so we do not take ownership of them.
-	mergedAnnotations := make(map[string]string)
-	for k, v := range currentAnnotations {
-		if strings.HasPrefix(k, ChainsAnnotationPrefix) {
-			mergedAnnotations[k] = v
-		}
-	}
-
-	// Add the new chains annotations, they all must be chains annotations
-	for k, v := range annotations {
-		if !strings.HasPrefix(k, ChainsAnnotationPrefix) {
-			return fmt.Errorf("invalid annotation key %q: all annotations must have prefix %q", k, ChainsAnnotationPrefix)
-		}
-		mergedAnnotations[k] = v
-	}
-
-	// Add the specific key-value pair, again it must be chains annotation
-	if !strings.HasPrefix(key, ChainsAnnotationPrefix) {
-		return fmt.Errorf("invalid annotation key %q: all annotations must have prefix %q", key, ChainsAnnotationPrefix)
-	}
-	mergedAnnotations[key] = value
-
-	patchBytes, err := patch.GetAnnotationsPatch(mergedAnnotations, obj)
+	annotations[key] = value
+	patchBytes, err := patch.GetAnnotationsPatch(annotations)
 	if err != nil {
 		return err
 	}
@@ -141,10 +110,5 @@ func AddAnnotation(ctx context.Context, obj objects.TektonObject, ps versioned.I
 	if err != nil {
 		return err
 	}
-
-	// Note: Ideally here we'll update the in-memory object to keep it consistent through
-	// the reconciliation loop. It hasn't been done to preserve the existing controller behavior
-	// and maintain compatibility with existing tests. This could be revisited in the future.
-
 	return nil
 }

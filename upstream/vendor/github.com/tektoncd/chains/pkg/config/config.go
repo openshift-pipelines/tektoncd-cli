@@ -53,13 +53,12 @@ type Artifact struct {
 
 // StorageConfigs contains the configuration to instantiate different storage providers
 type StorageConfigs struct {
-	GCS        GCSStorageConfig
-	OCI        OCIStorageConfig
-	Tekton     TektonStorageConfig
-	DocDB      DocDBStorageConfig
-	Grafeas    GrafeasConfig
-	PubSub     PubSubStorageConfig
-	Archivista ArchivistaStorageConfig
+	GCS     GCSStorageConfig
+	OCI     OCIStorageConfig
+	Tekton  TektonStorageConfig
+	DocDB   DocDBStorageConfig
+	Grafeas GrafeasConfig
+	PubSub  PubSubStorageConfig
 }
 
 // SignerConfigs contains the configuration to instantiate different signers
@@ -92,11 +91,10 @@ type KMSSigner struct {
 
 // KMSAuth configures authentication to the KMS server
 type KMSAuth struct {
-	Address   string
-	Token     string
-	TokenPath string
-	OIDC      KMSAuthOIDC
-	Spire     KMSAuthSpire
+	Address string
+	Token   string
+	OIDC    KMSAuthOIDC
+	Spire   KMSAuthSpire
 }
 
 // KMSAuthOIDC configures settings to authenticate with OIDC
@@ -124,10 +122,7 @@ type TektonStorageConfig struct {
 }
 
 type DocDBStorageConfig struct {
-	URL                string
-	MongoServerURL     string
-	MongoServerURLDir  string
-	MongoServerURLPath string
+	URL string
 }
 
 type GrafeasConfig struct {
@@ -156,12 +151,6 @@ type TransparencyConfig struct {
 	URL              string
 }
 
-// ArchivistaStorageConfig holds configuration for the Archivista storage backend.
-type ArchivistaStorageConfig struct {
-	// URL is the endpoint for the Archivista service.
-	URL string `json:"url"`
-}
-
 const (
 	taskrunFormatKey  = "artifacts.taskrun.format"
 	taskrunStorageKey = "artifacts.taskrun.storage"
@@ -176,19 +165,13 @@ const (
 	ociStorageKey = "artifacts.oci.storage"
 	ociSignerKey  = "artifacts.oci.signer"
 
-	gcsBucketKey               = "storage.gcs.bucket"
-	ociRepositoryKey           = "storage.oci.repository"
-	ociRepositoryInsecureKey   = "storage.oci.repository.insecure"
-	docDBUrlKey                = "storage.docdb.url"
-	docDBMongoServerURLKey     = "storage.docdb.mongo-server-url"
-	docDBMongoServerURLDirKey  = "storage.docdb.mongo-server-url-dir"
-	docDBMongoServerURLPathKey = "storage.docdb.mongo-server-url-path"
-
-	archivistaURLKey = "storage.archivista.url"
-
-	grafeasProjectIDKey = "storage.grafeas.projectid"
-	grafeasNoteIDKey    = "storage.grafeas.noteid"
-	grafeasNoteHint     = "storage.grafeas.notehint"
+	gcsBucketKey             = "storage.gcs.bucket"
+	ociRepositoryKey         = "storage.oci.repository"
+	ociRepositoryInsecureKey = "storage.oci.repository.insecure"
+	docDBUrlKey              = "storage.docdb.url"
+	grafeasProjectIDKey      = "storage.grafeas.projectid"
+	grafeasNoteIDKey         = "storage.grafeas.noteid"
+	grafeasNoteHint          = "storage.grafeas.notehint"
 
 	// PubSub - General
 	pubsubProvider = "storage.pubsub.provider"
@@ -204,7 +187,6 @@ const (
 	kmsAuthAddress       = "signers.kms.auth.address"
 	kmsAuthToken         = "signers.kms.auth.token"
 	kmsAuthOIDCPath      = "signers.kms.auth.oidc.path"
-	kmsAuthTokenPath     = "signers.kms.auth.token-path" // #nosec G101
 	kmsAuthOIDCRole      = "signers.kms.auth.oidc.role"
 	kmsAuthSpireSock     = "signers.kms.auth.spire.sock"
 	kmsAuthSpireAudience = "signers.kms.auth.spire.audience"
@@ -230,10 +212,6 @@ const (
 )
 
 func (artifact *Artifact) Enabled() bool {
-	// If signer is "none", signing is disabled
-	if artifact.Signer == "none" {
-		return false
-	}
 	return !(artifact.StorageBackend.Len() == 1 && artifact.StorageBackend.Has(""))
 }
 
@@ -288,20 +266,20 @@ func NewConfigFromMap(data map[string]string) (*Config, error) {
 	if err := cm.Parse(data,
 		// Artifact-specific configs
 		// TaskRuns
-		asString(taskrunFormatKey, &cfg.Artifacts.TaskRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha3", "slsa/v2alpha4"),
-		asStringSet(taskrunStorageKey, &cfg.Artifacts.TaskRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka", "archivista")),
-		asString(taskrunSignerKey, &cfg.Artifacts.TaskRuns.Signer, "x509", "kms", "none"),
+		asString(taskrunFormatKey, &cfg.Artifacts.TaskRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha1", "slsa/v2alpha2", "slsa/v2alpha3"),
+		asStringSet(taskrunStorageKey, &cfg.Artifacts.TaskRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka")),
+		asString(taskrunSignerKey, &cfg.Artifacts.TaskRuns.Signer, "x509", "kms"),
 
 		// PipelineRuns
-		asString(pipelinerunFormatKey, &cfg.Artifacts.PipelineRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha3", "slsa/v2alpha4"),
-		asStringSet(pipelinerunStorageKey, &cfg.Artifacts.PipelineRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "archivista")),
-		asString(pipelinerunSignerKey, &cfg.Artifacts.PipelineRuns.Signer, "x509", "kms", "none"),
+		asString(pipelinerunFormatKey, &cfg.Artifacts.PipelineRuns.Format, "in-toto", "slsa/v1", "slsa/v2alpha2", "slsa/v2alpha3"),
+		asStringSet(pipelinerunStorageKey, &cfg.Artifacts.PipelineRuns.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas")),
+		asString(pipelinerunSignerKey, &cfg.Artifacts.PipelineRuns.Signer, "x509", "kms"),
 		asBool(pipelinerunEnableDeepInspectionKey, &cfg.Artifacts.PipelineRuns.DeepInspectionEnabled),
 
 		// OCI
 		asString(ociFormatKey, &cfg.Artifacts.OCI.Format, "simplesigning"),
-		asStringSet(ociStorageKey, &cfg.Artifacts.OCI.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka", "archivista")),
-		asString(ociSignerKey, &cfg.Artifacts.OCI.Signer, "x509", "kms", "none"),
+		asStringSet(ociStorageKey, &cfg.Artifacts.OCI.StorageBackend, sets.New[string]("tekton", "oci", "gcs", "docdb", "grafeas", "kafka")),
+		asString(ociSignerKey, &cfg.Artifacts.OCI.Signer, "x509", "kms"),
 
 		// PubSub - General
 		asString(pubsubProvider, &cfg.Storage.PubSub.Provider, "inmemory", "kafka"),
@@ -315,12 +293,6 @@ func NewConfigFromMap(data map[string]string) (*Config, error) {
 		asString(ociRepositoryKey, &cfg.Storage.OCI.Repository),
 		asBool(ociRepositoryInsecureKey, &cfg.Storage.OCI.Insecure),
 		asString(docDBUrlKey, &cfg.Storage.DocDB.URL),
-		asString(docDBMongoServerURLKey, &cfg.Storage.DocDB.MongoServerURL),
-		asString(docDBMongoServerURLDirKey, &cfg.Storage.DocDB.MongoServerURLDir),
-		asString(docDBMongoServerURLPathKey, &cfg.Storage.DocDB.MongoServerURLPath),
-
-		asString(archivistaURLKey, &cfg.Storage.Archivista.URL),
-
 		asString(grafeasProjectIDKey, &cfg.Storage.Grafeas.ProjectID),
 		asString(grafeasNoteIDKey, &cfg.Storage.Grafeas.NoteID),
 		asString(grafeasNoteHint, &cfg.Storage.Grafeas.NoteHint),
@@ -332,7 +304,6 @@ func NewConfigFromMap(data map[string]string) (*Config, error) {
 		asString(kmsSignerKMSRef, &cfg.Signers.KMS.KMSRef),
 		asString(kmsAuthAddress, &cfg.Signers.KMS.Auth.Address),
 		asString(kmsAuthToken, &cfg.Signers.KMS.Auth.Token),
-		asString(kmsAuthTokenPath, &cfg.Signers.KMS.Auth.TokenPath),
 		asString(kmsAuthOIDCPath, &cfg.Signers.KMS.Auth.OIDC.Path),
 		asString(kmsAuthOIDCRole, &cfg.Signers.KMS.Auth.OIDC.Role),
 		asString(kmsAuthSpireSock, &cfg.Signers.KMS.Auth.Spire.Sock),

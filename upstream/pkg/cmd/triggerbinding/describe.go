@@ -99,11 +99,7 @@ or
 			}
 
 			if output != "" {
-				printer, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObject(triggerbindingGroupResource, opts.TriggerBindingName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), printer, p.Namespace())
+				return actions.PrintObject(triggerbindingGroupResource, opts.TriggerBindingName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), f, p.Namespace())
 			}
 
 			return printTriggerBindingDescription(s, p, opts.TriggerBindingName)

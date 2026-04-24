@@ -98,11 +98,7 @@ or
 			}
 
 			if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObject(clustertriggerbindingGroupResource, opts.ClusterTriggerBindingName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), p, "")
+				return actions.PrintObject(clustertriggerbindingGroupResource, opts.ClusterTriggerBindingName, cmd.OutOrStdout(), cs.Dynamic, cs.Triggers.Discovery(), f, "")
 			}
 
 			return printClusterTriggerBindingDescription(s, p, opts.ClusterTriggerBindingName)

@@ -19,7 +19,6 @@ package resources
 import (
 	"strconv"
 
-	"github.com/tektoncd/triggers/pkg/apis/config"
 	"github.com/tektoncd/triggers/pkg/apis/triggers"
 	"github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -29,7 +28,7 @@ import (
 
 type ContainerOption func(*corev1.Container)
 
-func MakeContainer(el *v1beta1.EventListener, configAcc reconcilersource.ConfigAccessor, c Config, cfg *config.Config, opts ...ContainerOption) corev1.Container {
+func MakeContainer(el *v1beta1.EventListener, configAcc reconcilersource.ConfigAccessor, c Config, opts ...ContainerOption) corev1.Container {
 	isMultiNS := false
 	if len(el.Spec.NamespaceSelector.MatchNames) != 0 {
 		isMultiNS = true
@@ -50,34 +49,20 @@ func MakeContainer(el *v1beta1.EventListener, configAcc reconcilersource.ConfigA
 
 	ev := configAcc.ToEnvVars()
 
-	var containerSecurityContext *corev1.SecurityContext
-	if el.Spec.Resources.KubernetesResource != nil {
-		if len(el.Spec.Resources.KubernetesResource.Template.Spec.Containers) != 0 {
-			if *c.SetSecurityContext {
-				containerSecurityContext = el.Spec.Resources.KubernetesResource.Template.Spec.Containers[0].SecurityContext
-			}
-		}
-	}
-	if *c.SetSecurityContext && containerSecurityContext == nil {
-		containerSecurityContext = &corev1.SecurityContext{
+	containerSecurityContext := corev1.SecurityContext{}
+	if *c.SetSecurityContext {
+		containerSecurityContext = corev1.SecurityContext{
 			AllowPrivilegeEscalation: ptr.Bool(false),
 			Capabilities: &corev1.Capabilities{
 				Drop: []corev1.Capability{"ALL"},
 			},
-			RunAsNonRoot: ptr.Bool(cfg.Defaults.DefaultRunAsNonRoot),
+			// 65532 is the distroless nonroot user ID
+			RunAsUser:    ptr.Int64(65532),
+			RunAsGroup:   ptr.Int64(65532),
+			RunAsNonRoot: ptr.Bool(true),
 			SeccompProfile: &corev1.SeccompProfile{
 				Type: corev1.SeccompProfileTypeRuntimeDefault,
 			},
-		}
-
-		if *c.SetReadOnlyRootFilesystem {
-			containerSecurityContext.ReadOnlyRootFilesystem = ptr.Bool(true)
-		}
-		if !cfg.Defaults.IsDefaultRunAsUserEmpty {
-			containerSecurityContext.RunAsUser = ptr.Int64(cfg.Defaults.DefaultRunAsUser)
-		}
-		if !cfg.Defaults.IsDefaultRunAsGroupEmpty {
-			containerSecurityContext.RunAsGroup = ptr.Int64(cfg.Defaults.DefaultRunAsGroup)
 		}
 	}
 
@@ -118,7 +103,7 @@ func MakeContainer(el *v1beta1.EventListener, configAcc reconcilersource.ConfigA
 			Name:  "K_SINK_TIMEOUT",
 			Value: strconv.FormatInt(*c.TimeOutHandler, 10),
 		}}...),
-		SecurityContext: containerSecurityContext,
+		SecurityContext: &containerSecurityContext,
 	}
 
 	for _, opt := range opts {

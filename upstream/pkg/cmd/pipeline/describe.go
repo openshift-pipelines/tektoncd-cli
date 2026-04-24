@@ -145,11 +145,7 @@ func describeCommand(p cli.Params) *cobra.Command {
 			}
 
 			if output != "" {
-				printer, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObjectV1(pipelineGroupResource, opts.PipelineName, cmd.OutOrStdout(), cs, printer, p.Namespace())
+				return actions.PrintObjectV1(pipelineGroupResource, opts.PipelineName, cmd.OutOrStdout(), cs, f, p.Namespace())
 			}
 
 			return printPipelineDescription(cmd.OutOrStdout(), cs, p.Namespace(), opts.PipelineName, p.Time())

@@ -163,11 +163,7 @@ or
 
 			if output != "" {
 				taskGroupResource := schema.GroupVersionResource{Group: "tekton.dev", Resource: "tasks"}
-				printer, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObjectV1(taskGroupResource, opts.TaskName, cmd.OutOrStdout(), cs, printer, p.Namespace())
+				return actions.PrintObjectV1(taskGroupResource, opts.TaskName, cmd.OutOrStdout(), cs, f, p.Namespace())
 			}
 
 			return printTaskDescription(s, p, opts.TaskName)
@@ -198,7 +194,7 @@ func printTaskDescription(s *cli.Stream, p cli.Params, tname string) error {
 		return fmt.Errorf("failed to get TaskRuns for Task %s: %v", tname, err)
 	}
 
-	// this is required as the same label is getting added for task
+	// this is required as the same label is getting added for both task and ClusterTask
 	taskRuns.Items = task.FilterByRef(taskRuns.Items, "Task")
 
 	trsort.SortByStartTime(taskRuns.Items)

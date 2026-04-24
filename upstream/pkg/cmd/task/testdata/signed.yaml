@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   annotations:
-    tekton.dev/signature: MEYCIQDcKSfirUfHnUgpNJykylmkOXmfcmdOha4aFNspzt98/AIhAMnYvFjEe1arO+mRpamB5bDY0ia/BLaJbpeOgS52yf/4
+    tekton.dev/signature: MEQCIBomLtWIbbujFGitTN0mjkBlK690/CZMAQXp/2b0Yxj6AiB4tAmxDeE4nIS2528CxcQxJud89LAoA6LvDjpWyK1s+Q==
   name: test-task
 spec:
   params:

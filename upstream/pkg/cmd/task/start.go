@@ -52,8 +52,9 @@ import (
 )
 
 var (
-	errNoTask      = errors.New("missing Task name")
-	errInvalidTask = "Task name %s does not exist in namespace %s"
+	errNoTask             = errors.New("missing Task name")
+	errInvalidTask        = "Task name %s does not exist in namespace %s"
+	errTaskAlreadyPresent = "Task with name %s already exists in namespace %s"
 )
 
 type startOptions struct {

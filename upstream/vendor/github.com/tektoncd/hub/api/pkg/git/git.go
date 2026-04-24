@@ -146,12 +146,8 @@ func git(log *zap.SugaredLogger, kind string, args ...string) (string, error) {
 	output, err := rawGit(kind, args...)
 
 	if err != nil {
-		log.Errorw(
-			"executedCommand", fmt.Sprintf("git %s", strings.Join(args, " ")),
-			"executedCommandOutput", output,
-			err,
-		)
-		return output, err
+		log.Errorf("git %s : error %s ;output: %s", strings.Join(args, " "), err.Error(), output)
+		return "", err
 	}
 	return output, nil
 }
@@ -166,6 +162,8 @@ func rawGit(dir string, args ...string) (string, error) {
 	if dir != "" {
 		c.Dir = dir
 	}
-	err := c.Run()
-	return output.String(), err
+	if err := c.Run(); err != nil {
+		return "", err
+	}
+	return output.String(), nil
 }

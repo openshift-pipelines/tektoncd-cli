@@ -154,7 +154,7 @@ func taskRunLister(cs *cli.Clients, ns string) func(string) ([]string, error) {
 			return nil, err
 		}
 
-		// this is required as the same label is getting added for Task
+		// this is required as the same label is getting added for both Task and ClusterTask
 		taskRuns.Items = task.FilterByRef(taskRuns.Items, "Task")
 		var names []string
 		for _, tr := range taskRuns.Items {

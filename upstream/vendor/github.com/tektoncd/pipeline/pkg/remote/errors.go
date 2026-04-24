@@ -18,7 +18,15 @@ package remote
 
 import "errors"
 
-// ErrRequestInProgress is a sentinel value that indicates
-// resolving a remote file like a pipeline in a bundle or
-// a task in git hasn't completed yet.
-var ErrRequestInProgress = errors.New("resource request in progress")
+var (
+	// ErrRequestInProgress is a sentinel value that indicates
+	// resolving a remote file like a pipeline in a bundle or
+	// a task in git hasn't completed yet.
+	ErrRequestInProgress = errors.New("resource request in progress")
+
+	// ErrorRequestInProgress is an alias for ErrRequestInProgress and will be
+	// removed in a future release..
+	//
+	// Deprecated: use ErrRequestInProgress instead
+	ErrorRequestInProgress = ErrRequestInProgress
+)

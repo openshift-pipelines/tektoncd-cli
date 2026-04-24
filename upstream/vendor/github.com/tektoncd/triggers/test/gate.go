@@ -10,8 +10,7 @@ import (
 )
 
 // FeatureFlagsToContext takes a map of feature flags and adds it to the context
-//
-//nolint:revive
+// nolint:unused,deadcode
 func FeatureFlagsToContext(ctx context.Context, flags map[string]string) (context.Context, error) {
 	featureFlags, err := config.NewFeatureFlagsFromMap(flags)
 	if err != nil {
@@ -28,8 +27,7 @@ func FeatureFlagsToContext(ctx context.Context, flags map[string]string) (contex
 // test if the feature-flag with given name does not equal
 // given value. It will fatally fail the test if it cannot get
 // the feature-flag configmap.
-//
-//nolint:revive,unused
+// nolint:unused,deadcode
 func requireGate(name, value string) func(context.Context, *testing.T, *clients, string) {
 	return func(ctx context.Context, t *testing.T, c *clients, _ string) {
 		featureFlagsCM, err := c.KubeClient.CoreV1().ConfigMaps(system.Namespace()).Get(ctx, config.GetFeatureFlagsConfigName(), metav1.GetOptions{})
