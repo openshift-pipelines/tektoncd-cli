@@ -70,7 +70,7 @@ func requireAnyGate(gates map[string]string) func(context.Context, *testing.T, *
 	}
 }
 
-// requireAllGates returns a setup func that will skip the current
+// requireAllgates returns a setup func that will skip the current
 // test if all of the feature-flags in the given map don't match
 // what's in the feature-flags ConfigMap. It will fatally fail
 // the test if it cannot get the feature-flag configmap.
@@ -111,23 +111,19 @@ func requireAllGates(gates map[string]string) func(context.Context, *testing.T, 
 func getFeatureFlagsBaseOnAPIFlag(t *testing.T) *config.FeatureFlags {
 	t.Helper()
 	alphaFeatureFlags, err := config.NewFeatureFlagsFromMap(map[string]string{
-		"enable-api-fields":              "alpha",
-		"results-from":                   "sidecar-logs",
-		"enable-tekton-oci-bundles":      "true",
-		"enable-cel-in-whenexpression":   "true",
-		"enable-param-enum":              "true",
-		"enable-artifacts":               "true",
-		"enable-concise-resolver-syntax": "true",
-		"enable-kubernetes-sidecar":      "true",
-		"keep-pod-on-cancel":             "true",
+		"enable-api-fields":            "alpha",
+		"results-from":                 "sidecar-logs",
+		"enable-tekton-oci-bundles":    "true",
+		"enable-step-actions":          "true",
+		"enable-cel-in-whenexpression": "true",
+		"enable-param-enum":            "true",
+		"enable-artifacts":             "true",
 	})
 	if err != nil {
 		t.Fatalf("error creating alpha feature flags configmap: %v", err)
 	}
 	betaFeatureFlags, err := config.NewFeatureFlagsFromMap(map[string]string{
-		"results-from":       "sidecar-logs",
-		"enable-api-fields":  "beta",
-		"keep-pod-on-cancel": "true",
+		"enable-api-fields": "beta",
 	})
 	if err != nil {
 		t.Fatalf("error creating beta feature flags configmap: %v", err)

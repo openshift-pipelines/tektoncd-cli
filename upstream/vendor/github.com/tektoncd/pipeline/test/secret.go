@@ -1,4 +1,5 @@
 //go:build e2e
+// +build e2e
 
 /*
 Copyright 2019 The Tekton Authors
@@ -35,7 +36,7 @@ import (
 // otherwise.
 func CreateGCPServiceAccountSecret(t *testing.T, c kubernetes.Interface, namespace string, secretName string) (bool, error) {
 	t.Helper()
-	ctx := t.Context()
+	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	file := os.Getenv("GCP_SERVICE_ACCOUNT_KEY_PATH")

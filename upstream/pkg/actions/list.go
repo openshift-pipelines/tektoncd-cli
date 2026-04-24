@@ -16,32 +16,36 @@ package actions
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
 
 	"github.com/tektoncd/cli/pkg/cli"
+	"github.com/tektoncd/cli/pkg/printer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/cli-runtime/pkg/printers"
+	cliopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 )
 
 // PrintObjects takes a partial resource, fetches a list of that resource's objects in the cluster using the dynamic client, and prints out the objects.
-func PrintObjects(groupResource schema.GroupVersionResource, w io.Writer, dynamic dynamic.Interface, discovery discovery.DiscoveryInterface, p printers.ResourcePrinter, ns string) error {
+func PrintObjects(groupResource schema.GroupVersionResource, w io.Writer, dynamic dynamic.Interface, discovery discovery.DiscoveryInterface, f *cliopts.PrintFlags, ns string) error {
 	allres, err := list(groupResource, dynamic, discovery, ns, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	return p.PrintObj(allres, w)
+	return printer.PrintObject(w, allres, f)
 }
 
 // List fetches the resource and convert it to respective object
 func ListV1(gr schema.GroupVersionResource, c *cli.Clients, opts metav1.ListOptions, ns string, obj interface{}) error {
 	unstructuredObj, err := list(gr, c.Dynamic, c.Tekton.Discovery(), ns, opts)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to list objects from %s namespace \n", ns)
 		return err
 	}
 

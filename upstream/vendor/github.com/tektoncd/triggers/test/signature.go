@@ -2,7 +2,7 @@ package test
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha1" //nolint
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"

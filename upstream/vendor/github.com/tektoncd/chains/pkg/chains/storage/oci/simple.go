@@ -57,10 +57,7 @@ func (s *SimpleStorer) Store(ctx context.Context, req *api.StoreRequest[name.Dig
 	logger.Info("Uploading signature")
 
 	se, err := ociremote.SignedEntity(req.Artifact, ociremote.WithRemoteOptions(s.remoteOpts...))
-	var entityNotFoundError *ociremote.EntityNotFoundError
-	if errors.As(err, &entityNotFoundError) {
-		se = ociremote.SignedUnknown(req.Artifact)
-	} else if err != nil {
+	if err != nil {
 		return nil, errors.Wrap(err, "getting signed image")
 	}
 

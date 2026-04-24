@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/formatted"
+	"github.com/tektoncd/cli/pkg/printer"
 	"github.com/tektoncd/cli/pkg/triggertemplate"
 	"github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -86,11 +87,7 @@ or
 			}
 
 			if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return p.PrintObj(tts, stream.Out)
+				return printer.PrintObject(stream.Out, tts, f)
 			}
 
 			if err = printFormatted(stream, tts, p, opts.AllNamespaces, opts.NoHeaders); err != nil {

@@ -23,6 +23,7 @@ import (
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/eventlistener"
 	"github.com/tektoncd/cli/pkg/formatted"
+	"github.com/tektoncd/cli/pkg/printer"
 	"github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -89,11 +90,7 @@ or
 			}
 
 			if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return p.PrintObj(els, stream.Out)
+				return printer.PrintObject(stream.Out, els, f)
 			}
 
 			if err = printFormatted(stream, els, p, opts.AllNamespaces, opts.NoHeaders); err != nil {

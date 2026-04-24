@@ -113,14 +113,14 @@ func levenshteinDistance(s, t string, ignoreCase bool) int {
 			if s[i-1] == t[j-1] {
 				d[i][j] = d[i-1][j-1]
 			} else {
-				minCost := d[i-1][j]
-				if d[i][j-1] < minCost {
-					minCost = d[i][j-1]
+				min := d[i-1][j]
+				if d[i][j-1] < min {
+					min = d[i][j-1]
 				}
-				if d[i-1][j-1] < minCost {
-					minCost = d[i-1][j-1]
+				if d[i-1][j-1] < min {
+					min = d[i-1][j-1]
 				}
-				d[i][j] = minCost + 1
+				d[i][j] = min + 1
 			}
 		}
 

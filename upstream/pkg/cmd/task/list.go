@@ -37,15 +37,15 @@ No Tasks found
 NAMESPACE	NAME	DESCRIPTION	AGE
 {{ else -}}
 NAME	DESCRIPTION	AGE
-{{ end -}}
+{{ end -}} 
 {{- end -}}
 {{- range $_, $t := .Tasks.Items }}{{- if $t }}
 {{- if $.AllNamespaces -}}
 {{ $t.Namespace }}	{{ $t.Name }}	{{ formatDesc $t.Spec.Description }}	{{ formatAge $t.CreationTimestamp $.Time }}
-{{ else -}}
+{{ else -}} 
 {{ $t.Name }}	{{ formatDesc $t.Spec.Description }}	{{ formatAge $t.CreationTimestamp $.Time }}
 {{ end }}{{- end }}{{- end }}
-{{- end -}}
+{{- end -}} 
 `
 
 type ListOptions struct {
@@ -81,11 +81,7 @@ func listCommand(p cli.Params) *cobra.Command {
 			}
 
 			if output != "" {
-				p, err := f.ToPrinter()
-				if err != nil {
-					return err
-				}
-				return actions.PrintObjects(taskGroupResource, cmd.OutOrStdout(), cs.Dynamic, cs.Tekton.Discovery(), p, ns)
+				return actions.PrintObjects(taskGroupResource, cmd.OutOrStdout(), cs.Dynamic, cs.Tekton.Discovery(), f, ns)
 			}
 			stream := &cli.Stream{
 				Out: cmd.OutOrStdout(),
