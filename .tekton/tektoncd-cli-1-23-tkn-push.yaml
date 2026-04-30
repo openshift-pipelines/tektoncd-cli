@@ -10,16 +10,16 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "next" &&
+      == "release-v1.23.x" &&
       ("upstream/***".pathChanged() || ".konflux/patches/***".pathChanged() || ".konflux/rpms/***".pathChanged() ||
       ".konflux/dockerfiles/tkn.Dockerfile".pathChanged() ||
-      ".tekton/tektoncd-cli-next-tkn-push.yaml".pathChanged())
+      ".tekton/tektoncd-cli-1-23-tkn-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: openshift-pipelines-core-next
-    appstudio.openshift.io/component: tektoncd-cli-next-tkn
+    appstudio.openshift.io/application: openshift-pipelines-core-1-23
+    appstudio.openshift.io/component: tektoncd-cli-1-23-tkn
     pipelines.appstudio.openshift.io/type: build
-  name: tektoncd-cli-next-tkn-on-push
+  name: tektoncd-cli-1-23-tkn-on-push
   namespace: tekton-ecosystem-tenant
 spec:
   params:
@@ -35,14 +35,14 @@ spec:
     value: .konflux/dockerfiles/tkn.Dockerfile
   - name: additional-tags
     value:
-      - "next"
+      - "v1.23.0"
   - name: prefetch-input
     value: |
       {"type": "rpm", "path": ".konflux/rpms"}
   pipelineRef:
     name: docker-build-ta
   taskRunTemplate:
-    serviceAccountName: build-pipeline-tektoncd-cli-next-tkn
+    serviceAccountName: build-pipeline-tektoncd-cli-1-23-tkn
   workspaces:
   - name: git-auth
     secret:
