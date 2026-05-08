@@ -1,6 +1,6 @@
 # Rebuild trigger: 1.15.4 release 2026-02-27
 ARG GO_BUILDER=registry.access.redhat.com/ubi8/go-toolset:latest
-ARG RUNTIME=registry.redhat.io/ubi8/ubi@sha256:8f757bfe94700eee7d26c885cd16bf3ae9923edf38f984ef3da50d2ce937fc5e
+ARG RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal:latest
 ARG PAC_BUILDER=registry.redhat.io/openshift-pipelines/pipelines-pipelines-as-code-cli-rhel8@sha256:c3c8fcadb15bed1134934a603264cdab044a356102c5330c0f2923c5588c71ef
 
 FROM $GO_BUILDER AS builder
