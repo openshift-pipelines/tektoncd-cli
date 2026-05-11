@@ -158,32 +158,17 @@ func (ps *PipelineRunSpec) ValidateUpdate(ctx context.Context) (errs *apis.Field
 	if !ok || oldObj == nil {
 		return
 	}
-	if oldObj.IsDone() {
-		// try comparing without any copying first
-		// this handles the common case where only finalizers changed
-		if equality.Semantic.DeepEqual(&oldObj.Spec, ps) {
-			return nil // Specs identical, allow update
-		}
+	old := &oldObj.Spec
 
-		// Specs differ, this could be due to different defaults after upgrade
-		// Apply current defaults to old spec to normalize
-		oldCopy := oldObj.Spec.DeepCopy()
-		oldCopy.SetDefaults(ctx)
-
-		if equality.Semantic.DeepEqual(oldCopy, ps) {
-			return nil // Difference was only defaults, allow update
-		}
-
-		// Real spec changes detected, reject update
-		errs = errs.Also(apis.ErrInvalidValue("Once the PipelineRun is complete, no updates are allowed", ""))
-		return errs
+	// If already in the done state, the spec cannot be modified. Otherwise, only the status field can be modified.
+	tips := "Once the PipelineRun is complete, no updates are allowed"
+	if !oldObj.IsDone() {
+		old = old.DeepCopy()
+		old.Status = ps.Status
+		tips = "Once the PipelineRun has started, only status updates are allowed"
 	}
-
-	// Handle started but not done case
-	old := oldObj.Spec.DeepCopy()
-	old.Status = ps.Status
 	if !equality.Semantic.DeepEqual(old, ps) {
-		errs = errs.Also(apis.ErrInvalidValue("Once the PipelineRun has started, only status updates are allowed", ""))
+		errs = errs.Also(apis.ErrInvalidValue(tips, ""))
 	}
 
 	return
