@@ -56,7 +56,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": " <!subteam^S050DUBQXST> please check and fix."
+                    "text": " <!subteam^S050DUBQXST> please investigate and fix this failure.\nReach out to the release captain if you need assistance."
                   }
                 },
                 {
