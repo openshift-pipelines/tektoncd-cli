@@ -1,0 +1,75 @@
+# Generated for Konflux Application openshift-pipelines-core by openshift-pipelines/hack. DO NOT EDIT
+name: Slack notification on build failure
+
+on:
+  check_suite:
+    types: [completed]
+    branches:
+      - "main"
+      - "next"
+      - "nightly"
+      - "release-v*"
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.check_suite.conclusion == 'failure' }}
+    steps:
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🔴 Build Failure in ${{ github.event.repository.name }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository:*\n${{ github.event.repository.full_name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.event.check_suite.head_branch }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n${{ github.event.check_suite.head_sha }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Triggered by:*\n${{ github.event.sender.login }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": " <!subteam^S050DUBQXST> please investigate and fix this failure.\nReach out to the release captain if you need assistance."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Checks"
+                      },
+                      "url": "${{ github.event.repository.html_url }}/commit/${{ github.event.check_suite.head_sha }}/checks"
+                    }
+                  ]
+                }
+              ]
+            }
