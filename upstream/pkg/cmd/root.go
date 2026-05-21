@@ -23,11 +23,12 @@ import (
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/cli/prerun"
 	"github.com/tektoncd/cli/pkg/cmd/bundle"
-	"github.com/tektoncd/cli/pkg/cmd/chain"
 	"github.com/tektoncd/cli/pkg/cmd/clustertriggerbinding"
 	"github.com/tektoncd/cli/pkg/cmd/completion"
 	"github.com/tektoncd/cli/pkg/cmd/customrun"
 	"github.com/tektoncd/cli/pkg/cmd/eventlistener"
+	hubApp "github.com/tektoncd/cli/pkg/cmd/hub/app"
+	hub "github.com/tektoncd/cli/pkg/cmd/hub/cmd"
 	"github.com/tektoncd/cli/pkg/cmd/pipeline"
 	"github.com/tektoncd/cli/pkg/cmd/pipelinerun"
 	"github.com/tektoncd/cli/pkg/cmd/task"
@@ -37,8 +38,6 @@ import (
 	"github.com/tektoncd/cli/pkg/cmd/version"
 	"github.com/tektoncd/cli/pkg/plugins"
 	"github.com/tektoncd/cli/pkg/suggestion"
-	hubApp "github.com/tektoncd/hub/api/pkg/cli/app"
-	hub "github.com/tektoncd/hub/api/pkg/cli/cmd"
 )
 
 const usageTemplate = `Usage:{{if .Runnable}}
@@ -102,7 +101,6 @@ func Root(p cli.Params) *cobra.Command {
 
 	cmd.AddCommand(
 		bundle.Command(p),
-		chain.Command(p),
 		clustertriggerbinding.Command(p),
 		completion.Command(),
 		eventlistener.Command(p),
