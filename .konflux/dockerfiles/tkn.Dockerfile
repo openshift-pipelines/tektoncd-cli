@@ -31,16 +31,16 @@ ARG VERSION=nightly
 COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
-    com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
+    com.redhat.component="openshift-pipelines-cli-tkn-rhel10-container" \
     cpe="cpe:/a:redhat:openshift_pipelines:nightly::el9" \
     description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.openshift.tags="tekton,openshift,tektoncd-cli,tkn" \
     maintainer="pipelines-extcomm@redhat.com" \
-    name="openshift-pipelines/pipelines-cli-tkn-rhel9" \
+    name="openshift-pipelines/pipelines-cli-tkn-rhel10" \
     summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-    version="latest"
+    version="nightly"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 USER 65532
