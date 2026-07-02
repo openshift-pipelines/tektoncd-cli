@@ -25,13 +25,13 @@ arches:
     name: git-core-doc
     evr: 2.43.7-1.el8_10
     sourcerpm: git-2.43.7-1.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/Packages/g/git-lfs-3.4.1-10.el8_10.aarch64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/Packages/g/git-lfs-3.4.1-11.el8_10.aarch64.rpm
     repoid: ubi-8-appstream-rpms
-    size: 4312340
-    checksum: sha256:c2cd7ad25ca202bb7bc719af64aa44bf93fa1ff92e7be43951db81ccbdbda44b
+    size: 4314232
+    checksum: sha256:67cd7deef2927d101564ffc377c0952a4f8f61b73441434faeb190955f58f2f1
     name: git-lfs
-    evr: 3.4.1-10.el8_10
-    sourcerpm: git-lfs-3.4.1-10.el8_10.src.rpm
+    evr: 3.4.1-11.el8_10
+    sourcerpm: git-lfs-3.4.1-11.el8_10.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/Packages/p/perl-Digest-1.17-395.el8.noarch.rpm
     repoid: ubi-8-appstream-rpms
     size: 27624
@@ -398,10 +398,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/d575ed82b94f9b48cfd5ff64d9e52877b7803444f4526b00c677f58c04b8dc0e-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/8d54582a6217d4bb93ba3505e9ec4965987fd22aeb667d2936b6f697ac8b8b17-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
-    size: 55979
-    checksum: sha256:d575ed82b94f9b48cfd5ff64d9e52877b7803444f4526b00c677f58c04b8dc0e
+    size: 56007
+    checksum: sha256:8d54582a6217d4bb93ba3505e9ec4965987fd22aeb667d2936b6f697ac8b8b17
 - arch: ppc64le
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-2.43.7-1.el8_10.ppc64le.rpm
@@ -425,13 +425,13 @@ arches:
     name: git-core-doc
     evr: 2.43.7-1.el8_10
     sourcerpm: git-2.43.7-1.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-lfs-3.4.1-10.el8_10.ppc64le.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-lfs-3.4.1-11.el8_10.ppc64le.rpm
     repoid: ubi-8-appstream-rpms
-    size: 4368924
-    checksum: sha256:05a7acf8095312c2fda2f6297c3690b8b740f3f69266fd08b7ce3b41457ce10b
+    size: 4374536
+    checksum: sha256:24723e899b1d321d2db190f9ba14ec377b5b6e165ae9e86c6076490f732d9a24
     name: git-lfs
-    evr: 3.4.1-10.el8_10
-    sourcerpm: git-lfs-3.4.1-10.el8_10.src.rpm
+    evr: 3.4.1-11.el8_10
+    sourcerpm: git-lfs-3.4.1-11.el8_10.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/p/perl-Digest-1.17-395.el8.noarch.rpm
     repoid: ubi-8-appstream-rpms
     size: 27624
@@ -798,10 +798,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/851f6ca3bc32944fb22a9785a886ca8ef4cc34f3c71bcd03638252f33676dc69-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/fe34bdf71abf70d878774148c3c39eca7e75b42b21377d9543401a95590ce75e-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
-    size: 58700
-    checksum: sha256:851f6ca3bc32944fb22a9785a886ca8ef4cc34f3c71bcd03638252f33676dc69
+    size: 57523
+    checksum: sha256:fe34bdf71abf70d878774148c3c39eca7e75b42b21377d9543401a95590ce75e
 - arch: s390x
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-2.43.7-1.el8_10.s390x.rpm
@@ -825,13 +825,13 @@ arches:
     name: git-core-doc
     evr: 2.43.7-1.el8_10
     sourcerpm: git-2.43.7-1.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-lfs-3.4.1-10.el8_10.s390x.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-lfs-3.4.1-11.el8_10.s390x.rpm
     repoid: ubi-8-appstream-rpms
-    size: 4614016
-    checksum: sha256:77b5d1314657814371a1423cb6723e31071287563524f193135d1705c7a12197
+    size: 4620360
+    checksum: sha256:69de61e15ef48b15911e40741964ce0bdae7366937814bdc14276ef820e15d2b
     name: git-lfs
-    evr: 3.4.1-10.el8_10
-    sourcerpm: git-lfs-3.4.1-10.el8_10.src.rpm
+    evr: 3.4.1-11.el8_10
+    sourcerpm: git-lfs-3.4.1-11.el8_10.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/p/perl-Digest-1.17-395.el8.noarch.rpm
     repoid: ubi-8-appstream-rpms
     size: 27624
@@ -1198,10 +1198,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/4c61a9b8108374610ad3db349b8283f4032de80a9c7f1f609a768f90c532372d-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/304877eb2594013c29bcfd1d010538adc28967d0078c8405f8e7041b0e513ce8-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
-    size: 58418
-    checksum: sha256:4c61a9b8108374610ad3db349b8283f4032de80a9c7f1f609a768f90c532372d
+    size: 57249
+    checksum: sha256:304877eb2594013c29bcfd1d010538adc28967d0078c8405f8e7041b0e513ce8
 - arch: x86_64
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/Packages/g/git-2.43.7-1.el8_10.x86_64.rpm
@@ -1598,7 +1598,7 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/5624da6e8f0d46b3573806eae5ae13880567c988872835047b98c83453cfeb6d-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/a434a6af18602d6d48f6f6f214bfedde6db0bc64a6780ae7cf0da588bcbe39d6-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
-    size: 59405
-    checksum: sha256:5624da6e8f0d46b3573806eae5ae13880567c988872835047b98c83453cfeb6d
+    size: 59359
+    checksum: sha256:a434a6af18602d6d48f6f6f214bfedde6db0bc64a6780ae7cf0da588bcbe39d6
