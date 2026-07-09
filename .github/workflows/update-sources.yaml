@@ -26,7 +26,7 @@ jobs:
           rm -fR upstream
           git clone https://github.com/tektoncd/cli upstream
           pushd upstream
-          git checkout -B release-v0.43.2 origin/release-v0.43.2
+          git checkout -B release-v0.43.x origin/release-v0.43.x
           popd
       - name: update-rpms
         continue-on-error: true
@@ -65,7 +65,7 @@ jobs:
           git diff --stat ${NEW_COMMIT}..${OLD_COMMIT} > /tmp/diff.txt
           git rev-parse HEAD > ../head
           popd
-          rm -rf upstream/.*
+          rm -rf upstream/.git
           git add -f upstream head .konflux
           
           if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
@@ -74,7 +74,7 @@ jobs:
           fi
           
           git commit -F- <<EOF
-          [bot] Update release-v1.21.x from tektoncd/cli:release-v0.43.2 to ${NEW_COMMIT}
+          [bot] Update release-v1.21.x from tektoncd/cli:release-v0.43.x to ${NEW_COMMIT}
           
               $ git diff --stat ${NEW_COMMIT}..${OLD_COMMIT}
           $(cat /tmp/diff.txt | sed 's/^/    /' | head -c 55555)
@@ -89,7 +89,7 @@ jobs:
             gh pr create -B release-v1.21.x -H actions/update/sources-release-v1.21.x --label=automated --label=upstream --fill
           else
             echo "a PR already exists, editing..."
-          gh pr edit --title "[bot] Update release-v1.21.x from tektoncd/cli:release-v0.43.2 to ${NEW_COMMIT}" --body "$(cat /tmp/diff.txt | sed 's/^/    /' | head -c 55555)"
+          gh pr edit --title "[bot] Update release-v1.21.x from tektoncd/cli:release-v0.43.x to ${NEW_COMMIT}" --body "$(cat /tmp/diff.txt | sed 's/^/    /' | head -c 55555)"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
