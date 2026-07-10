@@ -1,6 +1,6 @@
 module github.com/tektoncd/cli
 
-go 1.25.9
+go 1.25.8
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
@@ -8,7 +8,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cpuguy83/go-md2man v1.0.10
 	github.com/creack/pty v1.1.21
-	github.com/docker/cli v29.0.3+incompatible
+	github.com/docker/cli v29.0.4+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
@@ -42,6 +42,8 @@ require (
 	knative.dev/pkg v0.0.0-20250415155312-ed3e2158b883
 	sigs.k8s.io/yaml v1.6.0
 )
+
+replace github.com/alibabacloud-go/cr-20160607 => github.com/vdemeester/cr-20160607 v1.0.1
 
 require (
 	cel.dev/expr v0.25.1 // indirect
