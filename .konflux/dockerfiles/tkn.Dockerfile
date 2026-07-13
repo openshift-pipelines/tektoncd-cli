@@ -16,7 +16,7 @@ COPY .konflux/patches patches/
 RUN set -e; for f in patches/*.patch; do echo ${f}; [[ -f ${f} ]] || continue; git apply ${f}; done
 
 COPY head HEAD
-ENV GODEBUG="http2server=0"
+ENV GODEBUG="http2server=0" GOTOOLCHAIN=auto
 RUN go build -ldflags="-X 'knative.dev/pkg/changeset.rev=$(cat HEAD)'" -mod=vendor -tags disable_gcp -v \
        -ldflags "-X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=${TKN_VERSION}" \
        -o /tmp/tkn ./cmd/tkn
