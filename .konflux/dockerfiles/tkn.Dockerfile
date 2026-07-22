@@ -32,7 +32,7 @@ COPY --from=builder /tmp/tkn /usr/bin
 COPY --from=builder /tmp/tkn-pac /usr/bin
 LABEL \
     com.redhat.component="openshift-pipelines-cli-tkn-rhel9-container" \
-    cpe="cpe:/a:redhat:openshift_pipelines:next::el9" \
+    cpe="cpe:/a:redhat:openshift_pipelines:next::" \
     description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.description="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
     io.k8s.display-name="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
