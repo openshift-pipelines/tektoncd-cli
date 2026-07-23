@@ -405,10 +405,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/64a86c4e937828ad7c09a66997814b5ee19bfc7c5a9d579d3ec216265709906c-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/d540733318150d57232c1aa67e84a503bcce17a10915153ca3054ab8e0286620-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 56834
-    checksum: sha256:64a86c4e937828ad7c09a66997814b5ee19bfc7c5a9d579d3ec216265709906c
+    checksum: sha256:d540733318150d57232c1aa67e84a503bcce17a10915153ca3054ab8e0286620
 - arch: ppc64le
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-2.43.7-1.el8_10.ppc64le.rpm
@@ -812,10 +812,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/1302d73aaec7d13cec0185e86331a988266f77be93549c0b4bec9b23427b8da9-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/663edcedda354694ecf3390014458b956db920b4da3ca453dff0d379216700ab-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 57910
-    checksum: sha256:1302d73aaec7d13cec0185e86331a988266f77be93549c0b4bec9b23427b8da9
+    checksum: sha256:663edcedda354694ecf3390014458b956db920b4da3ca453dff0d379216700ab
 - arch: s390x
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-2.43.7-1.el8_10.s390x.rpm
@@ -1219,10 +1219,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/a66d2ac020925a6ddba130ef84d379a2d48946ae9dc902086122d4cffec8c8d0-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/3da716e610328c7c8914a457b601088d77dc0530590d01eac147b47c80405560-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 56772
-    checksum: sha256:a66d2ac020925a6ddba130ef84d379a2d48946ae9dc902086122d4cffec8c8d0
+    checksum: sha256:3da716e610328c7c8914a457b601088d77dc0530590d01eac147b47c80405560
 - arch: x86_64
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/Packages/g/git-2.43.7-1.el8_10.x86_64.rpm
@@ -1626,7 +1626,7 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/e87beb6ea970cbe7d48e4e4a567768be712f46de0b362c578bb983165c2144e4-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/d941e08933ca733e3abb5a217d48f4a7229875fbf40b5aff7711a4c50b91431d-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 58709
-    checksum: sha256:e87beb6ea970cbe7d48e4e4a567768be712f46de0b362c578bb983165c2144e4
+    checksum: sha256:d941e08933ca733e3abb5a217d48f4a7229875fbf40b5aff7711a4c50b91431d
