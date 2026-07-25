@@ -165,13 +165,6 @@ arches:
     name: openssl
     evr: 1:1.1.1k-17.el8_6
     sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssl-libs-1.1.1k-17.el8_6.aarch64.rpm
-    repoid: ubi-8-baseos-rpms
-    size: 1414500
-    checksum: sha256:f117e1398703910c8e48981ed10e6667f0784bddc6df067f1c165eded7702d18
-    name: openssl-libs
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
     repoid: ubi-8-baseos-rpms
     size: 30928
@@ -405,10 +398,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/d540733318150d57232c1aa67e84a503bcce17a10915153ca3054ab8e0286620-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/c983920ad3fca2fcfce2e1a306c80912efb524422a28af675b45385806abb3a2-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 56834
-    checksum: sha256:d540733318150d57232c1aa67e84a503bcce17a10915153ca3054ab8e0286620
+    checksum: sha256:c983920ad3fca2fcfce2e1a306c80912efb524422a28af675b45385806abb3a2
 - arch: ppc64le
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-2.43.7-1.el8_10.ppc64le.rpm
@@ -570,13 +563,6 @@ arches:
     size: 731540
     checksum: sha256:7fbd2d669c333e4d0922f8c604bebe88887723265dcfb7b59bfb29d3d6164128
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssl-libs-1.1.1k-17.el8_6.ppc64le.rpm
-    repoid: ubi-8-baseos-rpms
-    size: 1580312
-    checksum: sha256:71551e29d1aba1daaeb19eaee945aeae1de39e9b88d467fc6d619500f5845674
-    name: openssl-libs
     evr: 1:1.1.1k-17.el8_6
     sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
@@ -812,10 +798,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/663edcedda354694ecf3390014458b956db920b4da3ca453dff0d379216700ab-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/25ea68a09c44cc2adacfcc601671850d7db19563b95c15285f79f67a728f9f6d-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 57910
-    checksum: sha256:663edcedda354694ecf3390014458b956db920b4da3ca453dff0d379216700ab
+    checksum: sha256:25ea68a09c44cc2adacfcc601671850d7db19563b95c15285f79f67a728f9f6d
 - arch: s390x
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-2.43.7-1.el8_10.s390x.rpm
@@ -977,13 +963,6 @@ arches:
     size: 714556
     checksum: sha256:c5565bd7dfc7d07d2f5902a22f27543a4ce831046aee22d62859b07048a30336
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/baseos/os/Packages/o/openssl-libs-1.1.1k-17.el8_6.s390x.rpm
-    repoid: ubi-8-baseos-rpms
-    size: 1214104
-    checksum: sha256:1838edcd1ff782c36d5bfde95fb41d8e72b2b2936a1d09fc56ead636b461df3d
-    name: openssl-libs
     evr: 1:1.1.1k-17.el8_6
     sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
@@ -1219,10 +1198,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/3da716e610328c7c8914a457b601088d77dc0530590d01eac147b47c80405560-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/b814baf5d0e24bd464e23789430bb62756a767a31409e2172280d13434b33df3-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 56772
-    checksum: sha256:3da716e610328c7c8914a457b601088d77dc0530590d01eac147b47c80405560
+    checksum: sha256:b814baf5d0e24bd464e23789430bb62756a767a31409e2172280d13434b33df3
 - arch: x86_64
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/Packages/g/git-2.43.7-1.el8_10.x86_64.rpm
@@ -1384,13 +1363,6 @@ arches:
     size: 727856
     checksum: sha256:d2e8518509c5900095c9811c7663a614b9ef44648e24e61dde954ca07328ad27
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssl-libs-1.1.1k-17.el8_6.x86_64.rpm
-    repoid: ubi-8-baseos-rpms
-    size: 1542604
-    checksum: sha256:18b2b75589a5976e8bf7bd4e72933b69221e6ae75c6531ce97621c0bf204f79d
-    name: openssl-libs
     evr: 1:1.1.1k-17.el8_6
     sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
@@ -1626,7 +1598,7 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/d941e08933ca733e3abb5a217d48f4a7229875fbf40b5aff7711a4c50b91431d-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/93fe16afa9beb83d5ef799f8500906f7e6c974b7ed0559047889eb472bf26fdf-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
     size: 58709
-    checksum: sha256:d941e08933ca733e3abb5a217d48f4a7229875fbf40b5aff7711a4c50b91431d
+    checksum: sha256:93fe16afa9beb83d5ef799f8500906f7e6c974b7ed0559047889eb472bf26fdf
