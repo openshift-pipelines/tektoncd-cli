@@ -1,6 +1,6 @@
 module github.com/tektoncd/cli
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/ActiveState/vt10x v1.3.1
@@ -23,7 +23,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/jonboulle/clockwork v0.5.0
 	github.com/ktr0731/go-fuzzyfinder v0.9.0
-	github.com/letsencrypt/boulder v0.20260713.0
+	github.com/letsencrypt/boulder v0.20260720.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/sigstore/sigstore v1.10.8
@@ -31,7 +31,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tektoncd/pipeline v1.14.0
+	github.com/tektoncd/pipeline v1.14.1
 	github.com/tektoncd/plumbing v0.0.0-20250430145243-3b7cd59879c1
 	github.com/tektoncd/triggers v0.36.0
 	github.com/theupdateframework/go-tuf v0.7.0
@@ -40,17 +40,17 @@ require (
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.28.0
 	goa.design/goa/v3 v3.28.0
-	golang.org/x/crypto v0.53.0
+	golang.org/x/crypto v0.54.0
 	golang.org/x/term v0.45.0
-	golang.org/x/text v0.39.0
+	golang.org/x/text v0.40.0
 	google.golang.org/grpc v1.82.1
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gotest.tools/v3 v3.5.2
-	k8s.io/api v0.36.2
-	k8s.io/apimachinery v0.36.2
+	k8s.io/api v0.36.3
+	k8s.io/apimachinery v0.36.3
 	k8s.io/cli-runtime v0.29.15
-	k8s.io/client-go v0.36.2
+	k8s.io/client-go v0.36.3
 	knative.dev/pkg v0.0.0-20260531000007-52dbd5ece63f
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -104,7 +104,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.28.1 // indirect
+	github.com/google/cel-go v0.29.0 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -180,7 +180,7 @@ require (
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
@@ -204,5 +204,5 @@ require (
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.14.3-0.20230601165947-6ce0bf390ce3 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
-	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.3 // indirect
 )
