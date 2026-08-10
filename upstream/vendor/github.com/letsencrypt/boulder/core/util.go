@@ -112,6 +112,9 @@ func KeyDigest(key crypto.PublicKey) (Sha256Digest, error) {
 	case jose.JSONWebKey:
 		return KeyDigest(t.Key)
 	default:
+		// Marshalling the key to DER ensures that this has the exact same result
+		// as computing the hash over the RawSubjectPublicKeyInfo of a cert with
+		// the same key.
 		keyDER, err := x509.MarshalPKIXPublicKey(key)
 		if err != nil {
 			return Sha256Digest{}, err
@@ -128,6 +131,15 @@ func KeyDigestB64(key crypto.PublicKey) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(digest[:]), nil
+}
+
+// CertKeyDigest is exactly the same as KeyDigest, except that it computes its
+// hash over the SubjectPublicKeyInfo of a certificate, rather than an in-memory
+// crypto.PublicKey. This is here to ensure that the methods used to compute
+// hashes of cert keys and account keys never diverge, since bad-key-revoker
+// checks both when a new key is blocked.
+func CertKeyDigest(cert *x509.Certificate) Sha256Digest {
+	return sha256.Sum256(cert.RawSubjectPublicKeyInfo)
 }
 
 // KeyDigestEquals determines whether two public keys have the same digest.
@@ -402,7 +414,7 @@ func Command() string {
 }
 
 // NormalizeIssuerDomainName normalizes an RFC 8659 issuer-domain-name per the
-// recommended algorithm in draft-ietf-acme-dns-persist-00, Section 9.1.1:
+// recommended algorithm in draft-ietf-acme-dns-persist-01, Section 9.2:
 // case-fold to lowercase, apply Unicode NFC normalization, convert to A-label
 // (Punycode), remove any trailing dot, and ensure the result is no more than
 // 253 octets in length. If normalization fails, an error is returned.
