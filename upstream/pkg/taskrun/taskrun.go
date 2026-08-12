@@ -18,11 +18,13 @@ import (
 	"sort"
 
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type Run struct {
 	Name           string
+	DisplayName    string
 	Task           string
 	Retries        int
 	StartTime      *metav1.Time
@@ -78,6 +80,23 @@ func Filter(trs []Run, ts []string) []Run {
 	return filtered
 }
 
+func FilterByStatus(trs []Run, trsMap map[string]*v1.PipelineRunTaskRunStatus, failed bool) []Run {
+	if !failed {
+		return trs
+	}
+	filtered := []Run{}
+	for _, tr := range trs {
+		if status, ok := trsMap[tr.Name]; ok {
+			if status.Status != nil &&
+				len(status.Status.Conditions) > 0 &&
+				status.Status.Conditions[0].Status == corev1.ConditionFalse {
+				filtered = append(filtered, tr)
+			}
+		}
+	}
+	return filtered
+}
+
 func SortTasksBySpecOrder(pipelineTasks []v1.PipelineTask, pipelinesTaskRuns map[string]*v1.PipelineRunTaskRunStatus) []Run {
 	trNames := map[string]string{}
 
@@ -92,6 +111,7 @@ func SortTasksBySpecOrder(pipelineTasks []v1.PipelineTask, pipelinesTaskRuns map
 			trs = append(trs, Run{
 				Task:           ts.Name,
 				Name:           n,
+				DisplayName:    ts.DisplayName,
 				Retries:        ts.Retries,
 				StartTime:      trStatusFields.StartTime,
 				CompletionTime: trStatusFields.CompletionTime,

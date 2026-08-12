@@ -27,6 +27,8 @@ import (
 	"unicode"
 
 	"github.com/go-jose/go-jose/v4"
+	"golang.org/x/net/idna"
+	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -110,6 +112,9 @@ func KeyDigest(key crypto.PublicKey) (Sha256Digest, error) {
 	case jose.JSONWebKey:
 		return KeyDigest(t.Key)
 	default:
+		// Marshalling the key to DER ensures that this has the exact same result
+		// as computing the hash over the RawSubjectPublicKeyInfo of a cert with
+		// the same key.
 		keyDER, err := x509.MarshalPKIXPublicKey(key)
 		if err != nil {
 			return Sha256Digest{}, err
@@ -126,6 +131,15 @@ func KeyDigestB64(key crypto.PublicKey) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(digest[:]), nil
+}
+
+// CertKeyDigest is exactly the same as KeyDigest, except that it computes its
+// hash over the SubjectPublicKeyInfo of a certificate, rather than an in-memory
+// crypto.PublicKey. This is here to ensure that the methods used to compute
+// hashes of cert keys and account keys never diverge, since bad-key-revoker
+// checks both when a new key is blocked.
+func CertKeyDigest(cert *x509.Certificate) Sha256Digest {
+	return sha256.Sum256(cert.RawSubjectPublicKeyInfo)
 }
 
 // KeyDigestEquals determines whether two public keys have the same digest.
@@ -397,4 +411,23 @@ func IsCanceled(err error) bool {
 
 func Command() string {
 	return path.Base(os.Args[0])
+}
+
+// NormalizeIssuerDomainName normalizes an RFC 8659 issuer-domain-name per the
+// recommended algorithm in draft-ietf-acme-dns-persist-01, Section 9.2:
+// case-fold to lowercase, apply Unicode NFC normalization, convert to A-label
+// (Punycode), remove any trailing dot, and ensure the result is no more than
+// 253 octets in length. If normalization fails, an error is returned.
+func NormalizeIssuerDomainName(name string) (string, error) {
+	name = strings.ToLower(name)
+	name = norm.NFC.String(name)
+	name, err := idna.Lookup.ToASCII(name)
+	if err != nil {
+		return "", fmt.Errorf("converting issuer domain name %q to ASCII: %w", name, err)
+	}
+	name = strings.TrimSuffix(name, ".")
+	if len(name) > 253 {
+		return "", fmt.Errorf("issuer domain name %q exceeds 253 octets (%d)", name, len(name))
+	}
+	return name, nil
 }
