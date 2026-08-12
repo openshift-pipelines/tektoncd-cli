@@ -35,8 +35,10 @@ type Reader struct {
 	timestamps      bool
 	tasks           []string
 	steps           []string
+	failed          bool
 	logType         string
 	task            string
+	displayName     string
 	number          int
 	activityTimeout time.Duration
 	retries         int
@@ -75,6 +77,7 @@ func NewReader(logType string, opts *options.LogOptions) (*Reader, error) {
 		follow:          opts.Follow,
 		timestamps:      opts.Timestamps,
 		allSteps:        opts.AllSteps,
+		failed:          opts.Failed,
 		tasks:           opts.Tasks,
 		steps:           opts.Steps,
 		logType:         logType,
@@ -106,6 +109,10 @@ func (r *Reader) setRun(run string) {
 
 func (r *Reader) setTask(task string) {
 	r.task = task
+}
+
+func (r *Reader) setDisplayName(displayName string) {
+	r.displayName = displayName
 }
 
 func (r *Reader) clone() *Reader {
