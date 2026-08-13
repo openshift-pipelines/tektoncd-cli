@@ -668,8 +668,8 @@ github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/google/go-containerregistry v0.21.8 h1:Ig/zIsnztdCUNaiNNczE+MoP5xcyUMfvpvfOr1xyMLE=
-github.com/google/go-containerregistry v0.21.8/go.mod h1:dP5XNKcL7kMFF/TB3LfvWmVhAcv7iqkHb3oDK8aauTo=
+github.com/google/go-containerregistry v0.21.9 h1:F+D4uZ3iA3DLMJLfhaqMdHJbzeqm/216WGQq2dokuLs=
+github.com/google/go-containerregistry v0.21.9/go.mod h1:dP5XNKcL7kMFF/TB3LfvWmVhAcv7iqkHb3oDK8aauTo=
 github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20240108195214-a0658aa1d0cc h1:eJ9J17+23quNw5z6O9AdTH+irI7JI+6eQX9TswViyvk=
 github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20240108195214-a0658aa1d0cc/go.mod h1:Ek+8PQrShkA7aHEj3/zSW33wU0V/Bx3zW/gFh7l21xY=
 github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20240108195214-a0658aa1d0cc h1:fHDosK/RhxYQpWBRo+bbawVuR402odSaNToA0Pp+ojw=
@@ -1167,8 +1167,8 @@ github.com/shurcooL/githubv4 v0.0.0-20190718010115-4ba037080260/go.mod h1:hAF0iL
 github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f h1:tygelZueB1EtXkPI6mQ4o9DQ0+FKW41hTbunoXZCTqk=
 github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f/go.mod h1:AuYgA5Kyo4c7HfUmvRGs/6rGlMMV/6B1bVnB9JxJEEg=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
-github.com/sigstore/cosign/v2 v2.6.4 h1:DiyWP1/SVM+K8gXLIyn22FSFdEhw1e4dzdZKfRq5qOw=
-github.com/sigstore/cosign/v2 v2.6.4/go.mod h1:g+P/LgYyJkC85WGGDho7yySl3C6xTJzzpLm21ZV+E6s=
+github.com/sigstore/cosign/v2 v2.6.5 h1:D7kFSWS2HzfD+LpEuBO89D1KfOAODlkWuuhzXS8yzi0=
+github.com/sigstore/cosign/v2 v2.6.5/go.mod h1:g+P/LgYyJkC85WGGDho7yySl3C6xTJzzpLm21ZV+E6s=
 github.com/sigstore/fulcio v1.8.5 h1:HYTD1/L5wlBp8JxsWxUf8hmfaNBBF/x3r3p5l6tZwbA=
 github.com/sigstore/fulcio v1.8.5/go.mod h1:tSLYK3JsKvJpDW1BsIsVHZgHj+f8TjXARzqIUWSsSPQ=
 github.com/sigstore/protobuf-specs v0.5.1 h1:/5OPaNuolRJmQfeZLayJGFXMpsRJEdgC6ah1/+7Px7U=
