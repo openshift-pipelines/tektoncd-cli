@@ -1198,10 +1198,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/807d87969c7e5cd0e18243ea6411508417e4249668dba0a0191dacc81ed70267-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/f22f9ea72d68ae520406ab57a92804376a6fad5f05e06b0d27ff4389a190eb8d-modules.yaml.gz
     repoid: ubi-8-appstream-rpms
-    size: 55407
-    checksum: sha256:807d87969c7e5cd0e18243ea6411508417e4249668dba0a0191dacc81ed70267
+    size: 55922
+    checksum: sha256:f22f9ea72d68ae520406ab57a92804376a6fad5f05e06b0d27ff4389a190eb8d
 - arch: x86_64
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/Packages/g/git-2.43.7-1.el8_10.x86_64.rpm
