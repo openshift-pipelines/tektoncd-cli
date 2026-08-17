@@ -28,6 +28,12 @@ jobs:
           pushd upstream
           git checkout -B release-v0.37.x origin/release-v0.37.x
           popd
+      - name: Configure Docker authentication
+        env:
+          DOCKER_CONFIG: /home/runner/.docker
+          DOCKER_JSON: ${{ secrets.DOCKER_REGISTRY_SECRET }}
+        run: |
+          echo ${DOCKER_JSON} > $DOCKER_CONFIG/config.json
       - name: update-rpms
         continue-on-error: true
         run: |
@@ -37,7 +43,7 @@ jobs:
             -e BASE_IMAGE=$BASE_IMAGE \
             -v ./.konflux/rpms/:/rpms -w /rpms $BASE_IMAGE  sh -c "
               cp -f /etc/yum.repos.d/*.repo ./
-              sed -i 's/^\[ubi-8-/\[ubi-8-for-\$basearch-/' *.repo
+              sed -i 's/^\[ubi-8-/\[ubi--for-\$basearch-/' *.repo
               sed -i 's/^\[ubi-9-/\[ubi-9-for-\$basearch-/' *.repo
           "
           docker run  --rm\
