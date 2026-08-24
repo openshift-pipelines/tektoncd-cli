@@ -8,7 +8,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/cpuguy83/go-md2man v1.0.10
 	github.com/creack/pty v1.1.24
-	github.com/docker/cli v29.7.1+incompatible
+	github.com/docker/cli v29.7.2+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.19.0
 	github.com/go-jose/go-jose/v4 v4.1.4
@@ -22,28 +22,28 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/jonboulle/clockwork v0.5.0
 	github.com/ktr0731/go-fuzzyfinder v0.9.0
-	github.com/letsencrypt/boulder v0.20260729.0
+	github.com/letsencrypt/boulder v0.20260804.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/sigstore/sigstore v1.10.9
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	github.com/tektoncd/pipeline v1.15.0
 	github.com/tektoncd/plumbing v0.0.0-20250430145243-3b7cd59879c1
-	github.com/tektoncd/triggers v0.36.0
+	github.com/tektoncd/triggers v0.37.0
 	github.com/theupdateframework/go-tuf v0.7.0
 	github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399
 	go.opentelemetry.io/otel v1.45.0
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.28.0
-	goa.design/goa/v3 v3.28.0
-	golang.org/x/crypto v0.54.0
+	goa.design/goa/v3 v3.29.2
+	golang.org/x/crypto v0.55.0
 	golang.org/x/term v0.45.0
-	golang.org/x/text v0.40.0
-	google.golang.org/grpc v1.82.1
-	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
+	golang.org/x/text v0.41.0
+	google.golang.org/grpc v1.83.0
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gotest.tools/v3 v3.5.2
 	k8s.io/api v0.36.3
@@ -57,7 +57,7 @@ require (
 replace github.com/alibabacloud-go/cr-20160607 => github.com/vdemeester/cr-20160607 v1.0.1
 
 require (
-	cel.dev/expr v0.25.1 // indirect
+	cel.dev/expr v0.25.2 // indirect
 	cloud.google.com/go/kms v1.31.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
@@ -80,7 +80,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.9.1 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/gdamore/tcell/v2 v2.9.0 // indirect
-	github.com/go-chi/chi/v5 v5.3.0 // indirect
+	github.com/go-chi/chi/v5 v5.3.1 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.29.2 // indirect
+	github.com/google/cel-go v0.30.0 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -176,7 +176,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
-	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
@@ -186,7 +186,7 @@ require (
 	google.golang.org/api v0.277.0 // indirect
 	google.golang.org/genproto v0.0.0-20260406210006-6f92a3bedf2d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260727163830-6c54dddc4772 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260720155508-bb71a54f79dc // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260810153831-ec0a7760b754 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

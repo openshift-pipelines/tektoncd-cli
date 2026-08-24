@@ -1,4 +1,4 @@
-# cel.dev/expr v0.25.1
+# cel.dev/expr v0.25.2
 ## explicit; go 1.23.0
 cel.dev/expr
 # cloud.google.com/go/kms v1.31.0
@@ -70,7 +70,7 @@ github.com/creack/pty
 # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/docker/cli v29.7.1+incompatible
+# github.com/docker/cli v29.7.2+incompatible
 ## explicit
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
@@ -151,7 +151,7 @@ github.com/gdamore/tcell/v2/terminfo/x/xfce
 github.com/gdamore/tcell/v2/terminfo/x/xterm
 github.com/gdamore/tcell/v2/terminfo/x/xterm_ghostty
 github.com/gdamore/tcell/v2/terminfo/x/xterm_kitty
-# github.com/go-chi/chi/v5 v5.3.0
+# github.com/go-chi/chi/v5 v5.3.1
 ## explicit; go 1.23
 github.com/go-chi/chi/v5
 # github.com/go-errors/errors v1.4.2
@@ -229,9 +229,10 @@ github.com/golang/protobuf/ptypes/struct
 # github.com/google/btree v1.1.3
 ## explicit; go 1.18
 github.com/google/btree
-# github.com/google/cel-go v0.29.2
+# github.com/google/cel-go v0.30.0
 ## explicit; go 1.23.0
 github.com/google/cel-go/cel
+github.com/google/cel-go/cel/async
 github.com/google/cel-go/checker
 github.com/google/cel-go/checker/decls
 github.com/google/cel-go/common
@@ -372,7 +373,7 @@ github.com/ktr0731/go-ansisgr
 github.com/ktr0731/go-fuzzyfinder
 github.com/ktr0731/go-fuzzyfinder/matching
 github.com/ktr0731/go-fuzzyfinder/scoring
-# github.com/letsencrypt/boulder v0.20260729.0
+# github.com/letsencrypt/boulder v0.20260804.0
 ## explicit; go 1.26.0
 github.com/letsencrypt/boulder/core
 github.com/letsencrypt/boulder/core/proto
@@ -518,10 +519,12 @@ github.com/spf13/viper/internal/encoding/json
 github.com/spf13/viper/internal/encoding/toml
 github.com/spf13/viper/internal/encoding/yaml
 github.com/spf13/viper/internal/features
-# github.com/stretchr/testify v1.11.1
+# github.com/stretchr/testify v1.12.0
 ## explicit; go 1.17
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/assert/yaml
+github.com/stretchr/testify/internal/difflib
+github.com/stretchr/testify/internal/spew
 # github.com/subosito/gotenv v1.6.0
 ## explicit; go 1.18
 github.com/subosito/gotenv
@@ -631,8 +634,8 @@ github.com/tektoncd/pipeline/test/parse
 # github.com/tektoncd/plumbing v0.0.0-20250430145243-3b7cd59879c1
 ## explicit; go 1.23
 github.com/tektoncd/plumbing/scripts
-# github.com/tektoncd/triggers v0.36.0
-## explicit; go 1.25.7
+# github.com/tektoncd/triggers v0.37.0
+## explicit; go 1.26.4
 github.com/tektoncd/triggers/pkg/apis/config
 github.com/tektoncd/triggers/pkg/apis/triggers
 github.com/tektoncd/triggers/pkg/apis/triggers/contexts
@@ -859,11 +862,11 @@ go.yaml.in/yaml/v2
 # go.yaml.in/yaml/v3 v3.0.4
 ## explicit; go 1.16
 go.yaml.in/yaml/v3
-# goa.design/goa/v3 v3.28.0
+# goa.design/goa/v3 v3.29.2
 ## explicit; go 1.25.0
 goa.design/goa/v3/http
 goa.design/goa/v3/pkg
-# golang.org/x/crypto v0.54.0
+# golang.org/x/crypto v0.55.0
 ## explicit; go 1.25.0
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
@@ -875,7 +878,7 @@ golang.org/x/crypto/scrypt
 # golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
 ## explicit; go 1.25.0
 golang.org/x/exp/slices
-# golang.org/x/net v0.57.0
+# golang.org/x/net v0.58.0
 ## explicit; go 1.25.0
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -906,7 +909,7 @@ golang.org/x/sys/windows/registry
 # golang.org/x/term v0.45.0
 ## explicit; go 1.25.0
 golang.org/x/term
-# golang.org/x/text v0.40.0
+# golang.org/x/text v0.41.0
 ## explicit; go 1.25.0
 golang.org/x/text/cases
 golang.org/x/text/encoding
@@ -950,11 +953,11 @@ google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/expr/v1alpha1
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260720155508-bb71a54f79dc
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20260810153831-ec0a7760b754
 ## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/rpc/errdetails
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.82.1
+# google.golang.org/grpc v1.83.0
 ## explicit; go 1.25.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
@@ -1022,7 +1025,7 @@ google.golang.org/grpc/serviceconfig
 google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
-# google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
+# google.golang.org/protobuf v1.36.12
 ## explicit; go 1.23
 google.golang.org/protobuf/encoding/protodelim
 google.golang.org/protobuf/encoding/protojson
