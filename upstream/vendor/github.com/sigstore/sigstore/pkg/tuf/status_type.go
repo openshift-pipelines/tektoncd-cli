@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Deprecated: Use https://pkg.go.dev/github.com/sigstore/sigstore-go@main/pkg/tuf
 package tuf
 
 import (

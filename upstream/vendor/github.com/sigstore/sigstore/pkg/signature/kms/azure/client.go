@@ -269,43 +269,41 @@ func (a *azureVaultClient) createKey(ctx context.Context) (crypto.PublicKey, err
 	return a.public(ctx)
 }
 
-// 3rd return value specifies whether the resulting signature is an EC signature,
-// thus requiring conversion between the signature formats.
-func (a *azureVaultClient) getKeyVaultHashFunc(ctx context.Context) (crypto.Hash, azkeys.SignatureAlgorithm, bool, error) {
+func (a *azureVaultClient) getKeyVaultHashFunc(ctx context.Context) (crypto.Hash, azkeys.SignatureAlgorithm, error) {
 	publicKey, err := a.public(ctx)
 	if err != nil {
-		return 0, "", false, fmt.Errorf("failed to get public key: %w", err)
+		return 0, "", fmt.Errorf("failed to get public key: %w", err)
 	}
 	switch keyImpl := publicKey.(type) {
 	case *ecdsa.PublicKey:
 		switch keyImpl.Curve {
 		case elliptic.P256():
-			return crypto.SHA256, azkeys.SignatureAlgorithmES256, true, nil
+			return crypto.SHA256, azkeys.SignatureAlgorithmES256, nil
 		case elliptic.P384():
-			return crypto.SHA384, azkeys.SignatureAlgorithmES384, true, nil
+			return crypto.SHA384, azkeys.SignatureAlgorithmES384, nil
 		case elliptic.P521():
-			return crypto.SHA512, azkeys.SignatureAlgorithmES512, true, nil
+			return crypto.SHA512, azkeys.SignatureAlgorithmES512, nil
 		default:
-			return 0, "", false, fmt.Errorf("unsupported key size: %s", keyImpl.Params().Name)
+			return 0, "", fmt.Errorf("unsupported key size: %s", keyImpl.Params().Name)
 		}
 	case *rsa.PublicKey:
 		switch keyImpl.Size() {
 		case 256:
-			return crypto.SHA256, azkeys.SignatureAlgorithmRS256, false, nil
+			return crypto.SHA256, azkeys.SignatureAlgorithmRS256, nil
 		case 384:
-			return crypto.SHA384, azkeys.SignatureAlgorithmRS384, false, nil
+			return crypto.SHA384, azkeys.SignatureAlgorithmRS384, nil
 		case 512:
-			return crypto.SHA512, azkeys.SignatureAlgorithmRS512, false, nil
+			return crypto.SHA512, azkeys.SignatureAlgorithmRS512, nil
 		default:
-			return 0, "", false, fmt.Errorf("unsupported key size: %d", keyImpl.Size())
+			return 0, "", fmt.Errorf("unsupported key size: %d", keyImpl.Size())
 		}
 	default:
-		return 0, "", false, fmt.Errorf("unsupported public key type: %T", publicKey)
+		return 0, "", fmt.Errorf("unsupported public key type: %T", publicKey)
 	}
 }
 
 func (a *azureVaultClient) sign(ctx context.Context, hash []byte) ([]byte, error) {
-	_, keyVaultAlgo, _, err := a.getKeyVaultHashFunc(ctx)
+	_, keyVaultAlgo, err := a.getKeyVaultHashFunc(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get KeyVaultSignatureAlgorithm: %w", err)
 	}
@@ -324,7 +322,7 @@ func (a *azureVaultClient) sign(ctx context.Context, hash []byte) ([]byte, error
 }
 
 func (a *azureVaultClient) verify(ctx context.Context, signature, hash []byte) error {
-	_, keyVaultAlgo, _, err := a.getKeyVaultHashFunc(ctx)
+	_, keyVaultAlgo, err := a.getKeyVaultHashFunc(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get KeyVaultSignatureAlgorithm: %w", err)
 	}

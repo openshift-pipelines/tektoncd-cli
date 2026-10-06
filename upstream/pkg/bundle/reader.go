@@ -15,9 +15,6 @@ import (
 // Tekton bundle. The `version`, `kind`, and `name` fields map 1:1 with the same named fields in the Tekton Bundle spec.
 type ObjectVisitor func(version, kind, name string, element runtime.Object, raw []byte)
 
-// setting a limit reader to avoid reading more than 1.5 MiB from the layer
-const MaxLayerSize = 15 << 20 / 10
-
 // List will call visitor for every single layer in the img.
 func List(img v1.Image, visitor ObjectVisitor) error {
 	manifest, err := img.Manifest()
@@ -113,16 +110,15 @@ func readTarLayer(l v1.Layer) ([]byte, error) {
 
 	// If the user bundled this up as a tar file then we need to untar it.
 	treader := tar.NewReader(rc)
-	if _, err := treader.Next(); err != nil {
+	header, err := treader.Next()
+	if err != nil {
 		return nil, fmt.Errorf("layer is not a tarball")
 	}
-	limited := io.LimitReader(treader, MaxLayerSize+1)
-	contents, err := io.ReadAll(limited)
-	if err != nil {
+
+	contents := make([]byte, header.Size)
+	if _, err := io.ReadFull(treader, contents); err != nil && err != io.EOF {
+		// We only allow 1 resource per layer so this tar bundle should have one and only one file.
 		return nil, fmt.Errorf("failed to read tar bundle: %w", err)
-	}
-	if int64(len(contents)) > MaxLayerSize {
-		return nil, fmt.Errorf("layer exceeds maximum allowed size of %d bytes", MaxLayerSize)
 	}
 	return contents, nil
 }

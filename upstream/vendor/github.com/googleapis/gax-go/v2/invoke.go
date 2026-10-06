@@ -31,25 +31,14 @@ package gax
 
 import (
 	"context"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/googleapis/gax-go/v2/apierror"
-	"github.com/googleapis/gax-go/v2/callctx"
 )
 
 // APICall is a user defined call stub.
 type APICall func(context.Context, CallSettings) error
-
-// withRetryCount returns a new context with the retry count appended to
-// the telemetry context. The retry count is the number of retries that have been
-// attempted. On the initial request, retry count is 0.
-// On a second request (the first retry), retry count is 1.
-func withRetryCount(ctx context.Context, retryCount int) context.Context {
-	// Add to telemetry context so it's visible to observability wrappers
-	return callctx.WithTelemetryContext(ctx, "resend_count", strconv.Itoa(retryCount))
-}
 
 // Invoke calls the given APICall, performing retries as specified by opts, if
 // any.
@@ -77,7 +66,7 @@ func Sleep(ctx context.Context, d time.Duration) error {
 type sleeper func(ctx context.Context, d time.Duration) error
 
 // invoke implements Invoke, taking an additional sleeper argument for testing.
-func invoke(ctx context.Context, call APICall, settings CallSettings, sp sleeper) (err error) {
+func invoke(ctx context.Context, call APICall, settings CallSettings, sp sleeper) error {
 	var retryer Retryer
 
 	// Only use the value provided via WithTimeout if the context doesn't
@@ -89,23 +78,8 @@ func invoke(ctx context.Context, call APICall, settings CallSettings, sp sleeper
 		ctx = c
 	}
 
-	if IsFeatureEnabled("METRICS") {
-		start := time.Now()
-		ctx = InjectTransportTelemetry(ctx, &TransportTelemetryData{})
-		defer func() {
-			recordMetric(ctx, settings, time.Since(start), err)
-		}()
-	}
-
-	retryCount := 0
-	// Feature gate: GOOGLE_SDK_GO_EXPERIMENTAL_TRACING=true
-	tracingEnabled := IsFeatureEnabled("TRACING")
 	for {
-		ctxToUse := ctx
-		if tracingEnabled {
-			ctxToUse = withRetryCount(ctx, retryCount)
-		}
-		err = call(ctxToUse, settings)
+		err := call(ctx, settings)
 		if err == nil {
 			return nil
 		}
@@ -136,6 +110,5 @@ func invoke(ctx context.Context, call APICall, settings CallSettings, sp sleeper
 		} else if err = sp(ctx, d); err != nil {
 			return err
 		}
-		retryCount++
 	}
 }

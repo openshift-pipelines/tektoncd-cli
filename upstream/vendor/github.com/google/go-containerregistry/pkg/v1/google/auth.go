@@ -30,11 +30,8 @@ import (
 
 const cloudPlatformScope = "https://www.googleapis.com/auth/cloud-platform"
 
-// gcloudBin is replaced in tests to mock detecting the gcloud binary.
-var gcloudBin = "gcloud"
-
-// getGcloudCmd is replaced in tests to drive the gcloud mock.
-var getGcloudCmd = func(ctx context.Context) *exec.Cmd {
+// GetGcloudCmd is exposed so we can test this.
+var GetGcloudCmd = func(ctx context.Context) *exec.Cmd {
 	// This is odd, but basically what docker-credential-gcr does.
 	//
 	// config-helper is undocumented, but it's purportedly the only supported way
@@ -42,7 +39,7 @@ var getGcloudCmd = func(ctx context.Context) *exec.Cmd {
 	//
 	// --force-auth-refresh means we are getting a token that is valid for about
 	// an hour (we reuse it until it's expired).
-	return exec.CommandContext(ctx, gcloudBin, "config", "config-helper", "--force-auth-refresh", "--format=json(credential)")
+	return exec.CommandContext(ctx, "gcloud", "config", "config-helper", "--force-auth-refresh", "--format=json(credential)")
 }
 
 // NewEnvAuthenticator returns an authn.Authenticator that generates access
@@ -66,13 +63,13 @@ func NewEnvAuthenticator(ctx context.Context) (authn.Authenticator, error) {
 // NewGcloudAuthenticator returns an oauth2.TokenSource that generates access
 // tokens by shelling out to the gcloud sdk.
 func NewGcloudAuthenticator(ctx context.Context) (authn.Authenticator, error) {
-	if _, err := exec.LookPath(gcloudBin); err != nil {
+	if _, err := exec.LookPath("gcloud"); err != nil {
 		// gcloud is not available, fall back to anonymous
 		logs.Warn.Println("gcloud binary not found")
 		return authn.Anonymous, nil
 	}
 
-	ts := gcloudSource{ctx, getGcloudCmd}
+	ts := gcloudSource{ctx, GetGcloudCmd}
 
 	// Attempt to fetch a token to ensure gcloud is installed and we can run it.
 	token, err := ts.Token()

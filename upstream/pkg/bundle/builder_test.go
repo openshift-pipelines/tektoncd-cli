@@ -131,13 +131,14 @@ func TestBuildTektonBundle(t *testing.T) {
 
 	// If the user bundled this up as a tar file then we need to untar it.
 	treader := tar.NewReader(rc)
-	if _, err := treader.Next(); err != nil {
+	header, err := treader.Next()
+	if err != nil {
 		t.Errorf("layer is not a tarball")
 	}
 
-	limited := io.LimitReader(treader, MaxLayerSize+1)
-	contents, err := io.ReadAll(limited)
-	if err != nil && err != io.EOF {
+	contents := make([]byte, header.Size)
+	if _, err := treader.Read(contents); err != nil && err != io.EOF {
+		// We only allow 1 resource per layer so this tar bundle should have one and only one file.
 		t.Errorf("failed to read tar bundle: %v", err)
 	}
 

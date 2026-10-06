@@ -1,3 +1,6 @@
+//go:build go1.18
+// +build go1.18
+
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
@@ -39,7 +42,7 @@ func StackTrace(skipFrames, totalFrames int) string {
 		sb.WriteString("()\n\t")
 		sb.WriteString(frame.File)
 		sb.WriteRune(':')
-		fmt.Fprintf(&sb, "%d\n", frame.Line)
+		sb.WriteString(fmt.Sprintf("%d\n", frame.Line))
 		if !more {
 			break
 		}

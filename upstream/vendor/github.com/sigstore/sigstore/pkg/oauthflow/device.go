@@ -32,14 +32,12 @@ import (
 
 const (
 	// SigstoreDeviceURL specifies the Device Code endpoint for the public good Sigstore service
-	//
-	// Deprecated: this constant (while correct) should not be used
 	/* #nosec */
+	// Deprecated: this constant (while correct) should not be used
 	SigstoreDeviceURL = "https://oauth2.sigstore.dev/auth/device/code"
 	// SigstoreTokenURL specifies the Token endpoint for the public good Sigstore service
-	//
-	// Deprecated: this constant (while correct) should not be used
 	/* #nosec */
+	// Deprecated: this constant (while correct) should not be used
 	SigstoreTokenURL = "https://oauth2.sigstore.dev/auth/device/token"
 )
 
@@ -66,7 +64,6 @@ type DeviceFlowTokenGetter struct {
 }
 
 // NewDeviceFlowTokenGetter creates a new DeviceFlowTokenGetter that retrieves an OIDC Identity Token using a Device Code Grant
-//
 // Deprecated: NewDeviceFlowTokenGetter is deprecated; use NewDeviceFlowTokenGetterForIssuer() instead
 func NewDeviceFlowTokenGetter(issuer, codeURL, _ string) *DeviceFlowTokenGetter {
 	return &DeviceFlowTokenGetter{
@@ -126,13 +123,6 @@ func (d *DeviceFlowTokenGetter) deviceFlow(p *oidc.Provider, clientID, redirectU
 	parsed := deviceResp{}
 	if err := json.Unmarshal(b, &parsed); err != nil {
 		return "", err
-	}
-	// RFC 8628 section 3.2: interval is OPTIONAL and defaults to 5 seconds when
-	// the authorization server omits it. Without this default a missing interval
-	// leaves parsed.Interval at 0, so the authorization_pending case below sleeps
-	// for zero seconds and busy-loops the token endpoint.
-	if parsed.Interval <= 0 {
-		parsed.Interval = 5
 	}
 	uri := parsed.VerificationURIComplete
 	if uri == "" {

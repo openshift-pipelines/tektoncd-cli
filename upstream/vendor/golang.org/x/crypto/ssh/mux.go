@@ -32,21 +32,18 @@ type chanList struct {
 	offset uint32
 }
 
-// add stores the given channel and assigns its localId while holding the
-// lock, so that getChan can never return a channel whose localId is not yet
-// initialized.
-func (c *chanList) add(ch *channel) {
+// Assigns a channel ID to the given channel.
+func (c *chanList) add(ch *channel) uint32 {
 	c.Lock()
 	defer c.Unlock()
 	for i := range c.chans {
 		if c.chans[i] == nil {
 			c.chans[i] = ch
-			ch.localId = uint32(i) + c.offset
-			return
+			return uint32(i) + c.offset
 		}
 	}
 	c.chans = append(c.chans, ch)
-	ch.localId = uint32(len(c.chans)-1) + c.offset
+	return uint32(len(c.chans)-1) + c.offset
 }
 
 // getChan returns the channel for the given ID.
@@ -158,10 +155,7 @@ func (m *mux) SendRequest(name string, wantReply bool, payload []byte) (bool, []
 	drain:
 		for {
 			select {
-			case _, ok := <-m.globalResponses:
-				if !ok {
-					break drain
-				}
+			case <-m.globalResponses:
 			default:
 				break drain
 			}
@@ -345,6 +339,8 @@ func (m *mux) OpenChannel(chanType string, extra []byte) (Channel, <-chan *Reque
 
 func (m *mux) openChannel(chanType string, extra []byte) (*channel, error) {
 	ch := m.newChannel(chanType, channelOutbound, extra)
+
+	ch.maxIncomingPayload = channelMaxPacket
 
 	open := channelOpenMsg{
 		ChanType:         chanType,

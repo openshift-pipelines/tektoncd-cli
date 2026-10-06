@@ -84,7 +84,7 @@ Caching:
 				return errInvalidRef
 			}
 
-			ref, err := name.ParseReference(args[0], append([]name.Option{name.StrictValidation}, opts.remoteOptions.NameOptions()...)...)
+			ref, err := name.ParseReference(args[0], name.StrictValidation, name.Insecure)
 			if err != nil {
 				return err
 			}

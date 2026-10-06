@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2016, 2025
+// Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
 package api
@@ -42,7 +42,6 @@ type PluginDetails struct {
 	Version           string `json:"version,omitempty"`
 	Builtin           bool   `json:"builtin"`
 	DeprecationStatus string `json:"deprecation_status,omitempty" mapstructure:"deprecation_status"`
-	SHA256            string `json:"sha256,omitempty"`
 }
 
 // ListPlugins wraps ListPluginsWithContext using context.Background.

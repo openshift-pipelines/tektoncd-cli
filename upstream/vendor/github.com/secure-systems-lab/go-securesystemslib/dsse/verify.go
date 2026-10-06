@@ -24,26 +24,18 @@ type AcceptedKey struct {
 }
 
 func (ev *EnvelopeVerifier) Verify(ctx context.Context, e *Envelope) ([]AcceptedKey, error) {
-	keys, _, err := ev.VerifyAndDecode(ctx, e)
-	return keys, err
-}
-
-// VerifyAndDecode behaves identically to Verify but also returns the decoded
-// envelope payload, allowing callers who need the payload bytes (e.g., for
-// hashing or further parsing) to avoid a second base64 decode.
-func (ev *EnvelopeVerifier) VerifyAndDecode(ctx context.Context, e *Envelope) ([]AcceptedKey, []byte, error) {
 	if e == nil {
-		return nil, nil, errors.New("cannot verify a nil envelope")
+		return nil, errors.New("cannot verify a nil envelope")
 	}
 
 	if len(e.Signatures) == 0 {
-		return nil, nil, ErrNoSignature
+		return nil, ErrNoSignature
 	}
 
 	// Decode payload (i.e serialized body)
 	body, err := e.DecodeB64Payload()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	// Generate PAE(payloadtype, serialized body)
 	paeEnc := PAE(e.PayloadType, body)
@@ -56,7 +48,7 @@ func (ev *EnvelopeVerifier) VerifyAndDecode(ctx context.Context, e *Envelope) ([
 	for _, s := range e.Signatures {
 		sig, err := b64Decode(s.Sig)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		// Loop over the providers.
@@ -105,14 +97,14 @@ func (ev *EnvelopeVerifier) VerifyAndDecode(ctx context.Context, e *Envelope) ([
 
 	// Sanity if with some reflect magic this happens.
 	if ev.threshold <= 0 || ev.threshold > len(ev.providers) {
-		return nil, nil, errors.New("invalid threshold")
+		return nil, errors.New("invalid threshold")
 	}
 
 	if len(usedKeyids) < ev.threshold {
-		return acceptedKeys, nil, fmt.Errorf("accepted signatures do not match threshold, Found: %d, Expected %d", len(acceptedKeys), ev.threshold)
+		return acceptedKeys, fmt.Errorf("accepted signatures do not match threshold, Found: %d, Expected %d", len(acceptedKeys), ev.threshold)
 	}
 
-	return acceptedKeys, body, nil
+	return acceptedKeys, nil
 }
 
 func NewEnvelopeVerifier(v ...Verifier) (*EnvelopeVerifier, error) {

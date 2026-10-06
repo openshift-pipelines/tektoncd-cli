@@ -28,7 +28,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/partial"
-	"github.com/google/go-containerregistry/pkg/v1/types"
 )
 
 // WriteToFile writes in the compressed format to a tarball, on disk.
@@ -185,14 +184,23 @@ func writeImagesToTar(imageToTags map[v1.Image][]string, m []byte, size int64, w
 
 			// gunzip expects certain file extensions:
 			// https://www.gnu.org/software/gzip/manual/html_node/Overview.html
-			layerFiles[i] = hex + layerExtension(l)
+			layerFiles[i] = fmt.Sprintf("%s.tar.gz", hex)
 
 			if _, ok := seenLayerDigests[hex]; ok {
 				continue
 			}
 			seenLayerDigests[hex] = struct{}{}
 
-			if err := writeLayer(tf, layerFiles[i], l); err != nil {
+			r, err := l.Compressed()
+			if err != nil {
+				return sendProgressWriterReturn(pw, err)
+			}
+			blobSize, err := l.Size()
+			if err != nil {
+				return sendProgressWriterReturn(pw, err)
+			}
+
+			if err := writeTarEntry(tf, layerFiles[i], r, blobSize); err != nil {
 				return sendProgressWriterReturn(pw, err)
 			}
 		}
@@ -245,7 +253,7 @@ func calculateManifest(imageToTags map[v1.Image][]string) (m Manifest, err error
 
 			// gunzip expects certain file extensions:
 			// https://www.gnu.org/software/gzip/manual/html_node/Overview.html
-			layerFiles[i] = hex + layerExtension(l)
+			layerFiles[i] = fmt.Sprintf("%s.tar.gz", hex)
 
 			// Add to LayerSources if it's a foreign layer.
 			desc, err := partial.BlobDescriptor(img, d)
@@ -372,23 +380,6 @@ func writeTarEntry(tf *tar.Writer, path string, r io.Reader, size int64) error {
 	return err
 }
 
-// writeLayer streams a layer's compressed blob into the tar writer and closes
-// the reader before returning. The close releases any pull-limiter slot held
-// by a remote-backed layer (remote.WithJobs); leaving it open would deadlock
-// the write loop after defaultJobs layers.
-func writeLayer(tf *tar.Writer, name string, l v1.Layer) error {
-	r, err := l.Compressed()
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-	blobSize, err := l.Size()
-	if err != nil {
-		return err
-	}
-	return writeTarEntry(tf, name, r, blobSize)
-}
-
 // ComputeManifest get the manifest.json that will be written to the tarball
 // for multiple references
 func ComputeManifest(refToImage map[name.Reference]v1.Image) (Manifest, error) {
@@ -463,17 +454,4 @@ func calculateSingleFileInTarSize(in int64) (out int64) {
 	}
 	out += 512
 	return out
-}
-
-func layerExtension(l v1.Layer) string {
-	mt, _ := l.MediaType()
-	switch mt {
-	case types.OCILayerZStd:
-		return ".tar.zst"
-	case types.OCIUncompressedLayer, types.OCIUncompressedRestrictedLayer, types.DockerUncompressedLayer:
-		return ".tar"
-	default:
-		// historically, only gzip compressed tar was supported, so this is the fallback
-		return ".tar.gz"
-	}
 }

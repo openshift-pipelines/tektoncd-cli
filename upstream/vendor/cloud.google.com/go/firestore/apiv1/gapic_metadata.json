@@ -50,11 +50,6 @@
                 "DeleteOperation"
               ]
             },
-            "ExecutePipeline": {
-              "methods": [
-                "ExecutePipeline"
-              ]
-            },
             "GetDocument": {
               "methods": [
                 "GetDocument"
@@ -158,11 +153,6 @@
             "DeleteOperation": {
               "methods": [
                 "DeleteOperation"
-              ]
-            },
-            "ExecutePipeline": {
-              "methods": [
-                "ExecutePipeline"
               ]
             },
             "GetDocument": {

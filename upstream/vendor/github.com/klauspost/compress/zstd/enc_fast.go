@@ -797,19 +797,6 @@ func (e *fastEncoder) Reset(d *dict, singleBlock bool) {
 	}
 }
 
-func (e *fastEncoder) ResetPrefix(prefix []byte) {
-	e.resetBasePrefix(prefix)
-	if len(prefix) < 8 {
-		return
-	}
-	end := e.cur + int32(len(prefix)) - 8
-	// Index every 4th
-	for i := e.cur + 1; i < end; i += 4 {
-		cv := load6432(prefix, i-e.cur)
-		e.table[hashLen(cv, tableBits, tableFastHashLen)] = tableEntry{val: uint32(cv), offset: i}
-	}
-}
-
 // ResetDict will reset and set a dictionary if not nil
 func (e *fastEncoderDict) Reset(d *dict, singleBlock bool) {
 	e.resetBase(d, singleBlock)
@@ -818,11 +805,9 @@ func (e *fastEncoderDict) Reset(d *dict, singleBlock bool) {
 	}
 
 	// Init or copy dict table
-	if len(e.dictTable) != len(e.table) || d != e.lastDict {
+	if len(e.dictTable) != len(e.table) || d.id != e.lastDictID {
 		if len(e.dictTable) != len(e.table) {
 			e.dictTable = make([]tableEntry, len(e.table))
-		} else {
-			clear(e.dictTable)
 		}
 		if true {
 			end := e.maxMatchOff + int32(len(d.content)) - 8
@@ -842,7 +827,7 @@ func (e *fastEncoderDict) Reset(d *dict, singleBlock bool) {
 				}
 			}
 		}
-		e.lastDict = d
+		e.lastDictID = d.id
 		e.allDirty = true
 	}
 
@@ -877,10 +862,6 @@ func (e *fastEncoderDict) Reset(d *dict, singleBlock bool) {
 		e.tableShardDirty[i] = false
 	}
 	e.allDirty = false
-}
-
-func (e *fastEncoderDict) ResetPrefix([]byte) {
-	panic("ResetPrefix not supported for dict encoders")
 }
 
 func (e *fastEncoderDict) markAllShardsDirty() {

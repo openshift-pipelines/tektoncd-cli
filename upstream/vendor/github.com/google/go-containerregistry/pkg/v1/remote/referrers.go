@@ -18,11 +18,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
-	"github.com/google/go-containerregistry/internal/limit"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
@@ -47,7 +46,7 @@ func fallbackTag(d name.Digest) name.Tag {
 	return d.Context().Tag(strings.Replace(d.DigestStr(), ":", "-", 1))
 }
 
-func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, d name.Digest, tagFallback bool) (v1.ImageIndex, error) {
+func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, d name.Digest) (v1.ImageIndex, error) {
 	// Check the Referrers API endpoint first.
 	u := f.url("referrers", d.DigestStr())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -68,14 +67,11 @@ func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, 
 
 	var b []byte
 	if resp.StatusCode == http.StatusOK && resp.Header.Get("Content-Type") == string(types.OCIImageIndex) {
-		b, err = limit.ReadAll(resp.Body, manifestLimit)
+		b, err = io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		if !tagFallback {
-			return nil, fmt.Errorf("registry %s does not support the Referrers API and the referrers tag fallback is disabled", d.Context().RegistryStr())
-		}
 		// The registry doesn't support the Referrers API endpoint, so we'll use the fallback tag scheme.
 		b, _, err = f.fetchManifest(ctx, fallbackTag(d), []types.MediaType{types.OCIImageIndex})
 		var terr *transport.Error
