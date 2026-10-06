@@ -32,9 +32,10 @@ type expoHistogramDataPoint[N int64 | float64] struct {
 	attrs attribute.Set
 	res   FilteredExemplarReservoir[N]
 
-	min N
-	max N
-	sum N
+	count uint64
+	min   N
+	max   N
+	sum   N
 
 	maxSize  int
 	noMinMax bool
@@ -73,6 +74,8 @@ func newExpoHistogramDataPoint[N int64 | float64](
 
 // record adds a new measurement to the histogram. It will rescale the buckets if needed.
 func (p *expoHistogramDataPoint[N]) record(v N) {
+	p.count++
+
 	if !p.noMinMax {
 		if v < p.min {
 			p.min = v
@@ -190,10 +193,6 @@ func (p *expoHistogramDataPoint[N]) scaleChange(bin, startBin int32, length int)
 	return count
 }
 
-func (p *expoHistogramDataPoint[N]) count() uint64 {
-	return p.posBuckets.count() + p.negBuckets.count() + p.zeroCount
-}
-
 // expoBuckets is a set of buckets in an exponential histogram.
 type expoBuckets struct {
 	startBin int32
@@ -284,14 +283,6 @@ func (b *expoBuckets) downscale(delta int32) {
 	lastIdx := (len(b.counts) - 1 + int(offset)) / int(steps)
 	b.counts = b.counts[:lastIdx+1]
 	b.startBin >>= delta
-}
-
-func (b *expoBuckets) count() uint64 {
-	var total uint64
-	for _, count := range b.counts {
-		total += count
-	}
-	return total
 }
 
 // newExponentialHistogram returns an Aggregator that summarizes a set of
@@ -385,7 +376,7 @@ func (e *expoHistogram[N]) delta(
 		hDPts[i].Attributes = val.attrs
 		hDPts[i].StartTime = e.start
 		hDPts[i].Time = t
-		hDPts[i].Count = val.count()
+		hDPts[i].Count = val.count
 		hDPts[i].Scale = val.scale
 		hDPts[i].ZeroCount = val.zeroCount
 		hDPts[i].ZeroThreshold = 0.0
@@ -448,7 +439,7 @@ func (e *expoHistogram[N]) cumulative(
 		hDPts[i].Attributes = val.attrs
 		hDPts[i].StartTime = e.start
 		hDPts[i].Time = t
-		hDPts[i].Count = val.count()
+		hDPts[i].Count = val.count
 		hDPts[i].Scale = val.scale
 		hDPts[i].ZeroCount = val.zeroCount
 		hDPts[i].ZeroThreshold = 0.0
