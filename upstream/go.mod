@@ -8,7 +8,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/cpuguy83/go-md2man v1.0.10
 	github.com/creack/pty v1.1.24
-	github.com/docker/cli v29.8.1+incompatible
+	github.com/docker/cli v29.8.2+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.19.0
 	github.com/go-jose/go-jose/v4 v4.1.5
@@ -42,14 +42,14 @@ require (
 	golang.org/x/crypto v0.57.0
 	golang.org/x/term v0.46.0
 	golang.org/x/text v0.42.0
-	google.golang.org/grpc v1.83.2
+	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gotest.tools/v3 v3.5.2
-	k8s.io/api v0.36.4
-	k8s.io/apimachinery v0.36.4
+	k8s.io/api v0.36.5
+	k8s.io/apimachinery v0.36.5
 	k8s.io/cli-runtime v0.29.15
-	k8s.io/client-go v0.36.4
+	k8s.io/client-go v0.36.5
 	knative.dev/pkg v0.0.0-20260622140654-39ebae2ee2dc
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -72,7 +72,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
-	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.1 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect

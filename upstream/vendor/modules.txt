@@ -64,7 +64,7 @@ github.com/creack/pty
 # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/docker/cli v29.8.1+incompatible
+# github.com/docker/cli v29.8.2+incompatible
 ## explicit
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
@@ -92,8 +92,8 @@ github.com/evanphx/json-patch/v5/internal/json
 # github.com/fatih/color v1.19.0
 ## explicit; go 1.25.0
 github.com/fatih/color
-# github.com/felixge/httpsnoop v1.0.4
-## explicit; go 1.13
+# github.com/felixge/httpsnoop v1.1.0
+## explicit; go 1.25
 github.com/felixge/httpsnoop
 # github.com/fsnotify/fsnotify v1.10.1
 ## explicit; go 1.23
@@ -951,7 +951,7 @@ google.golang.org/genproto/googleapis/api/httpbody
 ## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/rpc/errdetails
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.83.2
+# google.golang.org/grpc v1.84.0
 ## explicit; go 1.25.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
@@ -1088,7 +1088,7 @@ gotest.tools/v3/internal/cleanup
 gotest.tools/v3/internal/difflib
 gotest.tools/v3/internal/format
 gotest.tools/v3/internal/source
-# k8s.io/api v0.36.4
+# k8s.io/api v0.36.5
 ## explicit; go 1.26.0
 k8s.io/api/admissionregistration/v1
 k8s.io/api/admissionregistration/v1alpha1
@@ -1157,7 +1157,7 @@ k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
-# k8s.io/apimachinery v0.36.4
+# k8s.io/apimachinery v0.36.5
 ## explicit; go 1.26.0
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -1226,7 +1226,7 @@ k8s.io/cli-runtime/pkg/genericclioptions
 k8s.io/cli-runtime/pkg/genericiooptions
 k8s.io/cli-runtime/pkg/printers
 k8s.io/cli-runtime/pkg/resource
-# k8s.io/client-go v0.36.4
+# k8s.io/client-go v0.36.5
 ## explicit; go 1.26.0
 k8s.io/client-go/applyconfigurations
 k8s.io/client-go/applyconfigurations/admissionregistration/v1
