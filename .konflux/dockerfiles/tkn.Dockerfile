@@ -38,7 +38,7 @@ LABEL \
     maintainer="pipelines-extcomm@redhat.com" \
     name="openshift-pipelines/pipelines-cli-tkn-rhel8" \
     summary="Red Hat OpenShift Pipelines tektoncd-cli tkn" \
-    version="v1.15.5"
+    version="v1.15.6"
 
 RUN groupadd -r -g 65532 nonroot && useradd --no-log-init -r -u 65532 -g nonroot nonroot
 
