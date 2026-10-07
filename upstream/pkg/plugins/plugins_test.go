@@ -33,6 +33,36 @@ func TestFindPluginInPath(t *testing.T) {
 	assert.Equal(t, path, nd.Join("tkn-testp"))
 }
 
+func TestFindPluginNonExecutable(t *testing.T) {
+	nd := fs.NewDir(t, "TestFindPluginNonExecutable")
+	defer nd.Remove()
+	err := os.WriteFile(nd.Join("tkn-test"), []byte("test"), 0o600)
+	assert.NilError(t, err)
+	t.Setenv(pluginDirEnv, nd.Path())
+	t.Setenv("PATH", "/non/existing/path")
+	_, err = FindPlugin("test")
+	assert.ErrorContains(t, err, "cannot find plugin")
+}
+
+func TestFindPluginNonExecutableFallsBackToPath(t *testing.T) {
+	pluginDir := fs.NewDir(t, "TestFindPluginNonExecPluginDir")
+	defer pluginDir.Remove()
+	err := os.WriteFile(pluginDir.Join("tkn-test"), []byte("nonexec"), 0o600)
+	assert.NilError(t, err)
+
+	pathDir := fs.NewDir(t, "TestFindPluginNonExecPath")
+	defer pathDir.Remove()
+	// nolint: gosec
+	err = os.WriteFile(pathDir.Join("tkn-test"), []byte("exec"), 0o700)
+	assert.NilError(t, err)
+
+	t.Setenv(pluginDirEnv, pluginDir.Path())
+	t.Setenv("PATH", pathDir.Path())
+	path, err := FindPlugin("test")
+	assert.NilError(t, err)
+	assert.Equal(t, path, pathDir.Join("tkn-test"))
+}
+
 func TestGetAllTknPluginFromPathPlugindir(t *testing.T) {
 	nd := fs.NewDir(t, "TestGetAllTknPluginFromPluginPath")
 	defer nd.Remove()
@@ -47,6 +77,42 @@ func TestGetAllTknPluginFromPathPlugindir(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, len(paths), 1)
 	assert.Equal(t, paths[0], "fromplugindir")
+}
+
+func TestGetPluginDirRelativeTKNPluginsDir(t *testing.T) {
+	t.Setenv(pluginDirEnv, "relative/path")
+	_, err := getPluginDir()
+	assert.ErrorContains(t, err, "not an absolute path")
+}
+
+func TestGetPluginDirRelativeXDGConfigHome(t *testing.T) {
+	t.Setenv(pluginDirEnv, "")
+	t.Setenv("XDG_CONFIG_HOME", "relative/xdg")
+	_, err := getPluginDir()
+	assert.ErrorContains(t, err, "not an absolute path")
+}
+
+func TestFindPluginDoesNotFallBackToCwd(t *testing.T) {
+	nd := fs.NewDir(t, "TestFindPluginCwd")
+	defer nd.Remove()
+	err := os.WriteFile(nd.Join("tkn-evil"), []byte("evil"), 0o700)
+	assert.NilError(t, err)
+
+	// Change into the directory that contains the malicious binary.
+	orig, err := os.Getwd()
+	assert.NilError(t, err)
+	defer os.Chdir(orig) //nolint:errcheck
+	assert.NilError(t, os.Chdir(nd.Path()))
+
+	// Use "." as TKN_PLUGINS_DIR: the old code would resolve filepath.Join(".", "tkn-evil")
+	// against cwd and find the binary; the fixed code rejects "." as non-absolute.
+	// Keep nd off PATH so LookPath cannot find the binary either.
+	t.Setenv(pluginDirEnv, ".")
+	t.Setenv("PATH", "")
+
+	// The binary is only reachable via cwd — FindPlugin must not find it.
+	_, err = FindPlugin("evil")
+	assert.ErrorContains(t, err, "cannot find plugin")
 }
 
 // as well tested differently in root_test.go
