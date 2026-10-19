@@ -1,6 +1,6 @@
 module github.com/tektoncd/cli
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/ActiveState/vt10x v1.3.1
@@ -33,7 +33,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/tektoncd/pipeline v1.14.1
 	github.com/tektoncd/plumbing v0.0.0-20250430145243-3b7cd59879c1
-	github.com/tektoncd/triggers v0.36.0
+	github.com/tektoncd/triggers v0.36.4
 	github.com/theupdateframework/go-tuf v0.7.0
 	github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399
 	go.opentelemetry.io/otel v1.44.0
@@ -43,7 +43,7 @@ require (
 	golang.org/x/crypto v0.55.0
 	golang.org/x/term v0.45.0
 	golang.org/x/text v0.41.0
-	google.golang.org/grpc v1.83.1
+	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gotest.tools/v3 v3.5.2
@@ -194,7 +194,7 @@ require (
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apiextensions-apiserver v0.35.6 // indirect
+	k8s.io/apiextensions-apiserver v0.35.7 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260330154417-16be699c7b31 // indirect
 	k8s.io/utils v0.0.0-20260319190234-28399d86e0b5 // indirect
