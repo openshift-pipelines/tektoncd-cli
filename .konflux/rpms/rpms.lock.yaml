@@ -158,13 +158,13 @@ arches:
     name: openssh-clients
     evr: 8.0p1-33.el8_10
     sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssl-1.1.1k-17.el8_6.aarch64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.aarch64.rpm
     repoid: ubi-8-for-aarch64-baseos-rpms
-    size: 708360
-    checksum: sha256:6fd4b1b3a54158d8eff4fd6965aa4741286688dc3cd2517cd3cd485bef44de95
+    size: 708620
+    checksum: sha256:119481d90f8670c0afcb7309c60031ed3cff579577b25fd5df30ce83a407f945
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
+    evr: 1:1.1.1k-18.el8_6
+    sourcerpm: openssl-1.1.1k-18.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
     repoid: ubi-8-for-aarch64-baseos-rpms
     size: 30928
@@ -398,10 +398,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/b6d4e2709fb76ee97e44fe6daf387b58a050af43a8199df793a2670f22f10bdf-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/appstream/os/repodata/420fbc5cdd18ec6747847255393a6b7ddbcdbc429ea378481c5d0e48a6476d33-modules.yaml.gz
     repoid: ubi-8-for-aarch64-appstream-rpms
-    size: 56352
-    checksum: sha256:b6d4e2709fb76ee97e44fe6daf387b58a050af43a8199df793a2670f22f10bdf
+    size: 57360
+    checksum: sha256:420fbc5cdd18ec6747847255393a6b7ddbcdbc429ea378481c5d0e48a6476d33
 - arch: ppc64le
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/Packages/g/git-2.43.7-1.el8_10.ppc64le.rpm
@@ -558,13 +558,13 @@ arches:
     name: openssh-clients
     evr: 8.0p1-33.el8_10
     sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssl-1.1.1k-17.el8_6.ppc64le.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.ppc64le.rpm
     repoid: ubi-8-for-ppc64le-baseos-rpms
-    size: 731540
-    checksum: sha256:7fbd2d669c333e4d0922f8c604bebe88887723265dcfb7b59bfb29d3d6164128
+    size: 731792
+    checksum: sha256:c429b0a121c08f1bb2ca779e8592c3097ca07074ab7d6206ea8e8af914c330e6
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
+    evr: 1:1.1.1k-18.el8_6
+    sourcerpm: openssl-1.1.1k-18.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
     repoid: ubi-8-for-ppc64le-baseos-rpms
     size: 30928
@@ -798,10 +798,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/8726f073cae010faeef11a2f2498539314f1684a8c524a402a20877d36b69c46-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/appstream/os/repodata/2c3a2d06e17c072732ba4fbf8b0d8e29e7a13a90256ea6155d86295720dcd84b-modules.yaml.gz
     repoid: ubi-8-for-ppc64le-appstream-rpms
-    size: 58041
-    checksum: sha256:8726f073cae010faeef11a2f2498539314f1684a8c524a402a20877d36b69c46
+    size: 58935
+    checksum: sha256:2c3a2d06e17c072732ba4fbf8b0d8e29e7a13a90256ea6155d86295720dcd84b
 - arch: s390x
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/Packages/g/git-2.43.7-1.el8_10.s390x.rpm
@@ -958,13 +958,13 @@ arches:
     name: openssh-clients
     evr: 8.0p1-33.el8_10
     sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/baseos/os/Packages/o/openssl-1.1.1k-17.el8_6.s390x.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.s390x.rpm
     repoid: ubi-8-for-s390x-baseos-rpms
-    size: 714556
-    checksum: sha256:c5565bd7dfc7d07d2f5902a22f27543a4ce831046aee22d62859b07048a30336
+    size: 714824
+    checksum: sha256:2d01845fa8508cd094433f54141c1c62dd0ff14c2091b7fb29b4bb2042904234
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
+    evr: 1:1.1.1k-18.el8_6
+    sourcerpm: openssl-1.1.1k-18.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
     repoid: ubi-8-for-s390x-baseos-rpms
     size: 30928
@@ -1198,10 +1198,10 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/2d5d0779141095883316f00b49923ab9bbc61d27e76e01387733dc1b385cfdba-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/s390x/appstream/os/repodata/335551bd4af68296e34e5859525895b326b50dd9de1aca77ae4062d9e138ce73-modules.yaml.gz
     repoid: ubi-8-for-s390x-appstream-rpms
-    size: 56943
-    checksum: sha256:2d5d0779141095883316f00b49923ab9bbc61d27e76e01387733dc1b385cfdba
+    size: 57357
+    checksum: sha256:335551bd4af68296e34e5859525895b326b50dd9de1aca77ae4062d9e138ce73
 - arch: x86_64
   packages:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/Packages/g/git-2.43.7-1.el8_10.x86_64.rpm
@@ -1344,27 +1344,27 @@ arches:
     name: ncurses
     evr: 6.1-10.20180224.el8
     sourcerpm: ncurses-6.1-10.20180224.el8.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssh-8.0p1-33.el8_10.x86_64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssh-8.0p1-34.el8_10.x86_64.rpm
     repoid: ubi-8-for-x86_64-baseos-rpms
-    size: 514916
-    checksum: sha256:a25164c726d994cd6274e14cb8c37570461d90e620a1dcbee70875e6ca40b808
+    size: 515628
+    checksum: sha256:2b631579a8842d225496ee932514619a3a07b0b940795cb82b05810b08e86bf3
     name: openssh
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssh-clients-8.0p1-33.el8_10.x86_64.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssh-clients-8.0p1-34.el8_10.x86_64.rpm
     repoid: ubi-8-for-x86_64-baseos-rpms
-    size: 717464
-    checksum: sha256:2c7409eea54690e2403f40baf035be50459a6a4cea5317cb0d47084118ebe9d9
+    size: 718140
+    checksum: sha256:c3bfc5de9d9a3716d58cf06ea035a8bad8097ca1e79f0a97973dcd36659938bd
     name: openssh-clients
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssl-1.1.1k-17.el8_6.x86_64.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.x86_64.rpm
     repoid: ubi-8-for-x86_64-baseos-rpms
-    size: 727856
-    checksum: sha256:d2e8518509c5900095c9811c7663a614b9ef44648e24e61dde954ca07328ad27
+    size: 728096
+    checksum: sha256:076e01a683a03aeff268e659d8532b7be6aa3609c9569ae6dedb8c908980ae0c
     name: openssl
-    evr: 1:1.1.1k-17.el8_6
-    sourcerpm: openssl-1.1.1k-17.el8_6.src.rpm
+    evr: 1:1.1.1k-18.el8_6
+    sourcerpm: openssl-1.1.1k-18.el8_6.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/Packages/p/perl-Carp-1.42-396.el8.noarch.rpm
     repoid: ubi-8-for-x86_64-baseos-rpms
     size: 30928
@@ -1598,7 +1598,7 @@ arches:
     sourcerpm: perl-threads-shared-1.58-2.el8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/fb0668981f428b0fe848811870eb38cd8dc5ce12c88b45af703e0ed8cce21a0e-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os/repodata/45852ec27b16bc215b96fea9f56bcacc6839a6f3ae7d54cb8441a6109bc5e1fa-modules.yaml.gz
     repoid: ubi-8-for-x86_64-appstream-rpms
-    size: 59132
-    checksum: sha256:fb0668981f428b0fe848811870eb38cd8dc5ce12c88b45af703e0ed8cce21a0e
+    size: 59366
+    checksum: sha256:45852ec27b16bc215b96fea9f56bcacc6839a6f3ae7d54cb8441a6109bc5e1fa
