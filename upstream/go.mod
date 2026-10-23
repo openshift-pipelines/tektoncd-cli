@@ -1,6 +1,6 @@
 module github.com/tektoncd/cli
 
-go 1.26.5
+go 1.26.10
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
@@ -11,7 +11,7 @@ require (
 	github.com/docker/cli v29.6.2+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.19.0
-	github.com/go-jose/go-jose/v4 v4.1.5
+	github.com/go-jose/go-jose/v4 v4.1.6
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.21.9
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
@@ -38,14 +38,14 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.55.0
 	golang.org/x/term v0.45.0
-	google.golang.org/grpc v1.82.2
+	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.5.2
-	k8s.io/api v0.35.8
-	k8s.io/apimachinery v0.35.8
+	k8s.io/api v0.35.9
+	k8s.io/apimachinery v0.35.9
 	k8s.io/cli-runtime v0.29.15
-	k8s.io/client-go v0.35.8
+	k8s.io/client-go v0.35.9
 	knative.dev/pkg v0.0.0-20260329160701-396dbaacd652
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -55,7 +55,7 @@ replace github.com/alibabacloud-go/cr-20160607 => github.com/vdemeester/cr-20160
 replace github.com/tektoncd/hub => github.com/openshift-pipelines/hub v1.24.2
 
 require (
-	cel.dev/expr v0.25.1 // indirect
+	cel.dev/expr v0.25.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
@@ -213,7 +213,7 @@ require (
 	goa.design/goa/v3 v3.22.6 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/mod v0.38.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
