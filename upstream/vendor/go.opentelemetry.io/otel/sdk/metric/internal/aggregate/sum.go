@@ -17,12 +17,12 @@ type sumValue[N int64 | float64] struct {
 	attrs attribute.Set
 }
 
-type sumValueMap[N int64 | float64] struct {
+type valueMap[N int64 | float64] struct {
 	values limitedSyncMap
 	newRes func(attribute.Set) FilteredExemplarReservoir[N]
 }
 
-func (s *sumValueMap[N]) measure(
+func (s *valueMap[N]) measure(
 	ctx context.Context,
 	value N,
 	fltrAttr attribute.Set,
@@ -52,7 +52,7 @@ func newDeltaSum[N int64 | float64](
 	return &deltaSum[N]{
 		monotonic: monotonic,
 		start:     now(),
-		hotColdValMap: [2]sumValueMap[N]{
+		hotColdValMap: [2]valueMap[N]{
 			{
 				values: limitedSyncMap{aggLimit: limit},
 				newRes: r,
@@ -71,7 +71,7 @@ type deltaSum[N int64 | float64] struct {
 	start     time.Time
 
 	hcwg          hotColdWaitGroup
-	hotColdValMap [2]sumValueMap[N]
+	hotColdValMap [2]valueMap[N]
 }
 
 func (s *deltaSum[N]) measure(ctx context.Context, value N, fltrAttr attribute.Set, droppedAttr []attribute.KeyValue) {
@@ -130,7 +130,7 @@ func newCumulativeSum[N int64 | float64](
 	return &cumulativeSum[N]{
 		monotonic: monotonic,
 		start:     now(),
-		sumValueMap: sumValueMap[N]{
+		valueMap: valueMap[N]{
 			values: limitedSyncMap{aggLimit: limit},
 			newRes: r,
 		},
@@ -142,7 +142,7 @@ type cumulativeSum[N int64 | float64] struct {
 	monotonic bool
 	start     time.Time
 
-	sumValueMap[N]
+	valueMap[N]
 }
 
 func (s *cumulativeSum[N]) collect(
