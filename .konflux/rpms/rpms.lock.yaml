@@ -144,20 +144,20 @@ arches:
     name: ncurses
     evr: 6.1-10.20180224.el8
     sourcerpm: ncurses-6.1-10.20180224.el8.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssh-8.0p1-33.el8_10.aarch64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssh-8.0p1-34.el8_10.aarch64.rpm
     repoid: ubi-8-for-aarch64-baseos-rpms
-    size: 505076
-    checksum: sha256:2567f0e5dffec0c8a6addd587359acf9c8013727edfc6102f98076ebe445eb7d
+    size: 505784
+    checksum: sha256:ffa8d071d9ac24d518c9ee13bce69c63895da8e04315e6ed709e467561d313ee
     name: openssh
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssh-clients-8.0p1-33.el8_10.aarch64.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssh-clients-8.0p1-34.el8_10.aarch64.rpm
     repoid: ubi-8-for-aarch64-baseos-rpms
-    size: 647024
-    checksum: sha256:36db815e6ef059f8f6db9180555088e0ed915cfeaee42a1f291d9eb919e106ab
+    size: 647668
+    checksum: sha256:863d7a90ec6c20f4498eb08d96d23cec9ac89aa9867bce9e0efebb1f39605b59
     name: openssh-clients
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/aarch64/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.aarch64.rpm
     repoid: ubi-8-for-aarch64-baseos-rpms
     size: 708620
@@ -544,20 +544,20 @@ arches:
     name: ncurses
     evr: 6.1-10.20180224.el8
     sourcerpm: ncurses-6.1-10.20180224.el8.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssh-8.0p1-33.el8_10.ppc64le.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssh-8.0p1-34.el8_10.ppc64le.rpm
     repoid: ubi-8-for-ppc64le-baseos-rpms
-    size: 538772
-    checksum: sha256:48cfd15feed7559d1a92e091714314121e6df2775f2209b755fe5ce5d7919c1b
+    size: 539440
+    checksum: sha256:be0cfc679985aecb0f98a0cb79c4cd83059bd0fba118d7a743956107745a3d7d
     name: openssh
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssh-clients-8.0p1-33.el8_10.ppc64le.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssh-clients-8.0p1-34.el8_10.ppc64le.rpm
     repoid: ubi-8-for-ppc64le-baseos-rpms
-    size: 708956
-    checksum: sha256:e009e027ccfccf5e8497605970c4d84b34541fd37dfab25a130a74c06be19dc4
+    size: 709676
+    checksum: sha256:5081c0b13948ca3644a5cc8b23921dda12dd7038ef8bc446ecfba2f12293c4b7
     name: openssh-clients
-    evr: 8.0p1-33.el8_10
-    sourcerpm: openssh-8.0p1-33.el8_10.src.rpm
+    evr: 8.0p1-34.el8_10
+    sourcerpm: openssh-8.0p1-34.el8_10.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/ppc64le/baseos/os/Packages/o/openssl-1.1.1k-18.el8_6.ppc64le.rpm
     repoid: ubi-8-for-ppc64le-baseos-rpms
     size: 731792
