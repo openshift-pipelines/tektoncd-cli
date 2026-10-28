@@ -1,5 +1,5 @@
-ARG GO_BUILDER=registry.redhat.io/ubi9/go-toolset:latest@sha256:edb9452603fa48e9882063f001ecd7d322add20f1564a4f05f38f6683be5ea94
-ARG RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal@sha256:2d4c4551af6831dcd26bbf86108c4385de5183ec8fe6b5868f6f9640fe47f4ed
+ARG GO_BUILDER=registry.redhat.io/ubi9/go-toolset:latest@sha256:c51f0f31cbaa7e91dede6013f636d54fe10dd7d581cfc4cda014ba9d62bcd779
+ARG UBI_RUNTIME=registry.access.redhat.com/ubi9/ubi-minimal@sha256:2d4c4551af6831dcd26bbf86108c4385de5183ec8fe6b5868f6f9640fe47f4ed
 
 FROM $GO_BUILDER AS builder
 
@@ -25,7 +25,7 @@ COPY sources/pac $REMOTE_SOURCE/pac
 RUN cd $REMOTE_SOURCE/pac && \
     go build -tags strictfipsruntime -mod=vendor -o /tmp/tkn-pac ./cmd/tkn-pac
 
-FROM $RUNTIME
+FROM $UBI_RUNTIME
 
 ARG VERSION=1.24
 COPY --from=builder /tmp/tkn /usr/bin
