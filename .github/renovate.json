@@ -1,11 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "baseBranchPatterns": [
-    "release-v1.23.x",
-    "release-v1.24.x",
-    "next",
-    "nightly"
-  ],
+  "baseBranches": ["release-v1.23.x","release-v1.24.x","next","nightly"],
   "extends": [
     "github>konflux-ci/mintmaker-presets:refresh-rpm-lockfiles"
   ],
@@ -23,6 +18,10 @@
   ],
   "ignorePaths": ["upstream/**"],
   "packageRules": [
+    {
+      "matchBaseBranches": ["release-v1.23.x"],
+      "enabled": false
+    },
     {
       "matchPackageNames": ["*"],
       "automerge": true
