@@ -63,10 +63,11 @@ my-csi-template and my-volume-claim-template)
 
 ```
       --dry-run                       preview PipelineRun without running it
-  -E, --exit-with-pipelinerun-error   when using --showlog, exit with pipelinerun to the unix shell, 0 if success, 1 if error, 2 on unknown status
+  -E, --exit-with-pipelinerun-error   when using --showlog, exit with pipelinerun to the unix shell, 0 if success, 1 if error or unknown status
   -f, --filename string               local or remote file name containing a Pipeline definition to start a PipelineRun
       --finally-timeout string        timeout for Finally TaskRuns
   -h, --help                          help for start
+      --json string                   PipelineRun spec as JSON (inline, '-' for stdin, or '@path' for a file)
   -l, --labels strings                pass labels as label=value.
   -L, --last                          re-run the Pipeline using last PipelineRun values
   -o, --output string                 format of PipelineRun (yaml, json or name)
