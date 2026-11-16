@@ -15,6 +15,10 @@
 package taskrun
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"io"
 	"strings"
 	"testing"
@@ -28,9 +32,14 @@ import (
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	pipelinetest "github.com/tektoncd/pipeline/test"
+
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	k8stest "k8s.io/client-go/testing"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
 
@@ -228,7 +237,7 @@ func TestTaskRunDelete_v1beta1(t *testing.T) {
 	}
 
 	seeds := make([]clients, 0)
-	for i := 0; i < 17; i++ {
+	for i := 0; i < 24; i++ {
 		trs := trdata
 		cs, _ := test.SeedV1beta1TestData(t, test.Data{TaskRuns: trs, Tasks: tasks, Namespaces: ns})
 		cs.Pipeline.Resources = cb.APIResourceList(versionv1beta1, []string{"taskrun"})
@@ -246,6 +255,24 @@ func TestTaskRunDelete_v1beta1(t *testing.T) {
 			t.Errorf("unable to create dynamic client: %v", err)
 		}
 		seeds = append(seeds, clients{cs, dc})
+	}
+
+	emptyCS, _ := test.SeedV1beta1TestData(t, test.Data{
+		Tasks:      tasks,
+		Namespaces: ns,
+	})
+
+	emptyCS.Pipeline.Resources = cb.APIResourceList(
+		versionv1beta1,
+		[]string{"taskrun"},
+	)
+
+	emptyTDC := testDynamic.Options{}
+	emptyDC, err := emptyTDC.Client(
+		cb.UnstructuredV1beta1T(tasks[0], versionv1beta1),
+	)
+	if err != nil {
+		t.Fatalf("unable to create empty dynamic client: %v", err)
 	}
 
 	testParams := []struct {
@@ -572,6 +599,117 @@ func TestTaskRunDelete_v1beta1(t *testing.T) {
 			wantError:   false,
 			want:        "All 6 TaskRuns associated with Task \"random\" deleted in namespace \"ns\"\n",
 		},
+		{
+			name:        "With JSON output",
+			command:     []string{"rm", "tr0-1", "-n", "ns", "-o", "json"},
+			dynamic:     seeds[14].dynamicClient,
+			input:       seeds[14].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want: `{
+    "deleted": [
+        "tr0-1"
+    ]
+}
+`,
+		},
+		{
+			name:        "With YAML output",
+			command:     []string{"rm", "tr0-1", "-n", "ns", "-o", "yaml"},
+			dynamic:     seeds[17].dynamicClient,
+			input:       seeds[17].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want:        "deleted:\n- tr0-1\n",
+		},
+		{
+			name:        "Delete all TaskRuns with YAML output",
+			command:     []string{"delete", "-n", "ns", "--all", "-o", "yaml"},
+			dynamic:     seeds[19].dynamicClient,
+			input:       seeds[19].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want:        "deleted:\n- tr0-1\n- tr0-2\n- tr0-3\n- tr0-9\n",
+		},
+		{
+			name:        "Unsupported output format",
+			command:     []string{"rm", "tr0-1", "-n", "ns", "-o", "table"},
+			dynamic:     seeds[0].dynamicClient,
+			input:       seeds[0].pipelineClient,
+			inputStream: nil,
+			wantError:   true,
+			want:        "invalid output format \"table\": must be json or yaml",
+		},
+		{
+			name:        "With JSON output for multiple TaskRuns",
+			command:     []string{"rm", "tr0-1", "tr0-2", "-n", "ns", "-o", "json"},
+			dynamic:     seeds[16].dynamicClient,
+			input:       seeds[16].pipelineClient,
+			inputStream: strings.NewReader("y\n"),
+			wantError:   false,
+			want: `{
+    "deleted": [
+        "tr0-1",
+        "tr0-2"
+    ]
+}
+`,
+		},
+		{
+			name:        "Delete with JSON output for --task but keep meets or exceeds existing (no-op)",
+			command:     []string{"rm", "--task", "random", "-n", "ns", "--keep", "10", "-o", "json"},
+			dynamic:     seeds[15].dynamicClient,
+			input:       seeds[15].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want: `{
+    "deleted": []
+}
+`,
+		},
+		{
+			name:        "Delete with JSON output for --task",
+			command:     []string{"rm", "--task", "random", "-n", "ns", "-o", "json"},
+			dynamic:     seeds[15].dynamicClient,
+			input:       seeds[15].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want: `{
+    "deleted": [
+        "tr0-1",
+        "tr0-2",
+        "tr0-3",
+        "tr0-9"
+    ]
+}
+`,
+		},
+		{
+			name:        "Delete all TaskRuns with JSON output",
+			command:     []string{"delete", "-n", "ns", "--all", "-o", "json"},
+			dynamic:     seeds[18].dynamicClient,
+			input:       seeds[18].pipelineClient,
+			inputStream: nil,
+			wantError:   false,
+			want: `{
+    "deleted": [
+        "tr0-1",
+        "tr0-2",
+        "tr0-3",
+        "tr0-9"
+    ]
+}
+`,
+		},
+		{
+			name:        "Delete all with JSON output and no TaskRuns",
+			command:     []string{"delete", "-n", "ns", "--all", "-o", "json"},
+			dynamic:     emptyDC,
+			input:       emptyCS,
+			inputStream: nil,
+			wantError:   false,
+			want:        "{\n    \"deleted\": []\n}\n",
+		},
 	}
 
 	for _, tp := range testParams {
@@ -795,8 +933,13 @@ func TestTaskRunDelete(t *testing.T) {
 	seeds := make([]clients, 0)
 	for i := 0; i < 17; i++ {
 		trs := trdata
-		cs, _ := test.SeedTestData(t, pipelinetest.Data{TaskRuns: trs, Tasks: tasks, Namespaces: ns})
+		cs, _ := test.SeedTestData(t, pipelinetest.Data{
+			TaskRuns:   trs,
+			Tasks:      tasks,
+			Namespaces: ns,
+		})
 		cs.Pipeline.Resources = cb.APIResourceList(version, []string{"taskrun"})
+
 		tdc := testDynamic.Options{}
 		dc, err := tdc.Client(
 			cb.UnstructuredT(tasks[0], version),
@@ -808,19 +951,44 @@ func TestTaskRunDelete(t *testing.T) {
 			cb.UnstructuredTR(trdata[5], version),
 		)
 		if err != nil {
-			t.Errorf("unable to create dynamic client: %v", err)
+			t.Fatalf("unable to create dynamic client: %v", err)
 		}
 		seeds = append(seeds, clients{cs, dc})
 	}
 
+	partialFailureOptions := testDynamic.Options{
+		PrependReactors: []testDynamic.PrependOpt{
+			{
+				Verb:     "delete",
+				Resource: "taskruns",
+				Action: func(action k8stest.Action) (bool, runtime.Object, error) {
+					deleteAction, ok := action.(k8stest.DeleteAction)
+					if ok && deleteAction.GetName() == "tr0-1" {
+						return true, nil, errors.New("forced delete failure")
+					}
+					return false, nil, nil
+				},
+			},
+		},
+	}
+
+	partialFailureClient, err := partialFailureOptions.Client(
+		cb.UnstructuredTR(trdata[0], version),
+		cb.UnstructuredTR(trdata[1], version),
+	)
+	if err != nil {
+		t.Fatalf("unable to create dynamic client: %v", err)
+	}
 	testParams := []struct {
-		name        string
-		command     []string
-		dynamic     dynamic.Interface
-		input       pipelinetest.Clients
-		inputStream io.Reader
-		wantError   bool
-		want        string
+		name              string
+		command           []string
+		dynamic           dynamic.Interface
+		input             pipelinetest.Clients
+		inputStream       io.Reader
+		wantError         bool
+		want              string
+		wantOutput        string
+		wantErrorContains string
 	}{
 		{
 			name:        "Invalid namespace",
@@ -1137,8 +1305,20 @@ func TestTaskRunDelete(t *testing.T) {
 			wantError:   false,
 			want:        "All 6 TaskRuns associated with Task \"random\" deleted in namespace \"ns\"\n",
 		},
+		{
+			name:              "Partial failure with JSON output",
+			command:           []string{"rm", "tr0-1", "tr0-2", "-n", "ns", "-f", "-o", "json"},
+			dynamic:           partialFailureClient,
+			input:             seeds[0].pipelineClient,
+			wantError:         true,
+			wantErrorContains: "forced delete failure",
+			wantOutput: `{
+    "deleted": [
+        "tr0-2"
+    ]
+}`,
+		},
 	}
-
 	for _, tp := range testParams {
 		t.Run(tp.name, func(t *testing.T) {
 			p := &test.Params{Tekton: tp.input.Pipeline, Kube: tp.input.Kube, Dynamic: tp.dynamic}
@@ -1152,12 +1332,20 @@ func TestTaskRunDelete(t *testing.T) {
 			if tp.wantError {
 				if err == nil {
 					t.Errorf("error expected here")
+				} else if tp.wantErrorContains != "" {
+					if !strings.Contains(err.Error(), tp.wantErrorContains) {
+						t.Errorf("expected error containing %q, got %q", tp.wantErrorContains, err.Error())
+					}
 				} else {
 					test.AssertOutput(t, tp.want, err.Error())
 				}
+
+				if tp.wantOutput != "" {
+					test.AssertOutput(t, tp.wantOutput, strings.TrimSpace(strings.SplitN(out, "Error:", 2)[0]))
+				}
 			} else {
 				if err != nil {
-					t.Errorf("unexpected Error")
+					t.Errorf("unexpected Error: %v", err)
 				}
 				test.AssertOutput(t, tp.want, out)
 			}
@@ -1318,14 +1506,26 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun_v1beta1(t *testing.T) {
 		seeds = append(seeds, clients{cs, dc})
 	}
 	testParams := []struct {
-		name        string
-		command     []string
-		dynamic     dynamic.Interface
-		input       test.Clients
-		inputStream io.Reader
-		wantError   bool
-		want        string
+		name               string
+		command            []string
+		dynamic            dynamic.Interface
+		input              test.Clients
+		inputStream        io.Reader
+		wantError          bool
+		want               string
+		assertStreams      bool
+		assertEmptyDeleted bool
 	}{
+		{
+			name:               "Taskrun with running pipelinerun JSON without force",
+			command:            []string{"rm", "tr0-1", "-n", "ns", "-o", "json"},
+			dynamic:            seeds[0].dynamicClient,
+			input:              seeds[0].pipelineClient,
+			wantError:          true,
+			want:               "taskrun tr0-1 is owned by a running PipelineRun; use --force to delete",
+			assertStreams:      true,
+			assertEmptyDeleted: true,
+		},
 		{
 			name:        "Taskrun with running pipelinerun and answer y",
 			command:     []string{"rm", "tr0-1", "-n", "ns"},
@@ -1370,6 +1570,59 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun_v1beta1(t *testing.T) {
 
 			if tp.inputStream != nil {
 				taskrun.SetIn(tp.inputStream)
+			}
+
+			if tp.assertStreams {
+				var stdout, stderr bytes.Buffer
+				taskrun.SetOut(&stdout)
+				taskrun.SetErr(&stderr)
+				taskrun.SetArgs(tp.command)
+
+				err := taskrun.Execute()
+
+				if tp.wantError {
+					if err == nil {
+						t.Fatal("expected an error")
+					}
+					if !strings.Contains(err.Error(), tp.want) {
+						t.Errorf("expected error containing %q, got %q", tp.want, err.Error())
+					}
+				} else if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+
+				if !json.Valid(stdout.Bytes()) {
+					t.Fatalf("stdout is not valid JSON: %q", stdout.String())
+				}
+
+				if tp.assertEmptyDeleted {
+					var result struct {
+						Deleted []string `json:"deleted"`
+					}
+
+					if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+						t.Fatalf("failed to decode JSON output: %v", err)
+					}
+
+					if result.Deleted == nil {
+						t.Fatal("expected deleted to be an empty, non-nil array")
+					}
+
+					if len(result.Deleted) != 0 {
+						t.Errorf("expected deleted [], got %v", result.Deleted)
+					}
+				}
+
+				if strings.Contains(stdout.String(), "warning:") {
+					t.Errorf("warning leaked into stdout: %q", stdout.String())
+				}
+
+				if strings.Contains(stdout.String(), "Proceed (y/n)") ||
+					strings.Contains(stdout.String(), "Are you sure") {
+					t.Errorf("confirmation prompt leaked into stdout: %q", stdout.String())
+				}
+
+				return
 			}
 
 			out, err := test.ExecuteCommand(taskrun, tp.command...)
@@ -1486,6 +1739,29 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 				},
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "ns",
+				Name:      "tr0-3",
+				Labels:    map[string]string{"tekton.dev/task": "random"},
+			},
+			Spec: v1.TaskRunSpec{
+				TaskRef: &v1.TaskRef{
+					Name: "random",
+					Kind: v1.NamespacedTaskKind,
+				},
+			},
+			Status: v1.TaskRunStatus{
+				Status: duckv1.Status{
+					Conditions: duckv1.Conditions{
+						{
+							Status: corev1.ConditionTrue,
+							Reason: v1.TaskRunReasonSuccessful.String(),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	prdata := []*v1.PipelineRun{
@@ -1524,7 +1800,7 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 	}
 
 	seeds := make([]clients, 0)
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		trs := trdata
 		prs := prdata
 		cs, _ := test.SeedTestData(t, pipelinetest.Data{TaskRuns: trs, Tasks: tasks, PipelineRuns: prs, Namespaces: ns})
@@ -1534,6 +1810,7 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 			cb.UnstructuredT(tasks[0], version),
 			cb.UnstructuredTR(trdata[0], version),
 			cb.UnstructuredTR(trdata[1], version),
+			cb.UnstructuredTR(trdata[2], version),
 			cb.UnstructuredPR(prs[0], version),
 		)
 		if err != nil {
@@ -1542,13 +1819,14 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 		seeds = append(seeds, clients{cs, dc})
 	}
 	testParams := []struct {
-		name        string
-		command     []string
-		dynamic     dynamic.Interface
-		input       pipelinetest.Clients
-		inputStream io.Reader
-		wantError   bool
-		want        string
+		name          string
+		command       []string
+		dynamic       dynamic.Interface
+		input         pipelinetest.Clients
+		inputStream   io.Reader
+		wantError     bool
+		want          string
+		assertStreams bool
 	}{
 		{
 			name:        "Taskrun with running pipelinerun and answer y",
@@ -1567,6 +1845,23 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 			inputStream: nil,
 			wantError:   false,
 			want:        "warning: Taskrun tr0-1 related pipelinerun still running.\nTaskRuns deleted: \"tr0-1\"\n",
+		},
+		{
+			name:          "Taskrun with running pipelinerun force JSON streams",
+			command:       []string{"rm", "tr0-1", "-n", "ns", "--force", "-o", "json"},
+			dynamic:       seeds[1].dynamicClient,
+			input:         seeds[1].pipelineClient,
+			wantError:     false,
+			assertStreams: true,
+		},
+		{
+			name:          "Mixed TaskRuns JSON skips running PipelineRun owner",
+			command:       []string{"rm", "tr0-1", "tr0-3", "-n", "ns", "-o", "json"},
+			dynamic:       seeds[5].dynamicClient,
+			input:         seeds[5].pipelineClient,
+			wantError:     true,
+			want:          "taskrun tr0-1 is owned by a running PipelineRun; use --force to delete",
+			assertStreams: true,
 		},
 		{
 			name:        "All taskruns with running pipelinerun ",
@@ -1594,6 +1889,80 @@ func Test_TaskRuns_Delete_With_Running_PipelineRun(t *testing.T) {
 
 			if tp.inputStream != nil {
 				taskrun.SetIn(tp.inputStream)
+			}
+			if tp.assertStreams {
+				var stdout, stderr bytes.Buffer
+				taskrun.SetOut(&stdout)
+				taskrun.SetErr(&stderr)
+				taskrun.SetArgs(tp.command)
+
+				err := taskrun.Execute()
+				if tp.wantError {
+					if err == nil {
+						t.Fatal("expected an error")
+					}
+					if !strings.Contains(err.Error(), tp.want) {
+						t.Errorf("expected error containing %q, got %q", tp.want, err.Error())
+					}
+				} else if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+
+				if !json.Valid(stdout.Bytes()) {
+					t.Errorf("stdout is not valid JSON: %q", stdout.String())
+				}
+				if strings.Contains(tp.name, "Mixed TaskRuns JSON") {
+					var result struct {
+						Deleted []string `json:"deleted"`
+					}
+					if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+						t.Fatalf("failed to decode JSON output: %v", err)
+					}
+					if len(result.Deleted) != 1 || result.Deleted[0] != "tr0-3" {
+						t.Errorf("expected deleted [tr0-3], got %v", result.Deleted)
+					}
+				}
+				if strings.Contains(stdout.String(), "warning:") {
+					t.Errorf("warning leaked into stdout: %q", stdout.String())
+				}
+				if strings.Contains(stdout.String(), "Proceed (y/n)") ||
+					strings.Contains(stdout.String(), "Are you sure") {
+					t.Errorf("confirmation prompt leaked into stdout: %q", stdout.String())
+				}
+
+				if !tp.wantError && !strings.Contains(stderr.String(), "warning:") {
+					t.Errorf("expected warning on stderr, got: %q", stderr.String())
+				}
+
+				if strings.Contains(tp.name, "Mixed TaskRuns JSON") {
+					ctx := context.Background()
+
+					_, err := tp.dynamic.Resource(schema.GroupVersionResource{
+						Group:    "tekton.dev",
+						Version:  version,
+						Resource: "taskruns",
+					}).
+						Namespace("ns").
+						Get(ctx, "tr0-1", metav1.GetOptions{})
+					if err != nil {
+						t.Errorf("expected tr0-1 to remain, got error: %v", err)
+					}
+
+					_, err = tp.dynamic.Resource(schema.GroupVersionResource{
+						Group:    "tekton.dev",
+						Version:  version,
+						Resource: "taskruns",
+					}).
+						Namespace("ns").
+						Get(ctx, "tr0-3", metav1.GetOptions{})
+					if err == nil {
+						t.Error("expected tr0-3 to be deleted, but it still exists")
+					} else if !apierrors.IsNotFound(err) {
+						t.Errorf("unexpected error checking tr0-3: %v", err)
+					}
+				}
+
+				return
 			}
 
 			out, err := test.ExecuteCommand(taskrun, tp.command...)

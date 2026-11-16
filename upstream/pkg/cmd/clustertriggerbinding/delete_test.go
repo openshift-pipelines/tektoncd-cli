@@ -200,3 +200,111 @@ func TestClusterTriggerBindingDelete(t *testing.T) {
 		})
 	}
 }
+
+func TestClusterTriggerBindingDeleteStructuredOutput(t *testing.T) {
+	seeds := make([]*test.Params, 0)
+	for i := 0; i < 3; i++ {
+		ctbs := []*v1beta1.ClusterTriggerBinding{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "ctb-1",
+				},
+			},
+		}
+
+		cs := test.SeedTestResources(t, triggertest.Resources{ClusterTriggerBindings: ctbs})
+		cs.Triggers.Resources = cb.TriggersAPIResourceList("v1beta1", []string{"clustertriggerbinding"})
+		tdc := testDynamic.Options{}
+		dc, err := tdc.Client(
+			cb.UnstructuredV1beta1CTB(ctbs[0], "v1beta1"),
+		)
+		if err != nil {
+			t.Errorf("unable to create dynamic client: %v", err)
+		}
+		p := &test.Params{Triggers: cs.Triggers, Kube: cs.Kube, Dynamic: dc}
+		seeds = append(seeds, p)
+	}
+
+	testParams := []struct {
+		name      string
+		command   []string
+		input     *test.Params
+		wantError bool
+		want      string
+	}{
+		{
+			name:      "Delete clustertriggerbinding with output as json",
+			command:   []string{"rm", "ctb-1", "-o", "json"},
+			input:     seeds[0],
+			wantError: false,
+			want:      "{\n    \"deleted\": [\n        \"ctb-1\"\n    ]\n}\n",
+		},
+		{
+			name:      "Delete clustertriggerbinding with output as yaml",
+			command:   []string{"rm", "ctb-1", "-o", "yaml"},
+			input:     seeds[1],
+			wantError: false,
+			want:      "deleted:\n- ctb-1\n",
+		},
+		{
+			name:      "Delete clustertriggerbinding with invalid output format",
+			command:   []string{"rm", "ctb-1", "-o", "csv"},
+			input:     seeds[2],
+			wantError: true,
+			want:      "invalid output format \"csv\": must be json or yaml",
+		},
+	}
+
+	for _, tp := range testParams {
+		t.Run(tp.name, func(t *testing.T) {
+			ctb := Command(tp.input)
+
+			out, err := test.ExecuteCommand(ctb, tp.command...)
+			if tp.wantError {
+				if err == nil {
+					t.Errorf("error expected here")
+				}
+				test.AssertOutput(t, tp.want, err.Error())
+			} else {
+				if err != nil {
+					t.Errorf("unexpected Error")
+				}
+				test.AssertOutput(t, tp.want, out)
+			}
+		})
+	}
+}
+
+func TestClusterTriggerBindingDeleteBulkStructuredOutput(t *testing.T) {
+	ctbs := []*v1beta1.ClusterTriggerBinding{
+		{ObjectMeta: metav1.ObjectMeta{Name: "ctb-1"}},
+		{ObjectMeta: metav1.ObjectMeta{Name: "ctb-2"}},
+	}
+
+	seed := func(t *testing.T) *test.Params {
+		t.Helper()
+		cs := test.SeedTestResources(t, triggertest.Resources{ClusterTriggerBindings: ctbs})
+		cs.Triggers.Resources = cb.TriggersAPIResourceList("v1beta1", []string{"clustertriggerbinding"})
+		tdc := testDynamic.Options{}
+		dc, err := tdc.Client(
+			cb.UnstructuredV1beta1CTB(ctbs[0], "v1beta1"),
+			cb.UnstructuredV1beta1CTB(ctbs[1], "v1beta1"),
+		)
+		if err != nil {
+			t.Fatalf("unable to create dynamic client: %v", err)
+		}
+		return &test.Params{Triggers: cs.Triggers, Kube: cs.Kube, Dynamic: dc}
+	}
+
+	out, err := test.ExecuteCommand(Command(seed(t)), "delete", "--all", "-o", "json")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	test.AssertOutput(t, "{\n    \"deleted\": [\n        \"ctb-1\",\n        \"ctb-2\"\n    ]\n}\n", out)
+
+	out, err = test.ExecuteCommand(Command(seed(t)), "delete", "--all", "-o", "yaml")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	test.AssertOutput(t, "deleted:\n- ctb-1\n- ctb-2\n", out)
+}
