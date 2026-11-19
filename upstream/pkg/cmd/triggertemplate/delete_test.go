@@ -218,3 +218,121 @@ func TestTriggerTemplateDelete(t *testing.T) {
 		})
 	}
 }
+
+func TestTriggerTemplateDeleteStructuredOutput(t *testing.T) {
+	ns := []*corev1.Namespace{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "ns",
+			},
+		},
+	}
+
+	seeds := make([]*test.Params, 0)
+	for i := 0; i < 3; i++ {
+		tts := []*v1beta1.TriggerTemplate{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "tt-1",
+					Namespace: "ns",
+				},
+			},
+		}
+
+		cs := test.SeedTestResources(t, triggertest.Resources{TriggerTemplates: tts, Namespaces: ns})
+		cs.Triggers.Resources = cb.TriggersAPIResourceList("v1beta1", []string{"triggertemplate"})
+		tdc := testDynamic.Options{}
+		dc, err := tdc.Client(
+			cb.UnstructuredV1beta1TT(tts[0], "v1beta1"),
+		)
+		if err != nil {
+			t.Errorf("unable to create dynamic client: %v", err)
+		}
+		p := &test.Params{Triggers: cs.Triggers, Kube: cs.Kube, Dynamic: dc}
+		seeds = append(seeds, p)
+	}
+
+	testParams := []struct {
+		name      string
+		command   []string
+		input     *test.Params
+		wantError bool
+		want      string
+	}{
+		{
+			name:      "Delete triggertemplate with output as json",
+			command:   []string{"rm", "tt-1", "-n", "ns", "-o", "json"},
+			input:     seeds[0],
+			wantError: false,
+			want:      "{\n    \"deleted\": [\n        \"tt-1\"\n    ]\n}\n",
+		},
+		{
+			name:      "Delete triggertemplate with output as yaml",
+			command:   []string{"rm", "tt-1", "-n", "ns", "-o", "yaml"},
+			input:     seeds[1],
+			wantError: false,
+			want:      "deleted:\n- tt-1\n",
+		},
+		{
+			name:      "Delete triggertemplate with invalid output format",
+			command:   []string{"rm", "tt-1", "-n", "ns", "-o", "csv"},
+			input:     seeds[2],
+			wantError: true,
+			want:      "invalid output format \"csv\": must be json or yaml",
+		},
+	}
+
+	for _, tp := range testParams {
+		t.Run(tp.name, func(t *testing.T) {
+			tt := Command(tp.input)
+
+			out, err := test.ExecuteCommand(tt, tp.command...)
+			if tp.wantError {
+				if err == nil {
+					t.Errorf("error expected here")
+				}
+				test.AssertOutput(t, tp.want, err.Error())
+			} else {
+				if err != nil {
+					t.Errorf("unexpected Error")
+				}
+				test.AssertOutput(t, tp.want, out)
+			}
+		})
+	}
+}
+
+func TestTriggerTemplateDeleteBulkStructuredOutput(t *testing.T) {
+	ns := []*corev1.Namespace{{ObjectMeta: metav1.ObjectMeta{Name: "ns"}}}
+	tts := []*v1beta1.TriggerTemplate{
+		{ObjectMeta: metav1.ObjectMeta{Name: "tt-1", Namespace: "ns"}},
+		{ObjectMeta: metav1.ObjectMeta{Name: "tt-2", Namespace: "ns"}},
+	}
+
+	seed := func(t *testing.T) *test.Params {
+		t.Helper()
+		cs := test.SeedTestResources(t, triggertest.Resources{TriggerTemplates: tts, Namespaces: ns})
+		cs.Triggers.Resources = cb.TriggersAPIResourceList("v1beta1", []string{"triggertemplate"})
+		tdc := testDynamic.Options{}
+		dc, err := tdc.Client(
+			cb.UnstructuredV1beta1TT(tts[0], "v1beta1"),
+			cb.UnstructuredV1beta1TT(tts[1], "v1beta1"),
+		)
+		if err != nil {
+			t.Fatalf("unable to create dynamic client: %v", err)
+		}
+		return &test.Params{Triggers: cs.Triggers, Kube: cs.Kube, Dynamic: dc}
+	}
+
+	out, err := test.ExecuteCommand(Command(seed(t)), "delete", "--all", "-n", "ns", "-o", "json")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	test.AssertOutput(t, "{\n    \"deleted\": [\n        \"tt-1\",\n        \"tt-2\"\n    ]\n}\n", out)
+
+	out, err = test.ExecuteCommand(Command(seed(t)), "delete", "--all", "-n", "ns", "-o", "yaml")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	test.AssertOutput(t, "deleted:\n- tt-1\n- tt-2\n", out)
+}
