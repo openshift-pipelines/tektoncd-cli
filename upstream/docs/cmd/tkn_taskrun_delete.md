@@ -20,26 +20,38 @@ Delete TaskRuns with names 'foo' and 'bar' in namespace 'quux':
 
     tkn taskrun delete foo bar -n quux
 
+Delete TaskRuns and print JSON:
+
+    tkn taskrun delete foo bar -n quux -o json
+
+Delete all TaskRuns and print JSON:
+
+    tkn taskrun delete --all -n quux -o json
+
+Delete TaskRuns associated with a Task:
+
+    tkn taskrun delete --task my-task -n quux -o json
+
 or
 
     tkn tr rm foo bar -n quux
 
+Deleting a TaskRun owned by a running PipelineRun requires --force when using structured output.
+
+Using -o json or -o yaml skips the confirmation prompt.
 
 ### Options
 
 ```
-      --all                           Delete all TaskRuns in a namespace (default: false)
-      --allow-missing-template-keys   If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
-  -f, --force                         Whether to force deletion (default: false)
-  -h, --help                          help for delete
-  -i, --ignore-running                ignore running TaskRun (default true)
-      --ignore-running-pipelinerun    ignore deleting taskruns of a running PipelineRun (default true)
-      --keep int                      Keep n most recent number of TaskRuns
-      --keep-since int                When deleting all TaskRuns keep the ones that has been completed since n minutes
-  -o, --output string                 Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).
-      --show-managed-fields           If true, keep the managedFields when printing objects in JSON or YAML format.
-  -t, --task string                   The name of a Task whose TaskRuns should be deleted (does not delete the task)
-      --template string               Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --all                          Delete all TaskRuns in a namespace (default: false)
+  -f, --force                        Whether to force deletion (default: false)
+  -h, --help                         help for delete
+  -i, --ignore-running               ignore running TaskRun (default true)
+      --ignore-running-pipelinerun   ignore deleting taskruns of a running PipelineRun (default true)
+      --keep int                     Keep n most recent number of TaskRuns
+      --keep-since int               When deleting all TaskRuns keep the ones that has been completed since n minutes
+  -o, --output string                Output format. One of: json|yaml. Skips the confirmation prompt
+  -t, --task string                  The name of a Task whose TaskRuns should be deleted (does not delete the task)
 ```
 
 ### Options inherited from parent commands
